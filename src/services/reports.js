@@ -55,7 +55,7 @@ export async function sendReport(doc_) {
     );
   } catch (err) {
     if (err && err.code === 'permission-denied') {
-      const snap = await getDoc(ref);
+      const snap = await withTimeout(getDoc(ref), SEND_TIMEOUT_MS);
       if (snap.exists()) return;
     }
     throw err;
