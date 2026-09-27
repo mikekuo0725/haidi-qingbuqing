@@ -38,7 +38,7 @@ function card(z, located) {
   </div>`;
 }
 
-export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now }) {
+export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
   const staleAgo = forecast?.stale < 1 ? '不到 1 小時前' : ` ${Math.round(forecast?.stale)} 小時前`;
   const stale = forecast?.stale != null ? `<div class="warn">⚪ 抓不到最新天氣，這是${staleAgo}的預測</div>` : '';
@@ -55,5 +55,5 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : '<div class="pad">這天沒有資料</div>'}
   <button type="button" class="btn" data-action="report">🤿 我下水了，回報能見度</button>
   ${forecast ? '<button type="button" class="btn btn2" data-action="share">📤 分享給潛伴</button>' : ''}
-  <footer class="foot">${foot}<br>海流是整片海的預測，分不出各區</footer>`;
+  <footer class="foot">${foot}<br>海流是整片海的預測，分不出各區${hint ? `<br>${esc(hint)}` : ''}</footer>`;
 }

@@ -9,6 +9,7 @@ import { buildForecast } from './core/forecast.js';
 import { locate } from './core/locate.js';
 import { taipeiDate } from './core/time.js';
 import { renderMain } from './ui/mainView.js';
+import { installHint } from './ui/installHint.js';
 import { renderDetail } from './ui/detailView.js';
 import { renderReportForm, parseReportForm } from './ui/reportForm.js';
 import { buildShareText, shareOrCopy } from './ui/share.js';
@@ -93,6 +94,7 @@ function render() {
     app.innerHTML = renderMain({
       spot, forecast: forecast ?? null, dayIndex: state.dayIndex, dayLabels: DAY_LABELS, located: state.located,
       freshness: { weatherAt: state.weatherAt, satelliteDate: state.helper?.satelliteDate ?? null, lastReportAt }, now,
+      hint: installHint(navigator.userAgent, matchMedia('(display-mode: standalone)').matches || navigator.standalone === true),
     });
   }
 }
