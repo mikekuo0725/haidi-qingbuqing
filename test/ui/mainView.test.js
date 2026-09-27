@@ -46,3 +46,13 @@ test('day tabs render as keyboard-accessible buttons', () => {
   expect(html).toMatch(/<button type="button" data-day="1"[^>]*>明天<\/button>/);
   expect(html).toMatch(/<button type="button" data-day="2"[^>]*>後天<\/button>/);
 });
+
+test('a day without data keeps header and tabs and says so instead of cards (R5)', () => {
+  const html = renderMain({ ...base, forecast: null, dayIndex: 2 });
+  expect(html).toContain('小琉球 海底清不清');
+  expect(html).toMatch(/<button type="button" data-day="2" class="on">後天<\/button>/);
+  expect(html).toContain('這天沒有資料');
+  expect(html).not.toContain('data-zone=');
+  expect(html).not.toContain('class="sea"');
+  expect(html).not.toContain('data-action="share"');
+});

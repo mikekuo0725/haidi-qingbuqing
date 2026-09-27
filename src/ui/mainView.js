@@ -40,7 +40,7 @@ function card(z, located) {
 
 export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
-  const stale = forecast.stale != null ? `<div class="warn">⚪ 抓不到最新天氣，這是 ${Math.round(forecast.stale)} 小時前的預測</div>` : '';
+  const stale = forecast?.stale != null ? `<div class="warn">⚪ 抓不到最新天氣，這是 ${Math.round(forecast.stale)} 小時前的預測</div>` : '';
   const foot = [
     freshness.weatherAt ? `天氣 ${hhmm(freshness.weatherAt)}` : '天氣 —',
     freshness.satelliteDate ? `衛星 ${md(freshness.satelliteDate)}` : '衛星資料暫缺，準度較低',
@@ -50,9 +50,9 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   <nav class="days">${days}</nav>
   ${locationRow(spot, located)}
   ${stale}
-  ${seaRow(forecast)}
-  <div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>
+  ${forecast ? seaRow(forecast) : ''}
+  ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : '<div class="pad">這天沒有資料</div>'}
   <button type="button" class="btn" data-action="report">🤿 我下水了，回報能見度</button>
-  <button type="button" class="btn btn2" data-action="share">📤 分享給潛伴</button>
+  ${forecast ? '<button type="button" class="btn btn2" data-action="share">📤 分享給潛伴</button>' : ''}
   <footer class="foot">${foot}<br>海流是整片海的預測，分不出各區</footer>`;
 }
