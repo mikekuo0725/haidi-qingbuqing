@@ -55,4 +55,8 @@ export const K = {
   biasShrinkK: 10,
   biasClampMin: 0.5,
   biasClampMax: 1.5,
+
+  // satellite
+  satMinValues: 10,
+  satMaxAgeDays: 45,
 };
