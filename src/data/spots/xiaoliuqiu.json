@@ -1,0 +1,29 @@
+{
+  "id": "xiaoliuqiu",
+  "name": "小琉球",
+  "center": [22.34, 120.37],
+  "locateMaxKm": 15,
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "高屏溪",
+  "riverBearing": 23,
+  "rainPoints": [
+    { "name": "旗山", "lat": 22.888, "lon": 120.483 },
+    { "name": "六龜", "lat": 22.998, "lon": 120.633 },
+    { "name": "三地門", "lat": 22.715, "lon": 120.654 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "north", "name": "北邊", "location": [22.357, 120.372], "facing": 0,
+      "shelter": "open", "bottom": "mixed", "riverImpact": 0.7,
+      "satBox": [[22.37, 120.35], [22.39, 120.39]], "fallbackBase": 10 },
+    { "id": "east", "name": "東邊", "location": [22.338, 120.388], "facing": 90,
+      "shelter": "open", "bottom": "mixed", "riverImpact": 0.8,
+      "satBox": [[22.32, 120.40], [22.36, 120.42]], "fallbackBase": 8 },
+    { "id": "south", "name": "南邊", "location": [22.325, 120.372], "facing": 180,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0.3,
+      "satBox": [[22.29, 120.35], [22.31, 120.39]], "fallbackBase": 12 },
+    { "id": "west", "name": "西邊", "location": [22.340, 120.357], "facing": 270,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0.3,
+      "satBox": [[22.32, 120.31], [22.36, 120.34]], "fallbackBase": 12 }
+  ]
+}
