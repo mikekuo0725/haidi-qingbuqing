@@ -1,5 +1,6 @@
 import { SPOTS } from '../../src/data/spots/index.js';
 import { zoneBias } from '../../src/core/calibration.js';
+import { K } from '../../src/core/constants.js';
 import { computeZones } from './base.js';
 import { fetchReports } from './firestore.js';
 
@@ -10,7 +11,7 @@ export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now
   const { zones, satelliteDate } = await computeZones(spot, fetchFn, now);
   let bias = {};
   try {
-    const reports = await fetchReports(env.FIREBASE_PROJECT_ID, spot.id, now - 90 * DAY, fetchFn);
+    const reports = await fetchReports(env.FIREBASE_PROJECT_ID, spot.id, now - K.biasWindowDays * DAY, fetchFn);
     bias = zoneBias(reports, now);
   } catch {
     // no reports reachable → no correction
