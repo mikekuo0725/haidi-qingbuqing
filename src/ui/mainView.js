@@ -40,7 +40,8 @@ function card(z, located) {
 
 export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
-  const stale = forecast?.stale != null ? `<div class="warn">⚪ 抓不到最新天氣，這是 ${Math.round(forecast.stale)} 小時前的預測</div>` : '';
+  const staleAgo = forecast?.stale < 1 ? '不到 1 小時前' : ` ${Math.round(forecast?.stale)} 小時前`;
+  const stale = forecast?.stale != null ? `<div class="warn">⚪ 抓不到最新天氣，這是${staleAgo}的預測</div>` : '';
   const foot = [
     freshness.weatherAt ? `天氣 ${hhmm(freshness.weatherAt)}` : '天氣 —',
     freshness.satelliteDate ? `衛星 ${md(freshness.satelliteDate)}` : '衛星資料暫缺，準度較低',

@@ -8,9 +8,14 @@ export function buildShareText({ spot, dayLabel, forecast, url }) {
 }
 
 export async function shareOrCopy(text, nav = navigator) {
-  try {
-    if (nav.share) { await nav.share({ text }); return 'shared'; }
-    if (nav.clipboard?.writeText) { await nav.clipboard.writeText(text); return 'copied'; }
-  } catch { /* user cancelled or blocked */ }
+  if (nav.share) {
+    try { await nav.share({ text }); return 'shared'; } catch (e) {
+      if (e?.name === 'AbortError') return 'cancelled'; // user closed the share sheet
+      // blocked (e.g. LINE's in-app browser): fall back to the clipboard
+    }
+  }
+  if (nav.clipboard?.writeText) {
+    try { await nav.clipboard.writeText(text); return 'copied'; } catch { /* blocked */ }
+  }
   return 'failed';
 }

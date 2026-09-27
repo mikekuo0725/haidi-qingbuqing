@@ -56,3 +56,10 @@ test('a day without data keeps header and tabs and says so instead of cards (R5)
   expect(html).not.toContain('class="sea"');
   expect(html).not.toContain('data-action="share"');
 });
+
+test('stale weather under 1 hour old says so instead of "0 小時前"', () => {
+  const fresh = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: 0.3, helper: null, reports: [], now: NOW, isToday: true });
+  const html = renderMain({ ...base, forecast: fresh });
+  expect(html).toContain('這是不到 1 小時前的預測');
+  expect(html).not.toContain('0 小時前');
+});

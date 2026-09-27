@@ -40,7 +40,8 @@ export async function sendReport(doc_) {
   }
   init();
   const auth = getAuth();
-  const { user } = auth.currentUser ? { user: auth.currentUser } : await signInAnonymously(auth);
+  // Sign-in is under the same timeout so a send (and outbox.add) always finishes.
+  const { user } = auth.currentUser ? { user: auth.currentUser } : await withTimeout(signInAnonymously(auth), SEND_TIMEOUT_MS);
   const { id, ...data } = doc_;
   const ref = doc(collection(getFirestore(), 'reports'), id);
   try {

@@ -1,12 +1,13 @@
 import { test, expect, vi, beforeEach, afterEach } from 'vitest';
 
-const { setDocMock, getDocMock } = vi.hoisted(() => ({
+const { setDocMock, getDocMock, signInMock } = vi.hoisted(() => ({
   setDocMock: vi.fn(async () => ({})),
   getDocMock: vi.fn(async () => ({ exists: () => false })),
+  signInMock: vi.fn(async () => ({ user: { uid: 'u' } })),
 }));
 
 vi.mock('firebase/app', () => ({ initializeApp: () => ({}) }));
-vi.mock('firebase/auth', () => ({ getAuth: () => ({}), signInAnonymously: async () => ({ user: { uid: 'u' } }) }));
+vi.mock('firebase/auth', () => ({ getAuth: () => ({}), signInAnonymously: (auth) => signInMock(auth) }));
 vi.mock('firebase/firestore', () => ({
   getFirestore: () => ({}),
   collection: () => ({}),
@@ -38,6 +39,7 @@ const sample = (overrides = {}) => ({
 beforeEach(() => {
   setDocMock.mockReset().mockResolvedValue({});
   getDocMock.mockReset().mockResolvedValue({ exists: () => false });
+  signInMock.mockReset().mockResolvedValue({ user: { uid: 'u' } });
 });
 
 afterEach(() => {
@@ -93,6 +95,16 @@ test('sendReport: rejects when the write hangs past the timeout', async () => {
   const assertion = expect(promise).rejects.toThrow();
   await vi.advanceTimersByTimeAsync(8000);
   await assertion;
+});
+
+test('sendReport: rejects when anonymous sign-in hangs past the timeout', async () => {
+  vi.useFakeTimers();
+  signInMock.mockImplementationOnce(() => new Promise(() => {})); // never settles
+  const promise = sendReport(sample());
+  const assertion = expect(promise).rejects.toThrow('timeout');
+  await vi.advanceTimersByTimeAsync(8000);
+  await assertion;
+  expect(setDocMock).not.toHaveBeenCalled();
 });
 
 test('sendReport: permission-denied + existing doc resolves (already sent)', async () => {

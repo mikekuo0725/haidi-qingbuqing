@@ -22,3 +22,16 @@ test('shareOrCopy uses Web Share, then clipboard', async () => {
   expect(await shareOrCopy('t', { clipboard: { writeText: async () => {} } })).toBe('copied');
   expect(await shareOrCopy('t', {})).toBe('failed');
 });
+
+test('shareOrCopy: closing the share sheet is quiet; a blocked share falls back to clipboard', async () => {
+  const abort = Object.assign(new Error('cancel'), { name: 'AbortError' });
+  const blocked = Object.assign(new Error('nope'), { name: 'NotAllowedError' });
+  let copied = null;
+  const clipboard = { writeText: async (t) => { copied = t; } };
+  expect(await shareOrCopy('t', { share: async () => { throw abort; }, clipboard })).toBe('cancelled');
+  expect(copied).toBe(null);
+  expect(await shareOrCopy('t', { share: async () => { throw blocked; }, clipboard })).toBe('copied');
+  expect(copied).toBe('t');
+  expect(await shareOrCopy('t', { share: async () => { throw blocked; } })).toBe('failed');
+  expect(await shareOrCopy('t', { clipboard: { writeText: async () => { throw blocked; } } })).toBe('failed');
+});

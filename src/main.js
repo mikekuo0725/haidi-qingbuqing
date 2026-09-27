@@ -188,18 +188,26 @@ app.addEventListener('submit', async (e) => {
   const form = parseReportForm(values, Date.now());
   if (form.error) { document.getElementById('report-error').textContent = form.error; return; }
   sending = true;
-  e.target.querySelector('[type="submit"]').disabled = true;
+  const submit = e.target.querySelector('[type="submit"]');
+  submit.disabled = true;
+  let ok = false;
   try {
     localStorage.setItem('haidi:nickname', form.nickname);
     // Built once per submit, before the outbox, so the stored item keeps its id across retries (R4).
     const doc = buildReportDoc({ spotId: spot.id, form, snapshot: currentSnapshot(form.zoneId) });
     const result = await outbox.add(doc);
+    ok = true;
     toast(result === 'sent' ? '謝謝回報！' : '已存好，有網路會自動送出');
-    history.back(); // back to the list; popstate renders it
+    // Sending can take seconds: if the user already left the form (back, or opened a card), do not pop their page.
+    if (state.view === 'report' && history.state?.view === 'report') history.back(); // popstate renders the list
+  } catch {
+    const err = document.getElementById('report-error');
+    if (err) err.textContent = '送出失敗，請再試一次';
   } finally {
     sending = false;
+    submit.disabled = false; // harmless if the form is gone
   }
-  await load();
+  if (ok) await load();
 });
 
 window.addEventListener('online', () => outbox.flush().then((n) => {
