@@ -40,4 +40,19 @@ export const K = {
   noonWeight: 0.02,
   slackSeaLevelM: 0.05,
   recentReportDays: 7,
+
+  // calibration
+  nowcastN1: 0.3,
+  nowcastN2: 0.5,
+  nowcastN3Plus: 0.7,
+  nowcastHalfLifeHours: 3,
+  outlierMinGroup: 3,
+  outlierThreshold: 0.5,
+  outlierWeight: 0.3,
+  biasWindowDays: 90,
+  biasHalfLifeDays: 30,
+  biasMinReports: 5,
+  biasShrinkK: 10,
+  biasClampMin: 0.5,
+  biasClampMax: 1.5,
 };
