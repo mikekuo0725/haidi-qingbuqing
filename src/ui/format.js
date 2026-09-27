@@ -14,7 +14,7 @@ export const FACTOR_LABEL = {
 export const SHELTER_TEXT = { open: '開放海岸', semi: '半開放', bay: '灣內' };
 export const BOTTOM_TEXT = { rock: '礁岩', mixed: '混合', sand: '沙底' };
 
-export const knots = (kn) => `${kn.toFixed(1)} 節`;
+export const knots = (kn) => `${kn.toFixed(2)} 節`;
 export const arrow = (toDeg) => `→ 往${bearingText(toDeg)}`;
 export const hhmm = (ms) => new Date(ms + 8 * 3600000).toISOString().slice(11, 16);
 export const md = (dateStr) => `${Number(dateStr.slice(5, 7))}/${Number(dateStr.slice(8, 10))}`;
