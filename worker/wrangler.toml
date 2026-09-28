@@ -6,8 +6,8 @@ compatibility_date = "2026-09-01"
 crons = ["0 22 * * *"]   # 06:00 Taipei every day
 
 [vars]
-FIREBASE_PROJECT_ID = "REPLACE_IN_TASK_17"
+FIREBASE_PROJECT_ID = "haidi-qingbuqing"
 
 [[kv_namespaces]]
 binding = "CACHE"
-id = "REPLACE_IN_TASK_17"
+id = "e5efce61ddc7456ca0d142d7150d8fc1"

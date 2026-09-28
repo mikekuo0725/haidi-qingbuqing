@@ -1,0 +1,19 @@
+# 海底清不清
+
+預測潛點海底能見度的手機網頁。設計:`docs/superpowers/specs/2026-09-27-haidi-qingbuqing-design.md`
+
+## 上線網址
+- 網頁:https://haidi-qingbuqing.mikekuo0725.workers.dev
+- 衛星小幫手:https://haidi-helper.mikekuo0725.workers.dev
+
+（原計畫預期網址是 `*.pages.dev`；部署當下 Cloudflare 已把 Pages 併入 Workers 平台，實際網址變成 `*.workers.dev`，功能不受影響。）
+
+## 常用指令
+- 開發：`npm run dev`(另開 `cd worker && npx wrangler dev --local --port 8787`)
+- 測試：`npm test`
+- 部署網頁:`npm run build && npx wrangler pages deploy dist --project-name haidi-qingbuqing`
+- 部署小幫手:`cd worker && npx wrangler deploy`
+- Firestore 規則:`npx firebase deploy --only firestore`
+- 加潛點:在 `src/data/spots/` 加一個 JSON,登記到 `index.js`
+- 調參數:`src/core/constants.js`
+- 每週檢查(設計文件 §8.3):Firebase 主控台匯出 `reports`,看 ①`meters` 跟 `snapshot.meters` 平均差幾米 ②預測「比平常清」的那幾筆,有幾成真的比平常清
