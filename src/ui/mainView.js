@@ -38,7 +38,7 @@ function card(z, located) {
   </div>`;
 }
 
-export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null }) {
+export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null, emptyText = '這天沒有資料' }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
   // staleHours comes from the app's overall weather state, not just this day's forecast,
   // so a day with no forecast at all (R5) can still say *why* — old cached weather. (Task 15)
@@ -49,12 +49,13 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
     freshness.satelliteDate ? `衛星 ${md(freshness.satelliteDate)}` : '衛星資料暫缺，準度較低',
     freshness.lastReportAt ? `回報 ${timeAgo(freshness.lastReportAt, now)}` : '還沒有回報',
   ].join(' ・ ');
-  return `<header class="pad"><div class="t1">${esc(spot.name)} 海底清不清</div><div class="mut">預測，不是保證</div></header>
+  return `<header class="pad"><button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是${esc(spot.name)}">📍 ${esc(spot.name)} <span aria-hidden="true">▾</span></button><div class="mut">海底清不清 · 預測，不是保證</div></header>
   <nav class="days">${days}</nav>
+  ${spot.notice ? `<div class="notice">⚠️ ${esc(spot.notice)}</div>` : ''}
   ${locationRow(spot, located)}
   ${stale}
   ${forecast ? seaRow(forecast) : ''}
-  ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : '<div class="pad">這天沒有資料</div>'}
+  ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : `<div class="pad">${esc(emptyText)}</div>`}
   <button type="button" class="btn" data-action="report">🤿 我下水了，回報能見度</button>
   ${forecast ? '<button type="button" class="btn btn2" data-action="share">📤 分享給潛伴</button>' : ''}
   <footer class="foot">${foot}<br>海流是整片海的預測，分不出各區${hint ? `<br>${esc(hint)}` : ''}</footer>`;

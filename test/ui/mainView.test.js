@@ -49,7 +49,7 @@ test('day tabs render as keyboard-accessible buttons', () => {
 
 test('a day without data keeps header and tabs and says so instead of cards (R5)', () => {
   const html = renderMain({ ...base, forecast: null, dayIndex: 2 });
-  expect(html).toContain('小琉球 海底清不清');
+  expect(html).toContain('📍 小琉球');
   expect(html).toMatch(/<button type="button" data-day="2" class="on">後天<\/button>/);
   expect(html).toContain('這天沒有資料');
   expect(html).not.toContain('data-zone=');
@@ -68,4 +68,23 @@ test('stale weather under 1 hour old says so instead of "0 小時前"', () => {
   const html = renderMain({ ...base, forecast: fresh });
   expect(html).toContain('這是不到 1 小時前的預測');
   expect(html).not.toContain('0 小時前');
+});
+
+test('header is a button that opens the spot list', () => {
+  const html = renderMain(base);
+  expect(html).toContain('<button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是小琉球">📍 小琉球 <span aria-hidden="true">▾</span></button>');
+  expect(html).toContain('海底清不清 · 預測，不是保證');
+});
+
+test('no data at all shows the given text and keeps the spot button', () => {
+  const html = renderMain({ ...base, forecast: null, emptyText: '載入中…' });
+  expect(html).toContain('data-action="spots"');
+  expect(html).toContain('<div class="pad">載入中…</div>');
+  expect(html).not.toContain('這天沒有資料');
+});
+
+test('a spot notice shows under the day tabs; spots without one show nothing', () => {
+  expect(renderMain(base)).not.toContain('class="notice"');
+  const html = renderMain({ ...base, spot: { ...spot, notice: '高級潛點：只能搭船去' } });
+  expect(html).toMatch(/<\/nav>\s*<div class="notice">⚠️ 高級潛點：只能搭船去<\/div>/);
 });
