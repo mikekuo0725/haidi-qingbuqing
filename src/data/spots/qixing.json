@@ -1,0 +1,24 @@
+{
+  "id": "qixing",
+  "name": "七星岩",
+  "center": [21.759, 120.825],
+  "locateMaxKm": 6,
+  "notice": "高級潛點：只能搭船去、海流很強，要有經驗的潛水員",
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "保力溪",
+  "riverBearing": 340,
+  "rainPoints": [
+    { "name": "車城", "lat": 22.072, "lon": 120.712 },
+    { "name": "牡丹", "lat": 22.155, "lon": 120.772 },
+    { "name": "恆春", "lat": 22.002, "lon": 120.745 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "north", "name": "北側", "location": [21.762, 120.825], "facing": 0,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[21.73, 120.80], [21.79, 120.85]], "fallbackBase": 20 },
+    { "id": "south", "name": "南側", "location": [21.756, 120.825], "facing": 180,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[21.73, 120.80], [21.79, 120.85]], "fallbackBase": 20 }
+  ]
+}

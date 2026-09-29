@@ -19,3 +19,11 @@ test('unknown spot → 404', async () => {
   const res = await worker.fetch(new Request('https://x/v1/base?spot=nope'), { CACHE: fakeKV() });
   expect(res.status).toBe(404);
 });
+
+test('kenting is a known spot', async () => {
+  const data = { spotId: 'kenting', zones: {} };
+  const env = { CACHE: fakeKV({ 'base:kenting': JSON.stringify(data) }) };
+  const res = await worker.fetch(new Request('https://x/v1/base?spot=kenting'), env);
+  expect(res.status).toBe(200);
+  expect(await res.json()).toEqual(data);
+});

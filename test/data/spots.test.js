@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { SPOTS, DEFAULT_SPOT_ID } from '../../src/data/spots/index.js';
+import { SPOTS, SPOT_LIST, DEFAULT_SPOT_ID } from '../../src/data/spots/index.js';
 
 test('every spot has the fields the code needs', () => {
   for (const spot of Object.values(SPOTS)) {
@@ -17,4 +17,41 @@ test('every spot has the fields the code needs', () => {
     }
   }
   expect(SPOTS[DEFAULT_SPOT_ID]).toBeDefined();
+});
+
+test('spot ids and zone ids are unique, facings are compass degrees', () => {
+  const ids = SPOT_LIST.map((s) => s.id);
+  expect(new Set(ids).size).toBe(ids.length);
+  expect(Object.keys(SPOTS).sort()).toEqual([...ids].sort());
+  for (const s of SPOT_LIST) {
+    expect(SPOTS[s.id]).toBe(s);
+    expect(s.locateMaxKm).toBeGreaterThan(0);
+    const zoneIds = s.zones.map((z) => z.id);
+    expect(new Set(zoneIds).size).toBe(zoneIds.length);
+    for (const z of s.zones) {
+      expect(z.facing).toBeGreaterThanOrEqual(0);
+      expect(z.facing).toBeLessThan(360);
+      expect(z.fallbackBase).toBeGreaterThan(0);
+    }
+  }
+});
+
+test('墾丁 has 西岸 / 南灣 / 東岸', () => {
+  expect(SPOTS.kenting.name).toBe('墾丁');
+  expect(SPOTS.kenting.zones.map((z) => z.id)).toEqual(['west', 'south', 'east']);
+  expect(SPOT_LIST.map((s) => s.id)).toEqual(['xiaoliuqiu', 'kenting', 'qixing']);
+});
+
+test('七星岩 is its own spot: 2 sides, no river effect, a safety notice', () => {
+  const q = SPOTS.qixing;
+  expect(q.name).toBe('七星岩');
+  expect(q.zones.map((z) => z.id)).toEqual(['north', 'south']);
+  expect(q.zones.every((z) => z.riverImpact === 0)).toBe(true);
+  expect(q.notice).toContain('高級潛點');
+  for (const s of SPOT_LIST) {
+    if (s.notice !== undefined) {
+      expect(typeof s.notice).toBe('string');
+      expect(s.notice.length).toBeLessThanOrEqual(40);
+    }
+  }
 });

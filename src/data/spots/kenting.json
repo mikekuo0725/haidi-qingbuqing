@@ -1,0 +1,26 @@
+{
+  "id": "kenting",
+  "name": "墾丁",
+  "center": [21.95, 120.78],
+  "locateMaxKm": 20,
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "保力溪",
+  "riverBearing": 338,
+  "rainPoints": [
+    { "name": "車城", "lat": 22.072, "lon": 120.712 },
+    { "name": "牡丹", "lat": 22.155, "lon": 120.772 },
+    { "name": "恆春", "lat": 22.002, "lon": 120.745 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "west", "name": "西岸", "location": [21.990, 120.705], "facing": 270,
+      "shelter": "semi", "bottom": "rock", "riverImpact": 0.4,
+      "satBox": [[21.96, 120.66], [22.02, 120.69]], "fallbackBase": 12 },
+    { "id": "south", "name": "南灣", "location": [21.950, 120.755], "facing": 180,
+      "shelter": "semi", "bottom": "mixed", "riverImpact": 0.2,
+      "satBox": [[21.88, 120.74], [21.92, 120.80]], "fallbackBase": 10 },
+    { "id": "east", "name": "東岸", "location": [21.935, 120.840], "facing": 110,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0.1,
+      "satBox": [[21.92, 120.87], [21.98, 120.90]], "fallbackBase": 15 }
+  ]
+}
