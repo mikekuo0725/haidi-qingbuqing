@@ -50,3 +50,10 @@ test('parse: 30+ and edge values are accepted; text is trimmed', () => {
   expect(parseReportForm({ ...ok, nickname: ` ${'a'.repeat(20)} ` }, NOW).nickname).toBe('a'.repeat(20));
   expect(parseReportForm({ ...ok, depth: undefined }, NOW).depth).toBe('10');
 });
+
+test('form title names the spot being reported', () => {
+  const kenting = renderReportForm({ spot: SPOTS.kenting, defaultZoneId: null, nickname: '', now: NOW });
+  const xiaoliuqiu = renderReportForm({ spot: SPOTS.xiaoliuqiu, defaultZoneId: null, nickname: '', now: NOW });
+  expect(kenting).toContain('回報能見度 · 📍 墾丁');
+  expect(xiaoliuqiu).toContain('回報能見度 · 📍 小琉球');
+});

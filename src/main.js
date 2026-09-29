@@ -217,6 +217,7 @@ app.addEventListener('click', async (e) => {
   const action = e.target.closest('[data-action]')?.dataset.action;
   if (action === 'back' || action === 'close-sheet') return history.back();
   if (action === 'spots') {
+    if (state.view === 'spots') return;
     go('spots');
     app.querySelector('.srow.on')?.focus(); // keyboard users land on the current spot
     return;

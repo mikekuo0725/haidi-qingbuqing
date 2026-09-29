@@ -14,7 +14,7 @@ const radios = (name, values, checked) => values.map((v) =>
 export function renderReportForm({ spot, defaultZoneId, nickname, now }) {
   const zones = spot.zones.map((z) => ({ value: z.id, label: z.name }));
   return `<header class="pad"><button type="button" class="link" data-action="back">← 返回</button>
-    <div class="t1">回報能見度</div><div class="mut">10 秒就好，謝謝你 🙏</div></header>
+    <div class="t1">回報能見度 · 📍 ${esc(spot.name)}</div><div class="mut">10 秒就好，謝謝你 🙏</div></header>
   <form id="report" class="form">
     <div class="q">哪一區？</div><div class="opts">${radios('zoneId', zones, defaultZoneId ?? spot.zones[0].id)}</div>
     <div class="q">看到幾米？</div><div class="opts">${radios('meters', METERS, null)}</div>
