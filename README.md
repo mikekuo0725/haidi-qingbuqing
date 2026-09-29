@@ -16,6 +16,6 @@
   - 如果 wrangler 說找不到 `dist\wrangler.json`:把 `.wrangler/deploy/config.json` 改名收起來再部署
 - 部署小幫手:`cd worker && npx wrangler deploy`
 - Firestore 規則:`npx firebase deploy --only firestore`
-- 加潛點:在 `src/data/spots/` 加一個 JSON,登記到 `index.js`
+- 加潛點:在 `src/data/spots/` 加一個 JSON,加進 `index.js` 的 `SPOT_LIST`(順序 = 沒 GPS 時清單的順序)。加完要重新部署**小幫手和網頁**;部署小幫手後,先 `curl` 一次 `https://haidi-helper.mikekuo0725.workers.dev/v1/base?spot=<新潛點id>` 暖機(第一次要抓衛星,要好幾秒),再部署網頁
 - 調參數:`src/core/constants.js`
 - 每週檢查(設計文件 §8.3):Firebase 主控台匯出 `reports`,看 ①`meters` 跟 `snapshot.meters` 平均差幾米 ②預測「比平常清」的那幾筆,有幾成真的比平常清

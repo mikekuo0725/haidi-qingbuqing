@@ -919,6 +919,18 @@ Commit: `docs: how to add a spot now that there is a spot list` (with the Co-Aut
 (cd worker && npx wrangler deploy)
 ```
 
+Then warm the Worker's KV cache for the new spots BEFORE deploying the web app (a first request for an uncached spot fetches NOAA for each zone inline and takes several seconds; the page would sit on 「載入中…」). Each call may take up to ~15 s:
+
+```bash
+curl -s -m 60 "https://haidi-helper.mikekuo0725.workers.dev/v1/base?spot=kenting"
+```
+
+```bash
+curl -s -m 60 "https://haidi-helper.mikekuo0725.workers.dev/v1/base?spot=qixing"
+```
+
+Then the web app:
+
 ```bash
 npm run build
 ```
