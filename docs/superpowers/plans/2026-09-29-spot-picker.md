@@ -1,10 +1,10 @@
-# 換潛點 + 墾丁 Implementation Plan
+# 換潛點 + 墾丁 + 七星岩 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Let the user switch dive spots from a button at the top-left of the main screen (bottom sheet list sorted by GPS distance, GPS auto-picks a spot you are at), and add 墾丁 as the second spot.
+**Goal:** Let the user switch dive spots from a button at the top-left of the main screen (bottom sheet list sorted by GPS distance, GPS auto-picks a spot you are at), and add 墾丁 and 七星岩 as spots 2 and 3.
 
-**Architecture:** Spots are already data (`src/data/spots/*.json`); the Worker, weather cache, report queries and Firestore rules are already keyed by spot id. What is missing is (1) the 墾丁 JSON, (2) pure functions that decide which spot to show, (3) a header button + bottom-sheet view, and (4) `src/main.js` holding the current spot in state instead of a module constant. The sheet is a history view (`#spots`) like the detail page, so the phone back button closes it.
+**Architecture:** Spots are already data (`src/data/spots/*.json`); the Worker, weather cache, report queries and Firestore rules are already keyed by spot id. What is missing is (1) the 墾丁 and 七星岩 JSON (+ an optional `notice` line per spot), (2) pure functions that decide which spot to show, (3) a header button + bottom-sheet view, and (4) `src/main.js` holding the current spot in state instead of a module constant. The sheet is a history view (`#spots`) like the detail page, so the phone back button closes it.
 
 **Tech Stack:** JavaScript ES modules (no framework), Vite 8, Vitest 5, Firebase JS SDK, Cloudflare Workers + KV (wrangler 4).
 
@@ -23,7 +23,8 @@
 - Remembered spot: `localStorage` key `haidi:spot`. Shared link parameter: `?spot=<id>`.
 - Spot choice order on open: valid `?spot=` → valid saved `haidi:spot` → `DEFAULT_SPOT_ID` (小琉球).
 - GPS auto-switch only when: the user is within the target spot's `locateMaxKm`, it is not the current spot, the page was not opened from a `?spot=` link, the user has not picked a spot by hand this visit, and the main list is on screen (never while in a detail page, report form or the sheet).
-- 墾丁 data was checked live on 2026-09-29: Open-Meteo marine at 21.95,120.78 returns real values (grid 21.958,120.792); NOAA `kd_490` boxes return 270 / 360 / 360 values (medians 0.062 / 0.056 / 0.076). Do not re-derive the coordinates; use the JSON in Task 1 exactly.
+- 墾丁 data was checked live on 2026-09-29: Open-Meteo marine at 21.95,120.78 returns real values (grid 21.958,120.792); NOAA `kd_490` boxes return 270 / 360 / 360 values (medians 0.062 / 0.056 / 0.076). 七星岩 checked the same day: marine at 21.759,120.825 → its own grid 21.792,120.792 with real values; NOAA box [[21.73,120.80],[21.79,120.85]] → 270 values, median 0.038. Do not re-derive the coordinates; use the JSON in Task 1 exactly.
+- Optional spot field `notice` (string): when present, the main screen shows it as one warning line under the day tabs.
 - Deploy is NOT part of any implementer task. Deploy only in Task 5, by the controller, after Michael says OK. Web: `npm run build` then `npx wrangler deploy` (root `wrangler.jsonc`). Worker: `cd worker && npx wrangler deploy`. Never use `wrangler pages deploy` (it rewrites `vite.config.js` and breaks tests).
 - Full test suite must stay green: `npm test` (121 tests before this plan).
 
@@ -31,10 +32,11 @@
 
 ```
 src/data/spots/kenting.json     NEW  墾丁: 3 zones (west / south / east)
+src/data/spots/qixing.json      NEW  七星岩: 2 zones (north / south), notice line
 src/data/spots/index.js         MOD  + SPOT_LIST (ordered array), SPOTS built from it
 src/core/spotChoice.js          NEW  pure: spotsByDistance, nearbySpotId, initialSpotId, autoSwitchTarget
 src/ui/spotSheet.js             NEW  renderSpotSheet → backdrop + dialog HTML
-src/ui/mainView.js              MOD  header becomes the spot button; emptyText param
+src/ui/mainView.js              MOD  header becomes the spot button; emptyText param; notice line
 src/styles.css                  MOD  .spotbtn, .sheet-bg, .sheet, .srow …
 src/main.js                     MOD  current spot in state; sheet view; auto-switch; share URL
 test/data/spots.test.js         MOD  unique ids, facing range, 墾丁 zones
@@ -50,16 +52,16 @@ README.md                       MOD  (Task 5) mention the spot picker
 
 ---
 
-### Task 1: 墾丁 data
+### Task 1: 墾丁 + 七星岩 data
 
 **Files:**
-- Create: `src/data/spots/kenting.json`
+- Create: `src/data/spots/kenting.json`, `src/data/spots/qixing.json`
 - Modify: `src/data/spots/index.js`
 - Test: `test/data/spots.test.js`, `test/core/locate.test.js`, `test/worker/index.test.js`
 
 **Interfaces:**
 - Consumes: nothing new.
-- Produces: `SPOT_LIST: Spot[]` (order = order shown in the sheet when there is no GPS: 小琉球, 墾丁), `SPOTS: Record<id, Spot>` (same objects), `DEFAULT_SPOT_ID = 'xiaoliuqiu'`. `SPOTS.kenting` with zones `west`, `south`, `east`.
+- Produces: `SPOT_LIST: Spot[]` (order = order shown in the sheet when there is no GPS: 小琉球, 墾丁, 七星岩), `SPOTS: Record<id, Spot>` (same objects), `DEFAULT_SPOT_ID = 'xiaoliuqiu'`. `SPOTS.kenting` with zones `west`, `south`, `east`. `SPOTS.qixing` with zones `north`, `south` and a `notice` string. `notice` is optional on every spot.
 
 - [ ] **Step 1: Create the branch**
 
@@ -96,7 +98,21 @@ test('spot ids and zone ids are unique, facings are compass degrees', () => {
 test('墾丁 has 西岸 / 南灣 / 東岸', () => {
   expect(SPOTS.kenting.name).toBe('墾丁');
   expect(SPOTS.kenting.zones.map((z) => z.id)).toEqual(['west', 'south', 'east']);
-  expect(SPOT_LIST.map((s) => s.id)).toEqual(['xiaoliuqiu', 'kenting']);
+  expect(SPOT_LIST.map((s) => s.id)).toEqual(['xiaoliuqiu', 'kenting', 'qixing']);
+});
+
+test('七星岩 is its own spot: 2 sides, no river effect, a safety notice', () => {
+  const q = SPOTS.qixing;
+  expect(q.name).toBe('七星岩');
+  expect(q.zones.map((z) => z.id)).toEqual(['north', 'south']);
+  expect(q.zones.every((z) => z.riverImpact === 0)).toBe(true);
+  expect(q.notice).toContain('高級潛點');
+  for (const s of SPOT_LIST) {
+    if (s.notice !== undefined) {
+      expect(typeof s.notice).toBe('string');
+      expect(s.notice.length).toBeLessThanOrEqual(40);
+    }
+  }
 });
 ```
 
@@ -133,7 +149,7 @@ test('kenting is a known spot', async () => {
 - [ ] **Step 3: Run the tests to verify they fail**
 
 Run: `npx vitest run test/data test/core/locate.test.js test/worker/index.test.js`
-Expected: FAIL — `SPOT_LIST` is undefined / `SPOTS.kenting` is undefined / kenting → 404.
+Expected: FAIL — `SPOT_LIST` is undefined / `SPOTS.kenting` and `SPOTS.qixing` are undefined / kenting → 404.
 
 - [ ] **Step 4: Create `src/data/spots/kenting.json`**
 
@@ -166,29 +182,61 @@ Expected: FAIL — `SPOT_LIST` is undefined / `SPOTS.kenting` is undefined / ken
 }
 ```
 
-- [ ] **Step 5: Replace `src/data/spots/index.js`**
+- [ ] **Step 5: Create `src/data/spots/qixing.json`**
+
+Both sides share one satellite box (the rock group is smaller than one 2 km NOAA pixel). `riverImpact` is 0 on purpose: the river fields exist only because every spot must have them; they never lower the score here.
+
+```json
+{
+  "id": "qixing",
+  "name": "七星岩",
+  "center": [21.759, 120.825],
+  "locateMaxKm": 6,
+  "notice": "高級潛點：只能搭船去、海流很強，要有經驗的潛水員",
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "保力溪",
+  "riverBearing": 340,
+  "rainPoints": [
+    { "name": "車城", "lat": 22.072, "lon": 120.712 },
+    { "name": "牡丹", "lat": 22.155, "lon": 120.772 },
+    { "name": "恆春", "lat": 22.002, "lon": 120.745 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "north", "name": "北側", "location": [21.762, 120.825], "facing": 0,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[21.73, 120.80], [21.79, 120.85]], "fallbackBase": 20 },
+    { "id": "south", "name": "南側", "location": [21.756, 120.825], "facing": 180,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[21.73, 120.80], [21.79, 120.85]], "fallbackBase": 20 }
+  ]
+}
+```
+
+- [ ] **Step 6: Replace `src/data/spots/index.js`**
 
 ```js
 import xiaoliuqiu from './xiaoliuqiu.json';
 import kenting from './kenting.json';
+import qixing from './qixing.json';
 
 // Order = order in the spot list when there is no GPS.
-export const SPOT_LIST = [xiaoliuqiu, kenting];
+export const SPOT_LIST = [xiaoliuqiu, kenting, qixing];
 export const SPOTS = Object.fromEntries(SPOT_LIST.map((s) => [s.id, s]));
 export const DEFAULT_SPOT_ID = xiaoliuqiu.id;
 ```
 
-- [ ] **Step 6: Run the whole suite**
+- [ ] **Step 7: Run the whole suite**
 
 Run: `npm test`
-Expected: PASS, 126 tests (121 + 5).
+Expected: PASS, 127 tests (121 + 6).
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add src/data/spots/kenting.json src/data/spots/index.js test/data/spots.test.js test/core/locate.test.js test/worker/index.test.js
+git add src/data/spots/kenting.json src/data/spots/qixing.json src/data/spots/index.js test/data/spots.test.js test/core/locate.test.js test/worker/index.test.js
 git commit -m "$(cat <<'EOF'
-feat(spots): add 墾丁 with west / south / east zones
+feat(spots): add 墾丁 (west / south / east) and 七星岩 (north / south)
 
 Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
 EOF
@@ -259,8 +307,10 @@ test('autoSwitchTarget: only when near another spot and not locked', () => {
   expect(autoSwitchTarget({ pos: null, spots, currentId: 'a', locked: false })).toBeNull();
 });
 
-test('real data: at 墾丁大街 the nearby spot is kenting', () => {
+test('real data: 墾丁大街 and 鵝鑾鼻 → kenting, on the boat at 七星岩 → qixing', () => {
   expect(nearbySpotId(AT_B, SPOT_LIST)).toBe('kenting');
+  expect(nearbySpotId([21.902, 120.852], SPOT_LIST)).toBe('kenting');
+  expect(nearbySpotId([21.7589, 120.8247], SPOT_LIST)).toBe('qixing');
 });
 ```
 
@@ -301,7 +351,7 @@ export function autoSwitchTarget({ pos, spots, currentId, locked }) {
 
 - [ ] **Step 4: Run to verify it passes**
 
-Run: `npx vitest run test/core/spotChoice.test.js` → PASS (6 tests). Then `npm test` → PASS, 132 tests.
+Run: `npx vitest run test/core/spotChoice.test.js` → PASS (6 tests). Then `npm test` → PASS, 133 tests.
 
 - [ ] **Step 5: Commit**
 
@@ -328,7 +378,7 @@ EOF
 - Consumes: `esc` from `src/ui/format.js`; rows shaped like `spotsByDistance` output from Task 2 (`{ spot, km }`).
 - Produces:
   - `renderSpotSheet({ rows, currentId, nearId = null }) → string` — a backdrop `<div class="sheet-bg" data-action="close-sheet">` and a `<div class="sheet" role="dialog" aria-modal="true" aria-label="選潛點">` with one `<button type="button" class="srow" data-spot="<id>">` per row, in the given order.
-  - `renderMain({ …existing…, emptyText = '這天沒有資料' })` — header is now `<button type="button" class="spotbtn" data-action="spots">`; when `forecast` is null it shows `emptyText` instead of the fixed 這天沒有資料.
+  - `renderMain({ …existing…, emptyText = '這天沒有資料' })` — header is now `<button type="button" class="spotbtn" data-action="spots">`; when `forecast` is null it shows `emptyText` instead of the fixed 這天沒有資料; when `spot.notice` is set it shows `<div class="notice">⚠️ …</div>` right under the day tabs.
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -385,6 +435,12 @@ test('no data at all shows the given text and keeps the spot button', () => {
   expect(html).toContain('<div class="pad">載入中…</div>');
   expect(html).not.toContain('這天沒有資料');
 });
+
+test('a spot notice shows under the day tabs; spots without one show nothing', () => {
+  expect(renderMain(base)).not.toContain('class="notice"');
+  const html = renderMain({ ...base, spot: { ...spot, notice: '高級潛點：只能搭船去' } });
+  expect(html).toMatch(/<\/nav>\s*<div class="notice">⚠️ 高級潛點：只能搭船去<\/div>/);
+});
 ```
 
 - [ ] **Step 2: Run to verify they fail**
@@ -436,7 +492,20 @@ with
   return `<header class="pad"><button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是${esc(spot.name)}">📍 ${esc(spot.name)} <span aria-hidden="true">▾</span></button><div class="mut">海底清不清 · 預測，不是保證</div></header>
 ```
 
-and replace `'<div class="pad">這天沒有資料</div>'` with `` `<div class="pad">${esc(emptyText)}</div>` ``. Nothing else in the file changes.
+replace `'<div class="pad">這天沒有資料</div>'` with `` `<div class="pad">${esc(emptyText)}</div>` ``, and replace the line
+
+```js
+  <nav class="days">${days}</nav>
+```
+
+with
+
+```js
+  <nav class="days">${days}</nav>
+  ${spot.notice ? `<div class="notice">⚠️ ${esc(spot.notice)}</div>` : ''}
+```
+
+Nothing else in the file changes.
 
 - [ ] **Step 5: Add CSS** — in `src/styles.css`, after the `.foot { … }` line add:
 
@@ -450,6 +519,7 @@ and replace `'<div class="pad">這天沒有資料</div>'` with `` `<div class="p
 .srow.on { font-weight:800; }
 .srow .here { font-size:13px; padding:2px 8px; border-radius:8px; background:#123f2e; white-space:nowrap; }
 .sheet-f { padding:10px 2px 0; }
+.notice { margin:0 14px 8px; padding:10px 12px; border-radius:10px; background:#5a4714; }
 ```
 
 and extend the hover rule at the bottom to:
@@ -460,7 +530,7 @@ and extend the hover rule at the bottom to:
 
 - [ ] **Step 6: Run to verify they pass**
 
-Run: `npx vitest run test/ui` → PASS. Then `npm test` → PASS, 138 tests.
+Run: `npx vitest run test/ui` → PASS. Then `npm test` → PASS, 140 tests.
 
 - [ ] **Step 7: Commit**
 
@@ -799,7 +869,7 @@ load();
 - [ ] **Step 2: Run the whole suite**
 
 Run: `npm test`
-Expected: PASS, 138 tests (no test count change in this task).
+Expected: PASS, 140 tests (no test count change in this task).
 
 - [ ] **Step 3: Browser check (dev server)**
 
@@ -812,6 +882,7 @@ Check at widths 320, 390 and 1280:
 4. Reload → still 墾丁. Open http://localhost:5173/?spot=xiaoliuqiu → 小琉球; switch to 墾丁 in the sheet; the address bar loses `?spot=`; reload → 墾丁.
 5. Share (copy fallback in desktop Chrome) → the copied text ends with `?spot=kenting`.
 6. With DevTools "offline", switch to a spot never opened before: the error text shows and the spot button still works to switch back.
+7. Pick 七星岩 → 2 cards 北側 / 南側 and the ⚠️ 高級潛點 line under the day tabs; 小琉球 and 墾丁 show no such line.
 
 Record the result of each item in the report. Do not deploy.
 
@@ -864,7 +935,7 @@ If wrangler says `dist\wrangler.json` does not exist: rename `.wrangler/deploy/c
 curl -s "https://haidi-helper.mikekuo0725.workers.dev/v1/base?spot=kenting"
 ```
 
-Expected: JSON with `"spotId":"kenting"` and zones `west`, `south`, `east`, each `"source":"sat"`.
+Expected: JSON with `"spotId":"kenting"` and zones `west`, `south`, `east`, each `"source":"sat"`. Repeat with `spot=qixing` → zones `north`, `south`, `"source":"sat"`.
 
 ```bash
 curl -s https://haidi-qingbuqing.mikekuo0725.workers.dev/ | grep -o 'assets/index-[^"]*'
@@ -877,5 +948,6 @@ Expected: the same `index-*.js` name as in `dist/index.html`.
 2. Sheet opens, back button closes it, pick 墾丁 works, closing and reopening the page keeps 墾丁.
 3. Share to LINE → the friend's link opens 墾丁.
 4. When physically at 小琉球 or 墾丁 (or later), the page switches to that spot by itself and marks 「你在這裡」.
+5. 七星岩 shows the ⚠️ 高級潛點 line and is readable in sunlight.
 
 Then run superpowers:finishing-a-development-branch for `feat/spot-picker`.
