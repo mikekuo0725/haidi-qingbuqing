@@ -40,7 +40,7 @@ button { font:inherit; color:inherit; }
 .link { display:inline-flex; align-items:center; min-height:var(--tap); padding:0 12px 0 0; background:none; border:0; color:var(--acc); font-size:16px; cursor:pointer; }
 .foot { padding:8px 16px; font-size:12px; color:var(--mut); text-align:center; }
 .spotbtn { display:inline-flex; align-items:center; gap:4px; min-height:var(--tap); margin:0 0 0 -6px; padding:0 8px 0 6px; border:0; border-radius:10px; background:none; font-size:19px; font-weight:800; cursor:pointer; }
-.spotbtn:active, .srow:active { filter:brightness(1.2); }
+.spotbtn:active, .srow:active { background:var(--chip); }
 .sheet-bg { position:fixed; inset:0; z-index:20; background:#000a; }
 .sheet { position:fixed; left:0; right:0; bottom:0; z-index:21; max-width:480px; max-height:70vh; overflow-y:auto; margin:0 auto; padding:10px 14px calc(16px + env(safe-area-inset-bottom)); border-radius:16px 16px 0 0; background:var(--card); }
 .sheet-h { font-weight:800; font-size:16px; padding:6px 2px 8px; }
@@ -81,5 +81,6 @@ button { font:inherit; color:inherit; }
   #app[data-view="main"] .foot { clear:both; }
 }
 @media (hover:hover) {
-  .card[data-zone]:hover, .btn:hover, .days button:hover, .opt span:hover, .spotbtn:hover, .srow:hover { filter:brightness(1.15); }
+  .card[data-zone]:hover, .btn:hover, .days button:hover, .opt span:hover { filter:brightness(1.15); }
+  .spotbtn:hover, .srow:hover { background:var(--chip); }
 }
