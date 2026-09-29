@@ -11,7 +11,9 @@
 ## 常用指令
 - 開發：`npm run dev`(另開 `cd worker && npx wrangler dev --local --port 8787`)
 - 測試：`npm test`
-- 部署網頁:`npm run build && npx wrangler pages deploy dist --project-name haidi-qingbuqing`
+- 部署網頁:`npm run build`,再 `npx wrangler deploy`(在專案根目錄;設定在 `wrangler.jsonc`,只上傳 `dist/` 靜態檔)
+  - ⚠️ 不要再用 `wrangler pages deploy`:Cloudflare 已把 Pages 併入 Workers,舊指令會自己在 `vite.config.js` 塞 `@cloudflare/vite-plugin`,弄壞測試
+  - 如果 wrangler 說找不到 `dist\wrangler.json`:把 `.wrangler/deploy/config.json` 改名收起來再部署
 - 部署小幫手:`cd worker && npx wrangler deploy`
 - Firestore 規則:`npx firebase deploy --only firestore`
 - 加潛點:在 `src/data/spots/` 加一個 JSON,登記到 `index.js`
