@@ -235,14 +235,18 @@ app.addEventListener('click', async (e) => {
   if (card) go('detail', card.dataset.zone);
 });
 
-// R6: zone cards are role="button" divs — Enter/Space opens them like a click. Esc closes the spot sheet.
+// R6: zone cards are role="button" divs — Enter/Space opens them like a click.
 app.addEventListener('keydown', (e) => {
-  if (e.key === 'Escape' && state.view === 'spots') return history.back();
   if (e.key !== 'Enter' && e.key !== ' ') return;
   const card = e.target.closest?.('[data-zone]');
   if (!card || e.target !== card) return;
   e.preventDefault(); // Space would scroll the page
   go('detail', card.dataset.zone);
+});
+
+// Esc closes the spot sheet from anywhere on the page (focus can be on body after a click or a re-render).
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && state.view === 'spots') history.back();
 });
 
 let sending = false;
