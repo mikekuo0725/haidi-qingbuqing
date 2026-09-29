@@ -1,17 +1,17 @@
 import { SPOTS } from '../../src/data/spots/index.js';
 import { zoneBias } from '../../src/core/calibration.js';
 import { K } from '../../src/core/constants.js';
+import { DAY_MS } from '../../src/core/math.js';
 import { computeZones } from './base.js';
 import { fetchReports } from './firestore.js';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json; charset=utf-8' };
-const DAY = 86400000;
 
 export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now()) {
   const { zones, satelliteDate } = await computeZones(spot, fetchFn, now);
   let bias = {};
   try {
-    const reports = await fetchReports(env.FIREBASE_PROJECT_ID, spot.id, now - K.biasWindowDays * DAY, fetchFn);
+    const reports = await fetchReports(env.FIREBASE_PROJECT_ID, spot.id, now - K.biasWindowDays * DAY_MS, fetchFn);
     bias = zoneBias(reports, now);
   } catch {
     // no reports reachable → no correction

@@ -60,6 +60,13 @@ test('today with a report: nowcast applied and reason rewritten', () => {
   expect(south.confidence).toBe('high');
 });
 
+test('a report with a future diveTime does not count as recent (Task 10)', () => {
+  const future = [{ id: 'f', zoneId: 'south', meters: 30, depth: 10, diveTime: NOW + 999999999, rawMeters: 15 }];
+  const f = buildForecast({ spot, day, stale: null, helper, reports: future, now: NOW, isToday: false });
+  const south = f.zones.find((z) => z.zoneId === 'south');
+  expect(south.confidence).toBe('medium'); // sat data but no genuinely-recent report yet
+});
+
 test('not today: reports do not change meters', () => {
   const reports = [{ id: 'a', zoneId: 'south', meters: 30, depth: 10, diveTime: NOW, rawMeters: 15 }];
   const a = buildForecast({ spot, day, stale: null, helper, reports, now: NOW, isToday: false });

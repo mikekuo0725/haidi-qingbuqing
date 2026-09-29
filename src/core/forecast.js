@@ -16,7 +16,7 @@ export function buildForecast({ spot, day, stale, helper, reports, now, isToday 
 
     const zoneReports = reports.filter((r) => r.zoneId === zone.id);
     const todayReports = zoneReports.filter((r) => taipeiDate(r.diveTime) === day.date);
-    const hasRecent = zoneReports.some((r) => now - r.diveTime <= K.recentReportDays * DAY_MS);
+    const hasRecent = zoneReports.some((r) => r.diveTime <= now && now - r.diveTime <= K.recentReportDays * DAY_MS);
     const nc = isToday ? nowcast(score.meters, todayReports, now) : { meters: score.meters, n: 0, applied: false };
 
     const weatherOk = stale == null;

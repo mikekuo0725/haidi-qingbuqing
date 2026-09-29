@@ -94,6 +94,8 @@ function render() {
     app.innerHTML = renderMain({
       spot, forecast: forecast ?? null, dayIndex: state.dayIndex, dayLabels: DAY_LABELS, located: state.located,
       freshness: { weatherAt: state.weatherAt, satelliteDate: state.helper?.satelliteDate ?? null, lastReportAt }, now,
+      // Task 15: from state.weather, not the per-day forecast, so a day with no data at all still says why.
+      staleHours: state.weather?.stale ?? null,
       hint: installHint(navigator.userAgent, matchMedia('(display-mode: standalone)').matches || navigator.standalone === true),
     });
   }

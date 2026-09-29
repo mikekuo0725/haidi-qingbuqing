@@ -1,5 +1,7 @@
 export const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 
+export const DAY_MS = 86400000;
+
 const norm360 = (d) => ((d % 360) + 360) % 360;
 
 export function angleDiff(a, b) {

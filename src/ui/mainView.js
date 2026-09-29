@@ -38,10 +38,12 @@ function card(z, located) {
   </div>`;
 }
 
-export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null }) {
+export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
-  const staleAgo = forecast?.stale < 1 ? '不到 1 小時前' : ` ${Math.round(forecast?.stale)} 小時前`;
-  const stale = forecast?.stale != null ? `<div class="warn">⚪ 抓不到最新天氣，這是${staleAgo}的預測</div>` : '';
+  // staleHours comes from the app's overall weather state, not just this day's forecast,
+  // so a day with no forecast at all (R5) can still say *why* — old cached weather. (Task 15)
+  const staleAgo = staleHours < 1 ? '不到 1 小時前' : ` ${Math.round(staleHours)} 小時前`;
+  const stale = staleHours != null ? `<div class="warn">⚪ 抓不到最新天氣，這是${staleAgo}的預測</div>` : '';
   const foot = [
     freshness.weatherAt ? `天氣 ${hhmm(freshness.weatherAt)}` : '天氣 —',
     freshness.satelliteDate ? `衛星 ${md(freshness.satelliteDate)}` : '衛星資料暫缺，準度較低',
