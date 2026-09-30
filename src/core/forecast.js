@@ -1,8 +1,9 @@
 import { scoreZone, lightFor, rangeFor, reasonText, baseFromKd } from './score.js';
-import { assessSafety, daytimeSst } from './safety.js';
+import { assessSafety, daytimeSst, currentLevel } from './safety.js';
 import { bestWindow } from './bestWindow.js';
 import { nowcast } from './calibration.js';
 import { taipeiDate } from './time.js';
+import { kmhToKnots } from './math.js';
 import { K } from './constants.js';
 
 const DAY_MS = 86400000;
@@ -47,5 +48,10 @@ export function buildForecast({ spot, day, stale, helper, reports, now, isToday 
     safety: assessSafety(day, spot),
     best: bestWindow(day.hours),
     sst: daytimeSst(day),
+    // For the sea map's hour slider: the whole-sea current, hour by hour.
+    currents: day.hours.map((h) => {
+      const kn = kmhToKnots(h.currentKmh);
+      return { hour: h.hour, kn, toDeg: h.currentDir, level: currentLevel(kn, spot.safety) };
+    }),
   };
 }
