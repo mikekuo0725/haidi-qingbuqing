@@ -18,6 +18,8 @@ import { renderDetail } from './ui/detailView.js';
 import { renderReportForm, parseReportForm } from './ui/reportForm.js';
 import { buildShareText, shareOrCopy } from './ui/share.js';
 import { md } from './ui/format.js';
+import { registerSW } from 'virtual:pwa-register';
+import { renderUpdateBar } from './ui/updateBar.js';
 
 const SPOT_KEY = 'haidi:spot';
 const app = document.getElementById('app');
@@ -315,3 +317,15 @@ getPosition().then((pos) => {
 outbox.flush();
 render(); // header + 載入中… right away
 load();
+
+// A new version downloads in the background; show a bar and swap only when the user presses it.
+const updateSW = registerSW({
+  onNeedRefresh() {
+    const bar = document.createElement('div');
+    bar.className = 'update-bar';
+    bar.innerHTML = renderUpdateBar();
+    bar.querySelector('[data-update]').addEventListener('click', () => updateSW(true));
+    document.body.append(bar);
+    document.body.classList.add('has-update');
+  },
+});

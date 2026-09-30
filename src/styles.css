@@ -89,6 +89,9 @@ button { font:inherit; color:inherit; }
 .err { margin:8px 14px 0; color:#ff9a9a; min-height:1.2em; }
 .toast { position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%); max-width:calc(100% - 32px); background:#000d; padding:12px 16px; border-radius:12px; z-index:10; }
 .toast[hidden] { display:none; }
+.update-bar { position:fixed; left:0; right:0; bottom:0; z-index:9; display:flex; align-items:center; justify-content:center; gap:12px; padding:10px 16px calc(10px + env(safe-area-inset-bottom)); background:var(--chip); font-size:15px; }
+.update-bar button { min-height:var(--tap); padding:0 20px; border:0; border-radius:12px; background:var(--acc); color:#fff; font:inherit; font-weight:800; }
+body.has-update { padding-bottom:calc(var(--tap) + 24px + env(safe-area-inset-bottom)); }
 
 /* Computers (sometimes people check at home): main list gets wider with 2 card columns.
    Detail page and report form stay phone-width, centered — easier to read. */

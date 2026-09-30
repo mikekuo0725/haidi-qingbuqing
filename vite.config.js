@@ -4,7 +4,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
   plugins: [
     VitePWA({
-      registerType: 'autoUpdate',
+      registerType: 'prompt', // a new version waits for the user to press the update bar (src/ui/updateBar.js)
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png'],
       manifest: {
         name: '海底清不清',
