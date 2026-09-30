@@ -3,7 +3,7 @@ main = "src/index.js"
 compatibility_date = "2026-09-01"
 
 [triggers]
-crons = ["0 22 * * *", "30 5,11,17,23 * * *", "15 * * * *"]   # 06:00 Taipei: satellite + reports; every 6 h (01:30/07:30/13:30/19:30 Taipei): 氣象署 coastal forecast; every hour at :15: 氣象署 buoys
+crons = ["0 22 * * *", "30 5,11,17,23 * * *", "35 * * * *"]   # 06:00 Taipei: satellite + reports; every 6 h (01:30/07:30/13:30/19:30 Taipei): 氣象署 coastal forecast; every hour at :35: 氣象署 buoys
 
 [vars]
 FIREBASE_PROJECT_ID = "haidi-qingbuqing"

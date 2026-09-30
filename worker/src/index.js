@@ -11,7 +11,7 @@ import { fetchBuoys } from './buoy.js';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json; charset=utf-8' };
 export const COASTAL_CRON = '30 5,11,17,23 * * *'; // 01:30, 07:30, 13:30, 19:30 Taiwan time (see wrangler.toml)
-export const BUOY_CRON = '15 * * * *'; // every hour at :15 — buoys report hourly, about 1 hour late (see wrangler.toml)
+export const BUOY_CRON = '35 * * * *'; // every hour at :35 — buoys report hourly, about 1 hour late, so :35 catches the previous hour's reading (see wrangler.toml)
 
 export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now()) {
   const { zones, satelliteDate } = await computeZones(spot, fetchFn, now);
