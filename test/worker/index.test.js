@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import worker, { refreshCoastal, refreshBuoys, COASTAL_CRON, BUOY_CRON } from '../../worker/src/index.js';
+import worker, { refreshCoastal, refreshBuoys, COASTAL_CRON, BUOY_CRON, DAILY_HOUR_UTC } from '../../worker/src/index.js';
 import { cwaLocation, cwaFile, dayTimes } from '../helpers/cwaFixture.js';
 import { obs, buoyFile } from '../helpers/buoyFixture.js';
 
@@ -191,4 +191,32 @@ test('the hourly cron refreshes the buoys only', async () => {
 test('the deployed cron list contains BUOY_CRON', () => {
   const toml = readFileSync(new URL('../../worker/wrangler.toml', import.meta.url), 'utf8');
   expect(toml).toContain(`"${BUOY_CRON}"`);
+});
+
+test('at 06:35 Taipei the hourly cron runs the daily satellite refresh instead of the buoys', async () => {
+  const realFetch = globalThis.fetch;
+  const urls = [];
+  globalThis.fetch = async (u) => { urls.push(String(u)); throw new Error('offline'); };
+  try {
+    const ctx = fakeCtx();
+    await worker.scheduled({ cron: BUOY_CRON, scheduledTime: Date.UTC(2026, 8, 30, DAILY_HOUR_UTC, 35) }, { CACHE: fakeKV(), CWA_KEY: 'K' }, ctx);
+    expect(ctx.jobs).toHaveLength(1);
+    await Promise.allSettled(ctx.jobs);
+    expect(urls.some((u) => u.includes('O-B0075-001'))).toBe(false); // not the buoy request
+    expect(urls.length).toBeGreaterThan(0); // the satellite / weather requests
+    urls.length = 0;
+    const ctx2 = fakeCtx();
+    await worker.scheduled({ cron: BUOY_CRON, scheduledTime: Date.UTC(2026, 8, 30, DAILY_HOUR_UTC - 1, 35) }, { CACHE: fakeKV(), CWA_KEY: 'K' }, ctx2);
+    await Promise.allSettled(ctx2.jobs);
+    expect(urls.every((u) => u.includes('O-B0075-001'))).toBe(true); // buoys only
+    expect(urls).toHaveLength(1);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
+test('the deployed cron list has only 2 triggers (the free plan allows 5 per account)', () => {
+  const toml = readFileSync(new URL('../../worker/wrangler.toml', import.meta.url), 'utf8');
+  const line = /^crons = \[(.*?)\]/m.exec(toml)[1];
+  expect(line.match(/"[^"]+"/g)).toHaveLength(2);
 });

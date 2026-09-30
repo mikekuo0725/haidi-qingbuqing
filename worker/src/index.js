@@ -11,7 +11,11 @@ import { fetchBuoys } from './buoy.js';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json; charset=utf-8' };
 export const COASTAL_CRON = '30 5,11,17,23 * * *'; // 01:30, 07:30, 13:30, 19:30 Taiwan time (see wrangler.toml)
-export const BUOY_CRON = '35 * * * *'; // every hour at :35 — buoys report hourly, about 1 hour late, so :35 catches the previous hour's reading (see wrangler.toml)
+// Every hour at :35 — buoys report hourly, about 1 hour late, so :35 catches the previous hour's reading (see wrangler.toml).
+// The free plan allows 5 cron triggers per account, so this one cron also carries the daily satellite refresh:
+// at DAILY_HOUR_UTC (06:35 Taipei) it runs that instead of the buoys (the 48-hour buoy answer fills the gap next hour).
+export const BUOY_CRON = '35 * * * *';
+export const DAILY_HOUR_UTC = 22;
 
 export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now()) {
   const { zones, satelliteDate } = await computeZones(spot, fetchFn, now);
@@ -115,8 +119,11 @@ export default {
   },
 
   async scheduled(event, env, ctx) {
+    const daily = () => ctx.waitUntil(Promise.all(Object.values(SPOTS).map((s) => refresh(s, env))));
     if (event.cron === COASTAL_CRON) ctx.waitUntil(refreshCoastal(env));
-    else if (event.cron === BUOY_CRON) ctx.waitUntil(refreshBuoys(env));
-    else ctx.waitUntil(Promise.all(Object.values(SPOTS).map((s) => refresh(s, env))));
+    else if (event.cron === BUOY_CRON) {
+      if (new Date(event.scheduledTime).getUTCHours() === DAILY_HOUR_UTC) daily();
+      else ctx.waitUntil(refreshBuoys(env));
+    } else daily();
   },
 };
