@@ -1,0 +1,27 @@
+{
+  "id": "northeast",
+  "name": "東北角",
+  "center": [25.114, 121.922],
+  "locateMaxKm": 15,
+  "notice": "冬天東北季風浪大，很多天不能下水",
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "雙溪",
+  "riverBearing": 168,
+  "rainPoints": [
+    { "name": "雙溪", "lat": 25.033, "lon": 121.866 },
+    { "name": "貢寮", "lat": 25.022, "lon": 121.910 },
+    { "name": "瑞芳", "lat": 25.109, "lon": 121.810 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "bitou", "name": "鼻頭角", "location": [25.131, 121.924], "facing": 35,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0.05,
+      "satBox": [[25.13, 121.92], [25.17, 121.97]], "fallbackBase": 12 },
+    { "id": "longdong", "name": "龍洞灣", "location": [25.1148, 121.9192], "facing": 45,
+      "shelter": "bay", "bottom": "mixed", "riverImpact": 0.1,
+      "satBox": [[25.10, 121.93], [25.14, 121.97]], "fallbackBase": 10 },
+    { "id": "hemei", "name": "和美", "location": [25.0975, 121.9215], "facing": 110,
+      "shelter": "semi", "bottom": "rock", "riverImpact": 0.2,
+      "satBox": [[25.07, 121.93], [25.11, 121.97]], "fallbackBase": 10 }
+  ]
+}

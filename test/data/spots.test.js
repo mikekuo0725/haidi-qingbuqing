@@ -39,7 +39,17 @@ test('spot ids and zone ids are unique, facings are compass degrees', () => {
 test('墾丁 has 西岸 / 南灣 / 東岸', () => {
   expect(SPOTS.kenting.name).toBe('墾丁');
   expect(SPOTS.kenting.zones.map((z) => z.id)).toEqual(['west', 'south', 'east']);
-  expect(SPOT_LIST.map((s) => s.id)).toEqual(['xiaoliuqiu', 'kenting', 'qixing']);
+  expect(SPOT_LIST.map((s) => s.id)).toEqual(['xiaoliuqiu', 'kenting', 'qixing', 'northeast']);
+});
+
+test('東北角 has 鼻頭角 / 龍洞灣 / 和美, a small 雙溪 effect and a monsoon notice', () => {
+  const n = SPOTS.northeast;
+  expect(n.name).toBe('東北角');
+  expect(n.zones.map((z) => z.id)).toEqual(['bitou', 'longdong', 'hemei']);
+  expect(n.zones.map((z) => z.name)).toEqual(['鼻頭角', '龍洞灣', '和美']);
+  expect(n.riverName).toBe('雙溪');
+  expect(n.zones.every((z) => z.riverImpact <= 0.2)).toBe(true);
+  expect(n.notice).toContain('東北季風');
 });
 
 test('七星岩 is its own spot: 2 sides, no river effect, a safety notice', () => {

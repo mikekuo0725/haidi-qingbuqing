@@ -48,3 +48,7 @@ test('real data: 墾丁大街 and 鵝鑾鼻 → kenting, on the boat at 七星�
   expect(nearbySpotId([21.902, 120.852], SPOT_LIST)).toBe('kenting');
   expect(nearbySpotId([21.7589, 120.8247], SPOT_LIST)).toBe('qixing');
 });
+
+test('real data: in the water at 龍洞灣 → northeast', () => {
+  expect(nearbySpotId([25.1148, 121.9192], SPOT_LIST)).toBe('northeast');
+});
