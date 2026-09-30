@@ -59,4 +59,7 @@ export const K = {
   // satellite
   satMinValues: 10,
   satMaxAgeDays: 45,
+
+  // 氣象署 coastal forecast: older than this (by its "Sent" time) is not used
+  coastalMaxAgeH: 12,
 };
