@@ -27,3 +27,8 @@ test('小琉球 and 墾丁 have land; 七星岩 says where 鵝鑾鼻 is', () => 
   expect(MAPS.kenting.land.length).toBeGreaterThan(0);
   expect(MAPS.qixing.note).toBe('鵝鑾鼻在北邊約 16 公里');
 });
+
+test('東北角 has land (the coast west of the zones)', () => {
+  expect(MAPS.northeast.land.length).toBeGreaterThan(0);
+  expect(MAPS.northeast.bbox).toEqual([[25.08, 121.88], [25.145, 121.98]]);
+});
