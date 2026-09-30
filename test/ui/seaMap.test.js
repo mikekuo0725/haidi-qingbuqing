@@ -19,6 +19,7 @@ test('one dot per zone, in spot order, coloured by that zone light', () => {
     expect(html).toMatch(new RegExp(`data-mapzone="${z.zoneId}"><circle [^>]*class="${LIGHT[z.light].cls}"`));
   }
   expect(html).not.toContain('data-zone=');
+  expect(html).toContain('© OpenStreetMap');
 });
 
 test('old weather makes every dot gray', () => {

@@ -19,7 +19,7 @@ function zoneDot(bbox, zone, light) {
   const [x, y] = project(bbox, zone.location);
   const tx = clamp(x, 26, MAP_W - 26); // keep the name inside the map
   const ty = y < 24 ? y + 26 : y - 14; // name above the dot, or below it at the top edge
-  return `<g class="cmap-zone" data-mapzone="${esc(zone.id)}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" class="${LIGHT[light].cls}"/><text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}">${esc(zone.name)}</text></g>`;
+  return `<g class="cmap-zone" data-mapzone="${esc(zone.id)}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" class="${LIGHT[light].cls}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="22" fill="transparent" class="cmap-hit"/><text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}">${esc(zone.name)}</text></g>`;
 }
 
 export function renderSeaMap({ spot, map, forecast, hourIndex = null }) {
@@ -40,6 +40,7 @@ export function renderSeaMap({ spot, map, forecast, hourIndex = null }) {
       <input type="range" min="0" max="${n - 1}" step="1" value="${i}" aria-valuetext="${c.hour} 點">
     </label>
     <div class="cmap-max">這天最強：<b>${currentSummary(forecast.safety)}</b></div>
+    <div class="cmap-src">地圖 © OpenStreetMap 貢獻者</div>
   </div>`;
 }
 
