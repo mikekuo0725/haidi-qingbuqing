@@ -2,12 +2,16 @@ import { SPOTS } from '../../src/data/spots/index.js';
 import { zoneBias } from '../../src/core/calibration.js';
 import { K } from '../../src/core/constants.js';
 import { DAY_MS } from '../../src/core/math.js';
+import { taipeiDate } from '../../src/core/time.js';
+import { mergeReadings } from '../../src/core/buoy.js';
 import { computeZones } from './base.js';
 import { fetchReports } from './firestore.js';
 import { fetchCoastal, mergeSeries } from './cwa.js';
+import { fetchBuoys } from './buoy.js';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json; charset=utf-8' };
 export const COASTAL_CRON = '30 5,11,17,23 * * *'; // 01:30, 07:30, 13:30, 19:30 Taiwan time (see wrangler.toml)
+export const BUOY_CRON = '15 * * * *'; // every hour at :15 — buoys report hourly, about 1 hour late (see wrangler.toml)
 
 export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now()) {
   const { zones, satelliteDate } = await computeZones(spot, fetchFn, now);
@@ -61,6 +65,25 @@ export async function refreshCoastal(env, fetchFn = fetch) {
   }));
 }
 
+// 氣象署 buoys → KV `buoy:<stationId>`, the last buoyKeepDays days. A failed fetch keeps the old readings;
+// a buoy with no copy gets an empty one, so requests stop starting new downloads until the next cron.
+export async function refreshBuoys(env, fetchFn = fetch, now = Date.now()) {
+  if (!env.CWA_KEY) return;
+  const ids = [...new Set(Object.values(SPOTS).map((s) => s.buoy?.id).filter(Boolean))];
+  let fresh = {};
+  try {
+    fresh = await fetchBuoys(ids, env.CWA_KEY, fetchFn);
+  } catch {
+    // CWA down or bad key: keep what we have
+  }
+  const keepFrom = taipeiDate(now, -K.buoyKeepDays);
+  await Promise.all(ids.map(async (id) => {
+    const old = parseJson(await env.CACHE.get(`buoy:${id}`));
+    const readings = mergeReadings(old?.readings, fresh[id], keepFrom);
+    await env.CACHE.put(`buoy:${id}`, JSON.stringify({ readings }));
+  }));
+}
+
 function usableCoastal(raw, now) {
   const c = parseJson(raw);
   if (!c?.issuedAt || !c.series?.length) return null;
@@ -82,11 +105,18 @@ export default {
       const coastal = usableCoastal(raw, Date.now());
       if (coastal) data.coastal = coastal;
     }
+    if (spot.buoy) {
+      const raw = await env.CACHE.get(`buoy:${spot.buoy.id}`);
+      if (raw == null) ctx?.waitUntil(refreshBuoys(env)); // first request after a deploy fills it
+      const readings = parseJson(raw)?.readings;
+      if (readings?.length) data.buoy = { readings };
+    }
     return new Response(JSON.stringify(data), { headers: { ...CORS, 'Cache-Control': 'public, max-age=3600' } });
   },
 
   async scheduled(event, env, ctx) {
     if (event.cron === COASTAL_CRON) ctx.waitUntil(refreshCoastal(env));
+    else if (event.cron === BUOY_CRON) ctx.waitUntil(refreshBuoys(env));
     else ctx.waitUntil(Promise.all(Object.values(SPOTS).map((s) => refresh(s, env))));
   },
 };
