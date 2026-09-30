@@ -1,5 +1,6 @@
-import { LIGHT, COMPARE_TEXT, CONF_TEXT, hhmm, md, timeAgo, esc, currentSummary } from './format.js';
+import { LIGHT, COMPARE_TEXT, CONF_TEXT, hhmm, md, timeAgo, esc, currentSummary, knots, arrow } from './format.js';
 import { renderSeaMap } from './seaMap.js';
+import { latestReading } from '../core/buoy.js';
 
 function locationRow(spot, located) {
   if (located.status === 'near') {
@@ -26,6 +27,18 @@ function seaRow(f, withCurrent) {
   </div>`;
 }
 
+// 「現在實測」: the spot's 氣象署 buoy, newest reading. The name matters: a buoy can be km away from the spot.
+function buoyRow(spot, buoy, now) {
+  const r = spot.buoy ? latestReading(buoy?.readings, now) : null;
+  if (!r) return '';
+  const parts = [
+    r.waveH != null ? `浪 ${r.waveH.toFixed(1)} 米` : null,
+    r.sst != null ? `水溫 ${Math.round(r.sst)}°C` : null,
+    r.currentKn != null ? `流 ${knots(r.currentKn)} ${arrow(r.currentToDeg)}` : null,
+  ].filter(Boolean);
+  return `<div class="buoy">🛟 ${esc(spot.buoy.name)} ${r.time.slice(11, 16)} 實測：${parts.join(' ・ ')}</div>`;
+}
+
 function card(z, located) {
   const me = located.status === 'near' && located.zoneId === z.zoneId;
   const reports = z.todayReports.length
@@ -39,7 +52,7 @@ function card(z, located) {
   </div>`;
 }
 
-export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null, emptyText = '這天沒有資料', map = null, mapHour = null }) {
+export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null, emptyText = '這天沒有資料', map = null, mapHour = null, buoy = null }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
   // staleHours comes from the app's overall weather state, not just this day's forecast,
   // so a day with no forecast at all (R5) can still say *why* — old cached weather. (Task 15)
@@ -58,6 +71,7 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   ${stale}
   ${forecast && map ? renderSeaMap({ spot, map, forecast, hourIndex: mapHour }) : ''}
   ${forecast ? seaRow(forecast, !map) : ''}
+  ${dayIndex === 0 ? buoyRow(spot, buoy, now) : ''}
   ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : `<div class="pad">${esc(emptyText)}</div>`}
   <button type="button" class="btn" data-action="report">🤿 我下水了，回報能見度</button>
   ${forecast ? '<button type="button" class="btn btn2" data-action="share">📤 分享給潛伴</button>' : ''}

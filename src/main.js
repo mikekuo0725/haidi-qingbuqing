@@ -19,6 +19,7 @@ import { renderReportForm, parseReportForm } from './ui/reportForm.js';
 import { buildShareText, shareOrCopy } from './ui/share.js';
 import { md } from './ui/format.js';
 import { applyCoastal } from './core/cwa.js';
+import { applyBuoy } from './core/buoy.js';
 import { registerSW } from 'virtual:pwa-register';
 import { renderUpdateBar } from './ui/updateBar.js';
 
@@ -90,8 +91,10 @@ function buildForecasts(now) {
   const s = spot();
   const today = taipeiDate(now);
   state.forecasts = [0, 1, 2].map((i) => {
-    // Taiwan spots: 氣象署 waves/currents/wind when the helper has them; otherwise Open-Meteo as before.
-    const day = weather ? applyCoastal(safeParseDay(weather.raw, taipeiDate(now, i)), helper?.coastal) : null;
+    // Taiwan spots: 氣象署 waves/currents/wind when the helper has them, and buoy-measured waves for
+    // finished past days (前 3 天的浪); otherwise Open-Meteo as before.
+    const parsed = weather ? applyCoastal(safeParseDay(weather.raw, taipeiDate(now, i)), helper?.coastal) : null;
+    const day = applyBuoy(parsed, helper?.buoy?.readings, today);
     if (!day) return null;
     return buildForecast({ spot: s, day, stale: weather.stale, helper, reports, now, isToday: day.date === today });
   });
@@ -125,6 +128,7 @@ function render() {
   let html = renderMain({
     spot: s, forecast: forecast ?? null, dayIndex: state.dayIndex, dayLabels: DAY_LABELS, located: state.located,
     freshness: { weatherAt: state.weatherAt, satelliteDate: state.helper?.satelliteDate ?? null, lastReportAt }, now,
+    buoy: state.helper?.buoy ?? null,
     // Task 15: from state.weather, not the per-day forecast, so a day with no data at all still says why.
     staleHours: state.weather?.stale ?? null,
     emptyText,

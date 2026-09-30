@@ -16,6 +16,7 @@ button { font:inherit; color:inherit; }
 .days button { flex:1; display:flex; align-items:center; justify-content:center; min-height:var(--tap); margin:0; padding:0 4px; border:0; border-radius:22px; background:#17385a; cursor:pointer; }
 .days button.on { background:var(--acc); font-weight:700; }
 .loc { margin:0 14px 8px; padding:10px 12px; border-radius:10px; background:#123f2e; }
+.buoy { margin:0 14px 8px; padding:10px 12px; border-radius:10px; background:#17385a; font-size:14px; }
 .warn { margin:0 14px 8px; padding:10px 12px; border-radius:10px; background:#5a2b2b; }
 .sea { margin:0 14px 10px; padding:12px; border-radius:12px; background:var(--card); display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; }
 .sea .wide, .sea .warn { grid-column:1 / -1; }

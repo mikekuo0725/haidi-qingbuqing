@@ -124,3 +124,23 @@ test('a garbage coastalAt leaves the 氣象署 footer segment out', () => {
   const html = renderMain({ ...base, forecast: { ...forecast, coastalAt: 'garbage' } });
   expect(html).not.toContain('氣象署');
 });
+
+const buoyNow = { readings: [{ time: '2024-01-18T11:00', waveH: 0.24, waveT: 4, waveDir: 200, sst: 28.6, currentKn: 0.74, currentToDeg: 213 }] };
+
+test('今天 shows the latest buoy reading with the buoy name', () => {
+  const html = renderMain({ ...base, buoy: buoyNow });
+  expect(html).toContain('🛟 小琉球浮標 11:00 實測：浪 0.2 米 ・ 水溫 29°C ・ 流 0.74 節 → 往西南</div>');
+});
+
+test('the buoy line is only on 今天, leaves out missing items, and hides when old or absent', () => {
+  expect(renderMain({ ...base, dayIndex: 1, buoy: buoyNow })).not.toContain('🛟');
+  const noCurrent = { readings: [{ ...buoyNow.readings[0], currentKn: null }] };
+  expect(renderMain({ ...base, buoy: noCurrent })).toContain('實測：浪 0.2 米 ・ 水溫 29°C</div>');
+  expect(renderMain(base)).not.toContain('🛟');
+  const old = { readings: [{ ...buoyNow.readings[0], time: '2024-01-18T08:00' }] }; // 4 hours before now
+  expect(renderMain({ ...base, buoy: old })).not.toContain('🛟');
+});
+
+test('a spot without a buoy shows no buoy line', () => {
+  expect(renderMain({ ...base, spot: { ...spot, buoy: undefined }, buoy: buoyNow })).not.toContain('🛟');
+});
