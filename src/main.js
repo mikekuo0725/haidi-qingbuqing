@@ -10,6 +10,8 @@ import { locate } from './core/locate.js';
 import { spotsByDistance, nearbySpotId, initialSpotId, autoSwitchTarget } from './core/spotChoice.js';
 import { taipeiDate } from './core/time.js';
 import { renderMain } from './ui/mainView.js';
+import { MAPS } from './data/spots/maps/index.js';
+import { updateSeaMap } from './ui/seaMap.js';
 import { renderSpotSheet } from './ui/spotSheet.js';
 import { installHint } from './ui/installHint.js';
 import { renderDetail } from './ui/detailView.js';
@@ -37,6 +39,7 @@ const state = {
   lockedSpot: firstSpotId === urlSpotId, // opened from a shared link: GPS must not switch away
   pendingSpot: null,
   pos: null, // GPS: memory only, never stored or sent
+  mapHour: null, // sea map slider; null = the best dive hour
   loading: true,
   dayIndex: 1, view: 'main', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, reports: [], weatherAt: null,
 };
@@ -121,6 +124,7 @@ function render() {
     // Task 15: from state.weather, not the per-day forecast, so a day with no data at all still says why.
     staleHours: state.weather?.stale ?? null,
     emptyText,
+    map: MAPS[s.id] ?? null, mapHour: state.mapHour,
     hint: installHint(navigator.userAgent, matchMedia('(display-mode: standalone)').matches || navigator.standalone === true),
   });
   if (state.view === 'spots') {
@@ -155,6 +159,7 @@ function selectSpot(id, { manual }) {
     if (location.search) history.replaceState(history.state, '', location.pathname + location.hash);
     Object.assign(state, {
       located: locate(state.pos, spot()), forecasts: [], weather: null, helper: null, reports: [], weatherAt: null, loading: true,
+      mapHour: null,
     });
   }
   render();
@@ -213,7 +218,7 @@ app.addEventListener('click', async (e) => {
   const pick = e.target.closest('[data-spot]');
   if (pick) { state.pendingSpot = pick.dataset.spot; return history.back(); } // popstate does the switch
   const day = e.target.closest('[data-day]');
-  if (day) { state.dayIndex = Number(day.dataset.day); return render(); } // keep scroll position; tabs are sticky
+  if (day) { state.dayIndex = Number(day.dataset.day); state.mapHour = null; return render(); } // keep scroll position; tabs are sticky
   const action = e.target.closest('[data-action]')?.dataset.action;
   if (action === 'back' || action === 'close-sheet') return history.back();
   if (action === 'spots') {
@@ -232,8 +237,19 @@ app.addEventListener('click', async (e) => {
     if (r === 'failed') toast('這支手機不能分享，請手動複製網址');
     return;
   }
+  const dot = e.target.closest('[data-mapzone]');
+  if (dot) return go('detail', dot.dataset.mapzone);
   const card = e.target.closest('[data-zone]');
   if (card) go('detail', card.dataset.zone);
+});
+
+// Sea map slider: move the arrow in place (a full render would drop the finger's drag).
+app.addEventListener('input', (e) => {
+  if (!e.target.matches('.cmap input[type="range"]')) return;
+  const c = state.forecasts[state.dayIndex]?.currents[Number(e.target.value)];
+  if (!c) return;
+  state.mapHour = Number(e.target.value);
+  updateSeaMap(app, c);
 });
 
 // R6: zone cards are role="button" divs — Enter/Space opens them like a click.

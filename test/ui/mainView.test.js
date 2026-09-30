@@ -2,6 +2,7 @@ import { test, expect } from 'vitest';
 import { renderMain } from '../../src/ui/mainView.js';
 import { buildForecast } from '../../src/core/forecast.js';
 import { SPOTS } from '../../src/data/spots/index.js';
+import { MAPS } from '../../src/data/spots/maps/index.js';
 import { makeDay } from '../helpers/makeDay.js';
 
 const spot = SPOTS.xiaoliuqiu;
@@ -87,4 +88,28 @@ test('a spot notice shows under the day tabs; spots without one show nothing', (
   expect(renderMain(base)).not.toContain('class="notice"');
   const html = renderMain({ ...base, spot: { ...spot, notice: '高級潛點：只能搭船去' } });
   expect(html).toMatch(/<\/nav>\s*<div class="notice">⚠️ 高級潛點：只能搭船去<\/div>/);
+});
+
+test('with a map: the map replaces the 🌀 cell, cards stay in order', () => {
+  const html = renderMain({ ...base, map: MAPS.xiaoliuqiu });
+  expect(html).toContain('class="cmap"');
+  expect(html).not.toContain('🌀 海流<br>');
+  expect(html).toContain('🌡️');
+  expect(html).toContain('⏰ 最佳下水');
+  expect(html.indexOf('class="cmap"')).toBeLessThan(html.indexOf('class="cards"'));
+  const order = [...html.matchAll(/data-zone="(\w+)"/g)].map((m) => m[1]);
+  expect(order).toEqual(forecast.zones.map((z) => z.zoneId));
+});
+
+test('the chosen slider hour survives a re-render', () => {
+  expect(renderMain({ ...base, map: MAPS.xiaoliuqiu, mapHour: 6 })).toContain('value="6"');
+});
+
+test('without a map the old current line stays', () => {
+  expect(renderMain(base)).toContain('🌀 海流<br>');
+  expect(renderMain(base)).not.toContain('class="cmap"');
+});
+
+test('no forecast, no map', () => {
+  expect(renderMain({ ...base, forecast: null, map: MAPS.xiaoliuqiu })).not.toContain('class="cmap"');
 });

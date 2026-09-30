@@ -1,4 +1,5 @@
-import { LIGHT, COMPARE_TEXT, CONF_TEXT, SAFETY_TEXT, knots, arrow, hhmm, md, timeAgo, esc } from './format.js';
+import { LIGHT, COMPARE_TEXT, CONF_TEXT, hhmm, md, timeAgo, esc, currentSummary } from './format.js';
+import { renderSeaMap } from './seaMap.js';
 
 function locationRow(spot, located) {
   if (located.status === 'near') {
@@ -9,15 +10,15 @@ function locationRow(spot, located) {
   return '';
 }
 
-function seaRow(f) {
+// withCurrent: the old one-line current, only for a spot that has no sea map yet.
+function seaRow(f, withCurrent) {
   const s = f.safety;
-  const cur = `${knots(s.currentKn)} ${arrow(s.currentToDeg)} ${LIGHT[s.currentLevel].emoji} ${SAFETY_TEXT[s.currentLevel]}`;
   const wave = s.waveRed ? `<div class="warn">🔴 浪 ${s.waveMaxM.toFixed(1)} 米，不建議下水</div>` : '';
   const up = s.upwelling ? '<div class="warn">🥶 水溫突降，可能有湧升流，幾天後水可能變綠</div>' : '';
   const best = `${f.best.start}~${f.best.end} 點${f.best.slack ? '（平潮）' : ''}`;
   const sst = f.sst == null ? '—' : `${Math.round(f.sst)}°C`;
   return `<div class="sea">
-    <div class="wide">🌀 海流<br><b>${cur}</b></div>
+    ${withCurrent ? `<div class="wide">🌀 海流<br><b>${currentSummary(s)}</b></div>` : ''}
     <div>🌡️ 水溫<br><b>${sst}</b></div>
     <div>⏰ 最佳下水<br><b>${best}</b></div>
     <div>🌊 浪<br><b>${s.waveMaxM.toFixed(1)} 米</b></div>
@@ -38,7 +39,7 @@ function card(z, located) {
   </div>`;
 }
 
-export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null, emptyText = '這天沒有資料' }) {
+export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null, emptyText = '這天沒有資料', map = null, mapHour = null }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
   // staleHours comes from the app's overall weather state, not just this day's forecast,
   // so a day with no forecast at all (R5) can still say *why* — old cached weather. (Task 15)
@@ -54,7 +55,8 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   ${spot.notice ? `<div class="notice">⚠️ ${esc(spot.notice)}</div>` : ''}
   ${locationRow(spot, located)}
   ${stale}
-  ${forecast ? seaRow(forecast) : ''}
+  ${forecast && map ? renderSeaMap({ spot, map, forecast, hourIndex: mapHour }) : ''}
+  ${forecast ? seaRow(forecast, !map) : ''}
   ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : `<div class="pad">${esc(emptyText)}</div>`}
   <button type="button" class="btn" data-action="report">🤿 我下水了，回報能見度</button>
   ${forecast ? '<button type="button" class="btn btn2" data-action="share">📤 分享給潛伴</button>' : ''}
