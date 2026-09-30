@@ -65,3 +65,12 @@ test('七星岩 is its own spot: 2 sides, no river effect, a safety notice', () 
     }
   }
 });
+
+test('Taiwan spots name their 氣象署 coastal area', () => {
+  expect(SPOT_LIST.map((s) => [s.id, s.cwaArea])).toEqual([
+    ['xiaoliuqiu', '琉球鄉_南方沿海'],
+    ['kenting', '恆春鎮沿海'],
+    ['qixing', '恆春鎮沿海'],
+    ['northeast', '貢寮區沿海'],
+  ]);
+});

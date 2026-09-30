@@ -1,6 +1,7 @@
 {
   "id": "northeast",
   "name": "東北角",
+  "cwaArea": "貢寮區沿海",
   "center": [25.114, 121.922],
   "locateMaxKm": 15,
   "notice": "冬天東北季風浪大，很多天不能下水",
