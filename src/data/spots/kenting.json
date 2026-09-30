@@ -2,6 +2,7 @@
   "id": "kenting",
   "name": "墾丁",
   "cwaArea": "恆春鎮沿海",
+  "buoy": { "id": "46759A", "name": "鵝鑾鼻浮標" },
   "center": [21.95, 120.78],
   "locateMaxKm": 20,
   "thresholds": { "purple": 20, "green": 12, "yellow": 6 },

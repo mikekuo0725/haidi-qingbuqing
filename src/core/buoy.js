@@ -1,6 +1,7 @@
 // 中央氣象署 浮標 (O-B0075-001): one reading per hour for the last 48 hours, values as text, "None" = not measured.
 // Used by the Worker (to keep 4 days) and by the page (前 3 天的浪 and the 「現在實測」 line).
 import { K } from './constants.js';
+import { addDays } from './time.js';
 
 const HOUR = 3600000;
 
@@ -65,4 +66,23 @@ export function latestReading(readings, now) {
     currentToDeg: cur?.currentToDeg ?? null,
   };
   return out.waveH != null || out.sst != null || cur ? out : null;
+}
+
+const fullWave = (r) => r.waveH != null && r.waveT != null && r.waveDir != null;
+
+// 前 3 天的浪: a finished past day with ≥ buoyMinHours full wave hours uses what the buoy measured;
+// any other day keeps Open-Meteo's model. today = Taiwan date "YYYY-MM-DD".
+export function applyBuoy(day, readings, today) {
+  if (!day || !readings?.length) return day;
+  let changed = false;
+  const pastWaves = day.pastWaves.map((model, i) => {
+    const d = addDays(day.date, -(i + 1));
+    if (d >= today) return model; // today is not over yet
+    const list = readings.filter((r) => r.time?.startsWith(d) && fullWave(r))
+      .map((r) => ({ waveH: r.waveH, waveT: r.waveT, waveDir: r.waveDir }));
+    if (list.length < K.buoyMinHours) return model;
+    changed = true;
+    return list;
+  });
+  return changed ? { ...day, pastWaves } : day;
 }

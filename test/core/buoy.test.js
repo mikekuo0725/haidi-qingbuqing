@@ -1,6 +1,9 @@
 import { test, expect } from 'vitest';
-import { readingFrom, parseBuoys, mergeReadings, readingMs, latestReading } from '../../src/core/buoy.js';
+import { readingFrom, parseBuoys, mergeReadings, readingMs, latestReading, applyBuoy } from '../../src/core/buoy.js';
+import { pastWaveFactor } from '../../src/core/factors.js';
+import { SPOTS } from '../../src/data/spots/index.js';
 import { obs, buoyFile, dayReadings } from '../helpers/buoyFixture.js';
+import { makeDay } from '../helpers/makeDay.js';
 
 const at = (time) => readingMs(time);
 
@@ -73,4 +76,45 @@ test('latestReading: nothing when the newest row is over 3 hours old, the list i
   expect(latestReading(undefined, 0)).toBeNull();
   const empty = [{ time: '2026-09-30T13:00', waveH: null, waveT: null, waveDir: null, sst: null, currentKn: null, currentToDeg: null }];
   expect(latestReading(empty, at('2026-09-30T13:30'))).toBeNull();
+});
+
+test('applyBuoy: each finished past day with ≥12 full wave hours uses the buoy; others keep Open-Meteo', () => {
+  const day = makeDay({ date: '2026-09-30' }); // pastWaves = 3 × 24 calm Open-Meteo hours
+  const readings = [
+    ...dayReadings('2026-09-27', 24, { waveH: 2 }), // day-3: 24 hours → buoy
+    ...dayReadings('2026-09-28', 11, { waveH: 2 }), // day-2: 11 hours → Open-Meteo
+    ...dayReadings('2026-09-29', 12, { waveH: 2 }), // day-1: 12 hours → buoy
+  ];
+  const out = applyBuoy(day, readings, '2026-09-30');
+  expect(out.pastWaves[0]).toHaveLength(12);
+  expect(out.pastWaves[0][0]).toEqual({ waveH: 2, waveT: 4, waveDir: 200 });
+  expect(out.pastWaves[1]).toBe(day.pastWaves[1]);
+  expect(out.pastWaves[2]).toHaveLength(24);
+  expect(out.hours).toBe(day.hours);
+  expect(day.pastWaves[0][0].waveH).toBe(0.3); // the input day is not changed
+});
+
+test('applyBuoy: an hour missing height, period or direction does not count', () => {
+  const day = makeDay({ date: '2026-09-30' });
+  const readings = [...dayReadings('2026-09-29', 11, { waveH: 2 }), { time: '2026-09-29T20:00', waveH: 2, waveT: null, waveDir: 200 }];
+  expect(applyBuoy(day, readings, '2026-09-30')).toBe(day);
+});
+
+test('applyBuoy: today is not finished yet, so tomorrow keeps Open-Meteo for day-1', () => {
+  const tomorrow = makeDay({ date: '2026-10-01' });
+  expect(applyBuoy(tomorrow, dayReadings('2026-09-30', 24, { waveH: 2 }), '2026-09-30')).toBe(tomorrow);
+});
+
+test('applyBuoy: no day or no readings → unchanged', () => {
+  const day = makeDay({ date: '2026-09-30' });
+  expect(applyBuoy(null, dayReadings('2026-09-29'), '2026-09-30')).toBeNull();
+  expect(applyBuoy(day, undefined, '2026-09-30')).toBe(day);
+  expect(applyBuoy(day, [], '2026-09-30')).toBe(day);
+});
+
+test('big buoy waves yesterday lower the 前幾天的浪 factor', () => {
+  const day = makeDay({ date: '2026-09-30' });
+  const out = applyBuoy(day, dayReadings('2026-09-29', 24, { waveH: 2, waveT: 8, waveDir: 270 }), '2026-09-30');
+  const zone = SPOTS.xiaoliuqiu.zones.find((z) => z.id === 'west');
+  expect(pastWaveFactor(out.pastWaves, zone)).toBeLessThan(pastWaveFactor(day.pastWaves, zone));
 });

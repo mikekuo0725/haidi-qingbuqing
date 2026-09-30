@@ -2,6 +2,7 @@
   "id": "xiaoliuqiu",
   "name": "小琉球",
   "cwaArea": "琉球鄉_南方沿海",
+  "buoy": { "id": "46714D", "name": "小琉球浮標" },
   "center": [22.34, 120.37],
   "locateMaxKm": 15,
   "thresholds": { "purple": 20, "green": 12, "yellow": 6 },

@@ -74,3 +74,12 @@ test('Taiwan spots name their 氣象署 coastal area', () => {
     ['northeast', '貢寮區沿海'],
   ]);
 });
+
+test('Taiwan spots name their 氣象署 buoy', () => {
+  expect(SPOT_LIST.map((s) => [s.id, s.buoy?.id, s.buoy?.name])).toEqual([
+    ['xiaoliuqiu', '46714D', '小琉球浮標'],
+    ['kenting', '46759A', '鵝鑾鼻浮標'],
+    ['qixing', '46759A', '鵝鑾鼻浮標'],
+    ['northeast', '46694A', '龍洞浮標'],
+  ]);
+});

@@ -2,6 +2,7 @@
   "id": "qixing",
   "name": "七星岩",
   "cwaArea": "恆春鎮沿海",
+  "buoy": { "id": "46759A", "name": "鵝鑾鼻浮標" },
   "center": [21.759, 120.825],
   "locateMaxKm": 6,
   "notice": "高級潛點：只能搭船去、海流很強，要有經驗的潛水員",
