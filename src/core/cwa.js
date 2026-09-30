@@ -68,7 +68,8 @@ export function hourlyFromCwa(series, date) {
   const pts = series.filter((p) => p.time.startsWith(date));
   const hours = [];
   for (let h = 8; h <= 16; h++) {
-    const a = pts.findLast((p) => hourOf(p.time) <= h);
+    let a;
+    for (let k = pts.length - 1; k >= 0; k--) if (hourOf(pts[k].time) <= h) { a = pts[k]; break; }
     const b = pts.find((p) => hourOf(p.time) >= h);
     if (!a || !b) return null;
     const ha = hourOf(a.time);
@@ -92,7 +93,11 @@ export function hourlyFromCwa(series, date) {
 // Water temperature, tide, past waves and rain stay from Open-Meteo (CWA's coastal forecast has none).
 export function applyCoastal(day, coastal) {
   if (!day || !coastal?.series?.length) return day;
-  const cwa = hourlyFromCwa(coastal.series, day.date);
-  if (!cwa) return day;
-  return { ...day, hours: day.hours.map((h, i) => ({ ...h, ...cwa[i] })), coastalAt: coastal.issuedAt };
+  try {
+    const cwa = hourlyFromCwa(coastal.series, day.date);
+    if (!cwa) return day;
+    return { ...day, hours: day.hours.map((h, i) => ({ ...h, ...cwa[i] })), coastalAt: coastal.issuedAt };
+  } catch {
+    return day;
+  }
 }

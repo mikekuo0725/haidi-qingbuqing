@@ -119,3 +119,8 @@ test('the footer names 氣象署 when the day used its sea forecast', () => {
   expect(html).toContain('海況 氣象署 06:55 ・ 天氣');
   expect(renderMain(base)).not.toContain('氣象署');
 });
+
+test('a garbage coastalAt leaves the 氣象署 footer segment out', () => {
+  const html = renderMain({ ...base, forecast: { ...forecast, coastalAt: 'garbage' } });
+  expect(html).not.toContain('氣象署');
+});

@@ -72,3 +72,18 @@ test('applyCoastal leaves the day alone without usable coastal data', () => {
   expect(applyCoastal(day, { issuedAt: SENT, series: [] })).toBe(day);
   expect(applyCoastal(null, { issuedAt: SENT, series: series() })).toBeNull();
 });
+
+test('hourlyFromCwa works without Array.prototype.findLast (older Safari / Chrome)', () => {
+  const orig = Array.prototype.findLast;
+  delete Array.prototype.findLast;
+  try {
+    expect(hourlyFromCwa(series(), '2026-09-30')).toHaveLength(9);
+  } finally {
+    Array.prototype.findLast = orig;
+  }
+});
+
+test('applyCoastal never throws on malformed series', () => {
+  const day = makeDay({ date: '2026-09-30' });
+  expect(applyCoastal(day, { issuedAt: SENT, series: [null] })).toBe(day);
+});

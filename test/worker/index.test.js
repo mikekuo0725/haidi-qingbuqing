@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest';
-import worker, { refreshCoastal } from '../../worker/src/index.js';
+import { readFileSync } from 'node:fs';
+import worker, { refreshCoastal, COASTAL_CRON } from '../../worker/src/index.js';
 import { cwaLocation, cwaFile, dayTimes } from '../helpers/cwaFixture.js';
 
 function fakeKV(initial = {}) {
@@ -91,4 +92,29 @@ test('the 6-hourly cron refreshes the coastal forecast only', async () => {
   expect(ctx.jobs).toHaveLength(1);
   await Promise.all(ctx.jobs);
   expect(await kv.get('base:xiaoliuqiu')).toBeNull(); // the daily satellite refresh did not run
+});
+
+test('the deployed cron list contains COASTAL_CRON', () => {
+  const toml = readFileSync(new URL('../../worker/wrangler.toml', import.meta.url), 'utf8');
+  expect(toml).toContain(`"${COASTAL_CRON}"`);
+});
+
+test('refreshCoastal writes the empty marker before it downloads', async () => {
+  const file = cwaFile('2026-09-30T06:55:58+08:00', ['琉球鄉_南方沿海', '恆春鎮沿海', '貢寮區沿海'].map((n) => cwaLocation(n, dayTimes('2026-09-30'))));
+  const kv = fakeKV();
+  await refreshCoastal({ CACHE: kv, CWA_KEY: 'K' }, async () => {
+    expect(await kv.get('cwa:kenting')).toBe(JSON.stringify({ issuedAt: null, series: [] }));
+    return new Response(file);
+  });
+  expect(JSON.parse(await kv.get('cwa:kenting')).series).toHaveLength(5);
+});
+
+test('a corrupt KV copy is ignored by requests and overwritten by refreshCoastal', async () => {
+  const env = { CACHE: fakeKV({ 'base:xiaoliuqiu': BASE, 'cwa:xiaoliuqiu': 'not json' }) };
+  const res = await worker.fetch(new Request('https://x/v1/base?spot=xiaoliuqiu'), env, fakeCtx());
+  expect(res.status).toBe(200);
+  expect((await res.json()).coastal).toBeUndefined();
+  const file = cwaFile('2026-09-30T06:55:58+08:00', ['琉球鄉_南方沿海', '恆春鎮沿海', '貢寮區沿海'].map((n) => cwaLocation(n, dayTimes('2026-09-30'))));
+  await refreshCoastal({ CACHE: env.CACHE, CWA_KEY: 'K' }, async () => new Response(file));
+  expect(JSON.parse(await env.CACHE.get('cwa:xiaoliuqiu')).series).toHaveLength(5);
 });
