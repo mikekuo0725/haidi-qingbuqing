@@ -62,4 +62,9 @@ export const K = {
 
   // 氣象署 coastal forecast: older than this (by its "Sent" time) is not used
   coastalMaxAgeH: 12,
+
+  // 氣象署 浮標
+  buoyMaxAgeH: 3,    // newest reading older than this → no 「現在實測」 line; each item looks back this far
+  buoyMinHours: 12,  // a finished past day needs this many full wave hours to replace Open-Meteo's 前幾天的浪
+  buoyKeepDays: 4,   // the Worker keeps this many days of readings in KV
 };
