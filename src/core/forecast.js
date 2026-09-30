@@ -48,6 +48,7 @@ export function buildForecast({ spot, day, stale, helper, reports, now, isToday 
     safety: assessSafety(day, spot),
     best: bestWindow(day.hours),
     sst: daytimeSst(day),
+    coastalAt: day.coastalAt ?? null, // set when the sea fields came from 氣象署
     // For the sea map's hour slider: the whole-sea current, hour by hour.
     currents: day.hours.map((h) => {
       const kn = kmhToKnots(h.currentKmh);

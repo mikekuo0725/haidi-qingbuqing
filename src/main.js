@@ -18,6 +18,7 @@ import { renderDetail } from './ui/detailView.js';
 import { renderReportForm, parseReportForm } from './ui/reportForm.js';
 import { buildShareText, shareOrCopy } from './ui/share.js';
 import { md } from './ui/format.js';
+import { applyCoastal } from './core/cwa.js';
 import { registerSW } from 'virtual:pwa-register';
 import { renderUpdateBar } from './ui/updateBar.js';
 
@@ -89,7 +90,8 @@ function buildForecasts(now) {
   const s = spot();
   const today = taipeiDate(now);
   state.forecasts = [0, 1, 2].map((i) => {
-    const day = weather ? safeParseDay(weather.raw, taipeiDate(now, i)) : null;
+    // Taiwan spots: 氣象署 waves/currents/wind when the helper has them; otherwise Open-Meteo as before.
+    const day = weather ? applyCoastal(safeParseDay(weather.raw, taipeiDate(now, i)), helper?.coastal) : null;
     if (!day) return null;
     return buildForecast({ spot: s, day, stale: weather.stale, helper, reports, now, isToday: day.date === today });
   });

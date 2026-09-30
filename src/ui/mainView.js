@@ -46,6 +46,7 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   const staleAgo = staleHours < 1 ? '不到 1 小時前' : ` ${Math.round(staleHours)} 小時前`;
   const stale = staleHours != null ? `<div class="warn">⚪ 抓不到最新天氣，這是${staleAgo}的預測</div>` : '';
   const foot = [
+    ...(forecast?.coastalAt ? [`海況 氣象署 ${hhmm(Date.parse(forecast.coastalAt))}`] : []),
     freshness.weatherAt ? `天氣 ${hhmm(freshness.weatherAt)}` : '天氣 —',
     freshness.satelliteDate ? `衛星 ${md(freshness.satelliteDate)}` : '衛星資料暫缺，準度較低',
     freshness.lastReportAt ? `回報 ${timeAgo(freshness.lastReportAt, now)}` : '還沒有回報',

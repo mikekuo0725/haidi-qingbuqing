@@ -113,3 +113,9 @@ test('without a map the old current line stays', () => {
 test('no forecast, no map', () => {
   expect(renderMain({ ...base, forecast: null, map: MAPS.xiaoliuqiu })).not.toContain('class="cmap"');
 });
+
+test('the footer names 氣象署 when the day used its sea forecast', () => {
+  const html = renderMain({ ...base, forecast: { ...forecast, coastalAt: '2024-01-18T06:55:58+08:00' } });
+  expect(html).toContain('海況 氣象署 06:55 ・ 天氣');
+  expect(renderMain(base)).not.toContain('氣象署');
+});
