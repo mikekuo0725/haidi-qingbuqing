@@ -1,0 +1,31 @@
+{
+  "id": "ludao",
+  "name": "綠島",
+  "cwaArea": "綠島鄉_南方沿海",
+  "center": [22.66, 121.49],
+  "locateMaxKm": 15,
+  "notice": "黑潮經過，海流常常很強，要跟潛店或有經驗的人下水",
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "卑南溪",
+  "riverBearing": 289,
+  "rainPoints": [
+    { "name": "池上", "lat": 23.098, "lon": 121.219 },
+    { "name": "鹿野", "lat": 22.912, "lon": 121.137 },
+    { "name": "延平", "lat": 22.902, "lon": 121.084 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "chaikou", "name": "柴口", "location": [22.6789, 121.4818], "facing": 334,
+      "shelter": "open", "bottom": "mixed", "riverImpact": 0.1,
+      "satBox": [[22.68, 121.45], [22.72, 121.49]], "fallbackBase": 20 },
+    { "id": "shilang", "name": "石朗", "location": [22.6549, 121.4721], "facing": 264,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0.1,
+      "satBox": [[22.63, 121.43], [22.67, 121.46]], "fallbackBase": 20 },
+    { "id": "dabaisha", "name": "大白沙", "location": [22.6364, 121.4919], "facing": 238,
+      "shelter": "open", "bottom": "mixed", "riverImpact": 0.05,
+      "satBox": [[22.60, 121.45], [22.64, 121.49]], "fallbackBase": 20 },
+    { "id": "east", "name": "東岸", "location": [22.6558, 121.5125], "facing": 81,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[22.64, 121.52], [22.68, 121.56]], "fallbackBase": 20 }
+  ]
+}

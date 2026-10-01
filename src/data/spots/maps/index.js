@@ -4,5 +4,6 @@ import xiaoliuqiu from './xiaoliuqiu.json';
 import kenting from './kenting.json';
 import qixing from './qixing.json';
 import northeast from './northeast.json';
+import ludao from './ludao.json';
 
-export const MAPS = { xiaoliuqiu, kenting, qixing, northeast };
+export const MAPS = { xiaoliuqiu, kenting, qixing, northeast, ludao };

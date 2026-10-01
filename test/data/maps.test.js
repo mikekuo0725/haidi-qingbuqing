@@ -32,3 +32,8 @@ test('東北角 has land (the coast west of the zones)', () => {
   expect(MAPS.northeast.land.length).toBeGreaterThan(0);
   expect(MAPS.northeast.bbox).toEqual([[25.08, 121.88], [25.145, 121.98]]);
 });
+
+test('綠島 has land (the whole island)', () => {
+  expect(MAPS.ludao.land.length).toBeGreaterThan(0);
+  expect(MAPS.ludao.bbox).toEqual([[22.625, 121.455], [22.695, 121.53]]);
+});
