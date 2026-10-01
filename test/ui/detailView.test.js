@@ -26,3 +26,13 @@ test('no reports message; reports list escapes html', () => {
   expect(html).toContain('&lt;b&gt;x&lt;/b&gt;');
   expect(html).toContain('海龜');
 });
+
+test('waterfall: biggest loss first, flagged as 最大扣分, and the steps add up to the forecast', () => {
+  const html = renderDetail({ spot, zone: west, dateLabel: 'x', reports: [], now: NOW });
+  const nums = [...html.matchAll(/class="wf-n[^"]*">([+−])([\d.]+)</g)].map((m) => (m[1] === '−' ? -1 : 1) * Number(m[2]));
+  const sum = west.base + nums.reduce((a, b) => a + b, 0);
+  expect(Math.abs(sum - west.meters)).toBeLessThan(0.1 * (nums.length + 1)); // each step is rounded to 0.1
+  expect(nums[0]).toBeLessThanOrEqual(Math.min(...nums));
+  expect(html).toContain('最大扣分：');
+  expect(html).toContain('wf-row end');
+});
