@@ -39,7 +39,7 @@ test('spot ids and zone ids are unique, facings are compass degrees', () => {
 test('墾丁 has 西岸 / 南灣 / 東岸', () => {
   expect(SPOTS.kenting.name).toBe('墾丁');
   expect(SPOTS.kenting.zones.map((z) => z.id)).toEqual(['west', 'south', 'east']);
-  expect(SPOT_LIST.map((s) => s.id)).toEqual(['xiaoliuqiu', 'kenting', 'qixing', 'northeast', 'ludao']);
+  expect(SPOT_LIST.map((s) => s.id)).toEqual(['xiaoliuqiu', 'kenting', 'qixing', 'northeast', 'ludao', 'lanyu']);
 });
 
 test('東北角 has 鼻頭角 / 龍洞灣 / 和美, a small 雙溪 effect and a monsoon notice', () => {
@@ -73,6 +73,7 @@ test('Taiwan spots name their 氣象署 coastal area', () => {
     ['qixing', '恆春鎮沿海'],
     ['northeast', '貢寮區沿海'],
     ['ludao', '綠島鄉_南方沿海'],
+    ['lanyu', '蘭嶼鄉_南方沿海'],
   ]);
 });
 
@@ -83,6 +84,7 @@ test('Taiwan spots name their 氣象署 buoy', () => {
     ['qixing', '46759A', '鵝鑾鼻浮標'],
     ['northeast', '46694A', '龍洞浮標'],
     ['ludao', undefined, undefined],
+    ['lanyu', 'C6S94', '蘭嶼浮標'],
   ]);
 });
 
@@ -95,4 +97,13 @@ test('綠島 has 柴口 / 石朗 / 大白沙 / 東岸, a small 卑南溪 effect 
   expect(g.zones.every((z) => z.riverImpact <= 0.1)).toBe(true);
   expect(g.notice).toContain('黑潮');
   expect(g.buoy).toBeUndefined();
+});
+
+test('蘭嶼 has 開元港 / 八代灣 / 東清灣 / 朗島, no river effect and a 黑潮 notice', () => {
+  const l = SPOTS.lanyu;
+  expect(l.name).toBe('蘭嶼');
+  expect(l.zones.map((z) => z.id)).toEqual(['kaiyuan', 'badai', 'dongqing', 'langdao']);
+  expect(l.zones.map((z) => z.name)).toEqual(['開元港', '八代灣', '東清灣', '朗島']);
+  expect(l.zones.every((z) => z.riverImpact === 0)).toBe(true);
+  expect(l.notice).toContain('黑潮');
 });

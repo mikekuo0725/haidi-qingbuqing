@@ -37,3 +37,8 @@ test('綠島 has land (the whole island)', () => {
   expect(MAPS.ludao.land.length).toBeGreaterThan(0);
   expect(MAPS.ludao.bbox).toEqual([[22.625, 121.455], [22.695, 121.53]]);
 });
+
+test('蘭嶼 has land (the whole island)', () => {
+  expect(MAPS.lanyu.land.length).toBeGreaterThan(0);
+  expect(MAPS.lanyu.bbox).toEqual([[21.99, 121.48], [22.10, 121.63]]);
+});

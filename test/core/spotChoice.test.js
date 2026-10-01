@@ -56,3 +56,7 @@ test('real data: in the water at 龍洞灣 → northeast', () => {
 test('real data: in the water at 綠島石朗 → ludao', () => {
   expect(nearbySpotId([22.6549, 121.4721], SPOT_LIST)).toBe('ludao');
 });
+
+test('real data: in the water at 蘭嶼八代灣 → lanyu', () => {
+  expect(nearbySpotId([22.0240, 121.5484], SPOT_LIST)).toBe('lanyu');
+});

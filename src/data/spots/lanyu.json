@@ -1,0 +1,32 @@
+{
+  "id": "lanyu",
+  "name": "蘭嶼",
+  "cwaArea": "蘭嶼鄉_南方沿海",
+  "buoy": { "id": "C6S94", "name": "蘭嶼浮標" },
+  "center": [22.045, 121.55],
+  "locateMaxKm": 15,
+  "notice": "黑潮經過，海流常常很強，要跟潛店或有經驗的人下水",
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "卑南溪",
+  "riverBearing": 334,
+  "rainPoints": [
+    { "name": "池上", "lat": 23.098, "lon": 121.219 },
+    { "name": "鹿野", "lat": 22.912, "lon": 121.137 },
+    { "name": "延平", "lat": 22.902, "lon": 121.084 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "kaiyuan", "name": "開元港", "location": [22.0584, 121.5053], "facing": 265,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[22.04, 121.46], [22.08, 121.50]], "fallbackBase": 20 },
+    { "id": "badai", "name": "八代灣", "location": [22.0240, 121.5484], "facing": 197,
+      "shelter": "semi", "bottom": "mixed", "riverImpact": 0,
+      "satBox": [[21.98, 121.52], [22.02, 121.56]], "fallbackBase": 20 },
+    { "id": "dongqing", "name": "東清灣", "location": [22.0549, 121.5691], "facing": 100,
+      "shelter": "bay", "bottom": "mixed", "riverImpact": 0,
+      "satBox": [[22.03, 121.58], [22.07, 121.62]], "fallbackBase": 15 },
+    { "id": "langdao", "name": "朗島", "location": [22.0807, 121.5316], "facing": 19,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[22.09, 121.52], [22.12, 121.56]], "fallbackBase": 20 }
+  ]
+}
