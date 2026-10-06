@@ -1,0 +1,32 @@
+{
+  "id": "penghu-north",
+  "name": "澎湖北海",
+  "cwaArea": "白沙鄉沿海",
+  "buoy": { "id": "46735A", "name": "澎湖浮標" },
+  "center": [23.74, 119.59],
+  "locateMaxKm": 10,
+  "notice": "東北季風季（約 10 月到隔年 3 月）浪很大，很多潛店休息；要搭船，跟潛店下水",
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "濁水溪",
+  "riverBearing": 81,
+  "rainPoints": [
+    { "name": "二水", "lat": 23.806, "lon": 120.618 },
+    { "name": "竹山", "lat": 23.757, "lon": 120.689 },
+    { "name": "水里", "lat": 23.812, "lon": 120.853 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "jibei", "name": "吉貝", "location": [23.7265, 119.6001], "facing": 225,
+      "shelter": "open", "bottom": "sand", "riverImpact": 0,
+      "satBox": [[23.69, 119.56], [23.73, 119.60]], "fallbackBase": 10 },
+    { "id": "mudou", "name": "目斗嶼", "location": [23.7899, 119.6007], "facing": 0,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[23.79, 119.58], [23.83, 119.62]], "fallbackBase": 14 },
+    { "id": "gupo", "name": "姑婆嶼", "location": [23.7203, 119.5512], "facing": 270,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[23.70, 119.50], [23.74, 119.54]], "fallbackBase": 12 },
+    { "id": "xianjiao", "name": "險礁", "location": [23.7077, 119.6085], "facing": 180,
+      "shelter": "open", "bottom": "sand", "riverImpact": 0,
+      "satBox": [[23.66, 119.59], [23.70, 119.63]], "fallbackBase": 8 }
+  ]
+}

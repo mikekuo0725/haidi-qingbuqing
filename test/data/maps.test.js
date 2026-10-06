@@ -42,3 +42,8 @@ test('蘭嶼 has land (the whole island)', () => {
   expect(MAPS.lanyu.land.length).toBeGreaterThan(0);
   expect(MAPS.lanyu.bbox).toEqual([[21.99, 121.48], [22.10, 121.645]]);
 });
+
+test('澎湖北海 has land (吉貝, 目斗嶼, 姑婆嶼, 險礁 and the islets around them)', () => {
+  expect(MAPS['penghu-north'].land.length).toBeGreaterThan(0);
+  expect(MAPS['penghu-north'].bbox).toEqual([[23.69, 119.52], [23.80, 119.72]]);
+});

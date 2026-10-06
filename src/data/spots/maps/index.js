@@ -6,5 +6,6 @@ import qixing from './qixing.json';
 import northeast from './northeast.json';
 import ludao from './ludao.json';
 import lanyu from './lanyu.json';
+import penghuNorth from './penghu-north.json';
 
-export const MAPS = { xiaoliuqiu, kenting, qixing, northeast, ludao, lanyu };
+export const MAPS = { xiaoliuqiu, kenting, qixing, northeast, ludao, lanyu, 'penghu-north': penghuNorth };

@@ -60,3 +60,7 @@ test('real data: in the water at 綠島石朗 → ludao', () => {
 test('real data: in the water at 蘭嶼八代灣 → lanyu', () => {
   expect(nearbySpotId([22.0240, 121.5484], SPOT_LIST)).toBe('lanyu');
 });
+
+test('real data: in the water off 吉貝 → penghu-north', () => {
+  expect(nearbySpotId([23.7265, 119.6001], SPOT_LIST)).toBe('penghu-north');
+});
