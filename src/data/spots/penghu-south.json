@@ -1,0 +1,29 @@
+{
+  "id": "penghu-south",
+  "name": "澎湖南方四島",
+  "cwaArea": "望安鄉_東吉島_南方沿海",
+  "buoy": { "id": "C6W10", "name": "七美浮標" },
+  "center": [23.26, 119.60],
+  "locateMaxKm": 12,
+  "notice": "國家公園，只能搭船去；東北季風季（約 10 月到隔年 3 月）浪很大",
+  "thresholds": { "purple": 20, "green": 12, "yellow": 6 },
+  "riverName": "濁水溪",
+  "riverBearing": 46,
+  "rainPoints": [
+    { "name": "二水", "lat": 23.806, "lon": 120.618 },
+    { "name": "竹山", "lat": 23.757, "lon": 120.689 },
+    { "name": "水里", "lat": 23.812, "lon": 120.853 }
+  ],
+  "safety": { "currentYellowKn": 0.5, "currentRedKn": 1.0, "waveRedM": 1.5 },
+  "zones": [
+    { "id": "dongji", "name": "東吉", "location": [23.2610, 119.6813], "facing": 90,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[23.24, 119.69], [23.28, 119.73]], "fallbackBase": 20 },
+    { "id": "xiji", "name": "西吉", "location": [23.2423, 119.6184], "facing": 180,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[23.20, 119.60], [23.24, 119.64]], "fallbackBase": 20 },
+    { "id": "yuping", "name": "東西嶼坪", "location": [23.2698, 119.5015], "facing": 270,
+      "shelter": "open", "bottom": "rock", "riverImpact": 0,
+      "satBox": [[23.25, 119.45], [23.29, 119.49]], "fallbackBase": 13 }
+  ]
+}

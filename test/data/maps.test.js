@@ -47,3 +47,8 @@ test('澎湖北海 has land (吉貝, 目斗嶼, 姑婆嶼, 險礁 and the islets
   expect(MAPS['penghu-north'].land.length).toBeGreaterThan(0);
   expect(MAPS['penghu-north'].bbox).toEqual([[23.69, 119.52], [23.80, 119.72]]);
 });
+
+test('澎湖南方四島 has land (東吉, 西吉, 東西嶼坪 and the islets around them)', () => {
+  expect(MAPS['penghu-south'].land.length).toBeGreaterThan(0);
+  expect(MAPS['penghu-south'].bbox).toEqual([[23.21, 119.47], [23.33, 119.72]]);
+});

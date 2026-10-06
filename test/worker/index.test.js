@@ -156,7 +156,7 @@ test('refreshBuoys asks once for every buoy and keeps 4 days per buoy', async ()
   const urls = [];
   await refreshBuoys({ CACHE: kv, CWA_KEY: 'K' }, async (u) => { urls.push(u); return new Response(JSON.stringify(file)); }, now);
   expect(urls).toHaveLength(1);
-  expect(urls[0]).toContain('StationID=46714D,46759A,46694A,C6S94,46735A&');
+  expect(urls[0]).toContain('StationID=46714D,46759A,46694A,C6S94,46735A,C6W10&');
   expect(JSON.parse(await kv.get('buoy:46714D')).readings.map((r) => [r.time, r.waveH]))
     .toEqual([['2026-09-29T10:00', 1], ['2026-09-30T13:00', 0.2]]); // 9/25 is older than 4 days
   expect(JSON.parse(await kv.get('buoy:46759A')).readings[0].waveH).toBe(0.4);

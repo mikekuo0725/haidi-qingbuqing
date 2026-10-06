@@ -64,3 +64,11 @@ test('real data: in the water at 蘭嶼八代灣 → lanyu', () => {
 test('real data: in the water off 吉貝 → penghu-north', () => {
   expect(nearbySpotId([23.7265, 119.6001], SPOT_LIST)).toBe('penghu-north');
 });
+
+test('real data: in the water off 東吉 → penghu-south', () => {
+  expect(nearbySpotId([23.2610, 119.6813], SPOT_LIST)).toBe('penghu-south');
+});
+
+test('real data: in 馬公 (between the two 澎湖 spots) → no spot', () => {
+  expect(nearbySpotId([23.566, 119.566], SPOT_LIST)).toBe(null);
+});
