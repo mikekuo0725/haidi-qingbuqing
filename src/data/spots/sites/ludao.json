@@ -1,0 +1,106 @@
+{
+  "center": [
+    22.66,
+    121.49
+  ],
+  "bounds": [
+    {
+      "name": "樓門岩",
+      "from": [
+        22.68048,
+        121.51173
+      ],
+      "bearing": 45,
+      "next": "east",
+      "osm": "node/9828353145"
+    },
+    {
+      "name": "帆船鼻",
+      "from": [
+        22.63511,
+        121.5072
+      ],
+      "bearing": 150,
+      "next": "dabaisha",
+      "osm": "node/4296527956"
+    },
+    {
+      "name": "龜灣鼻",
+      "from": [
+        22.64666,
+        121.47335
+      ],
+      "bearing": 225,
+      "next": "shilang",
+      "osm": "node/4295605207"
+    },
+    {
+      "name": "綠島燈塔",
+      "from": [
+        22.67653,
+        121.46633
+      ],
+      "bearing": 300,
+      "next": "chaikou",
+      "osm": "node/940950211"
+    }
+  ],
+  "sites": [
+    {
+      "name": "柴口",
+      "location": [
+        22.67925,
+        121.48283
+      ],
+      "zoneId": "chaikou"
+    },
+    {
+      "name": "公館鼻",
+      "location": [
+        22.68087,
+        121.49175
+      ],
+      "zoneId": "chaikou"
+    },
+    {
+      "name": "將軍岩",
+      "location": [
+        22.67897,
+        121.49656
+      ],
+      "zoneId": "chaikou"
+    },
+    {
+      "name": "樓門岩",
+      "location": [
+        22.6826,
+        121.5119
+      ],
+      "zoneId": "chaikou"
+    },
+    {
+      "name": "石朗",
+      "location": [
+        22.65686,
+        121.47206
+      ],
+      "zoneId": "shilang"
+    },
+    {
+      "name": "雞仔礁",
+      "location": [
+        22.63889,
+        121.47948
+      ],
+      "zoneId": "dabaisha"
+    },
+    {
+      "name": "大白沙",
+      "location": [
+        22.63717,
+        121.49042
+      ],
+      "zoneId": "dabaisha"
+    }
+  ]
+}

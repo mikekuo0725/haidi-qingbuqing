@@ -1,5 +1,6 @@
 import { test, expect } from 'vitest';
-import { renderSeaMap, currentBadge, defaultHourIndex } from '../../src/ui/seaMap.js';
+import { renderSeaMap, currentStrip, defaultHourIndex } from '../../src/ui/seaMap.js';
+import { SITE_LAYERS } from '../../src/data/spots/sites/index.js';
 import { LIGHT } from '../../src/ui/format.js';
 import { buildForecast } from '../../src/core/forecast.js';
 import { SPOTS } from '../../src/data/spots/index.js';
@@ -55,16 +56,41 @@ test('a chosen hour is kept, and clamped to the day', () => {
   expect(renderSeaMap({ spot, map, forecast, hourIndex: 99 })).toContain('value="8"');
 });
 
-test('the badge turns the arrow to where the water flows, coloured by strength', () => {
-  const b = currentBadge({ hour: 10, kn: 0.16, toDeg: 225, level: 'green' });
+test('the current strip turns the arrow to where the water flows, coloured by strength', () => {
+  const b = currentStrip({ hour: 10, kn: 0.16, toDeg: 225, level: 'green' });
   expect(b).toContain('rotate(225)');
   expect(b).toContain('往西南');
   expect(b).toContain('0.16 節');
   expect(b).toContain('class="cmap-arrow gr"');
   expect(b).toContain('整片海的大概流向');
-  expect(currentBadge({ hour: 10, kn: 1.3, toDeg: 0, level: 'red' })).toContain('class="cmap-arrow re"');
+  expect(currentStrip({ hour: 10, kn: 1.3, toDeg: 0, level: 'red' })).toContain('class="cmap-arrow re"');
 });
 
 test('shows the strongest current of the day under the slider', () => {
   expect(renderSeaMap({ spot, map, forecast })).toContain('這天最強');
+});
+
+test('the current strip sits under the map, not on it', () => {
+  const html = renderSeaMap({ spot, map, forecast });
+  expect(html.indexOf('class="cmap-now"')).toBeGreaterThan(html.indexOf('</svg>'));
+  expect(html).not.toContain('cmap-badge');
+});
+
+test('with dive sites: zones are coloured sea with dashed borders, no zone circles', () => {
+  const layer = SITE_LAYERS.xiaoliuqiu;
+  const html = renderSeaMap({ spot, map, layer, forecast });
+  for (const z of forecast.zones) {
+    expect(html).toMatch(new RegExp(`class="cmap-region ${LIGHT[z.light].cls}" data-mapzone="${z.zoneId}"`));
+  }
+  expect(html.match(/class="cmap-border"/g)).toHaveLength(layer.bounds.length);
+  expect(html).not.toContain('r="10"');
+  for (const s of layer.sites) expect(html).toContain(`>${s.name}</text>`);
+  expect(html.match(/class="cmap-site"/g)).toHaveLength(layer.sites.length);
+});
+
+test('tapping a dive site, its name or its zone opens that zone', () => {
+  const html = renderSeaMap({ spot, map, layer: SITE_LAYERS.xiaoliuqiu, forecast });
+  expect(html).toMatch(/class="cmap-site" data-mapzone="north"/);
+  expect(html).toMatch(/class="cmap-site-name" data-mapzone="north"[^>]*>花瓶岩</);
+  expect(html).toMatch(/class="cmap-zone-name" data-mapzone="north"[^>]*>北邊</);
 });

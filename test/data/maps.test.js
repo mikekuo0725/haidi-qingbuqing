@@ -1,7 +1,6 @@
 import { test, expect } from 'vitest';
 import { SPOT_LIST } from '../../src/data/spots/index.js';
 import { MAPS } from '../../src/data/spots/maps/index.js';
-import { MAP_W, project } from '../../src/core/mapProject.js';
 
 const PATH = /^M-?\d+\.\d,-?\d+\.\d( L-?\d+\.\d,-?\d+\.\d)+Z$/;
 
@@ -52,23 +51,4 @@ test('澎湖北海 has land (吉貝, 目斗嶼, 姑婆嶼, 險礁 and the islets
 test('澎湖南方四島 has land (東吉, 西吉, 東西嶼坪 and the islets around them)', () => {
   expect(MAPS['penghu-south'].land.length).toBeGreaterThan(0);
   expect(MAPS['penghu-south'].bbox).toEqual([[23.21, 119.47], [23.40, 119.72]]);
-});
-
-// The current badge has a fixed CSS size (about 104×108 px, 8 px from the top-right corner),
-// so on a wide, short map it covers much more than a quarter. No zone dot may sit under it.
-test('no zone dot hides under the top-right current badge (map 292 or 480 px wide)', () => {
-  const BADGE_W = 104, BADGE_H = 108, GAP = 8;
-  for (const s of SPOT_LIST) {
-    const bbox = MAPS[s.id].bbox;
-    for (const width of [292, 480]) {
-      const k = width / MAP_W;
-      const left = width - GAP - BADGE_W, bottom = GAP + BADGE_H;
-      for (const z of s.zones) {
-        const [x, y] = project(bbox, z.location).map((v) => v * k);
-        const r = 10 * k;
-        const hidden = x + r > left && y - r < bottom;
-        expect(hidden, `${s.id}/${z.id} at ${width}px: (${x.toFixed(0)}, ${y.toFixed(0)})`).toBe(false);
-      }
-    }
-  }
 });

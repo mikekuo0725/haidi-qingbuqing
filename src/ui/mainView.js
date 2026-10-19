@@ -53,7 +53,7 @@ function card(z, located) {
   </div>`;
 }
 
-export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null, emptyText = '這天沒有資料', map = null, mapHour = null, buoy = null }) {
+export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null, emptyText = '這天沒有資料', map = null, siteLayer = null, mapHour = null, buoy = null }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
   // staleHours comes from the app's overall weather state, not just this day's forecast,
   // so a day with no forecast at all (R5) can still say *why* — old cached weather. (Task 15)
@@ -70,7 +70,7 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   ${spot.notice ? `<div class="notice">⚠️ ${esc(spot.notice)}</div>` : ''}
   ${locationRow(spot, located)}
   ${stale}
-  ${forecast && map ? renderSeaMap({ spot, map, forecast, hourIndex: mapHour, nowHour: forecast.date === taipeiDate(now) ? taipeiHour(now) : null }) : ''}
+  ${forecast && map ? renderSeaMap({ spot, map, layer: siteLayer, forecast, hourIndex: mapHour, nowHour: forecast.date === taipeiDate(now) ? taipeiHour(now) : null }) : ''}
   ${forecast ? seaRow(forecast, !map) : ''}
   ${dayIndex === 0 ? buoyRow(spot, buoy, now) : ''}
   ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : `<div class="pad">${esc(emptyText)}</div>`}

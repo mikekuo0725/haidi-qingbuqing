@@ -11,6 +11,7 @@ import { spotsByDistance, nearbySpotId, initialSpotId, autoSwitchTarget } from '
 import { taipeiDate, openingDayIndex } from './core/time.js';
 import { renderMain } from './ui/mainView.js';
 import { MAPS } from './data/spots/maps/index.js';
+import { SITE_LAYERS } from './data/spots/sites/index.js';
 import { updateSeaMap } from './ui/seaMap.js';
 import { renderSpotSheet } from './ui/spotSheet.js';
 import { installHint } from './ui/installHint.js';
@@ -132,7 +133,7 @@ function render() {
     // Task 15: from state.weather, not the per-day forecast, so a day with no data at all still says why.
     staleHours: state.weather?.stale ?? null,
     emptyText,
-    map: MAPS[s.id] ?? null, mapHour: state.mapHour,
+    map: MAPS[s.id] ?? null, siteLayer: SITE_LAYERS[s.id] ?? null, mapHour: state.mapHour,
     hint: installHint(navigator.userAgent, matchMedia('(display-mode: standalone)').matches || navigator.standalone === true),
   });
   if (state.view === 'spots') {

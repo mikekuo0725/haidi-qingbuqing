@@ -1,0 +1,103 @@
+{
+  "center": [
+    21.975,
+    120.745
+  ],
+  "bounds": [
+    {
+      "name": "陸地",
+      "from": [
+        22.1,
+        120.78
+      ],
+      "bearing": 0,
+      "next": "east",
+      "hidden": true
+    },
+    {
+      "name": "南灣東側岬角",
+      "from": [
+        21.9442,
+        120.78
+      ],
+      "bearing": 165,
+      "next": "south"
+    },
+    {
+      "name": "貓鼻頭",
+      "from": [
+        21.9206,
+        120.73877
+      ],
+      "bearing": 195,
+      "next": "west",
+      "osm": "node/4252467766"
+    }
+  ],
+  "sites": [
+    {
+      "name": "萬里桐",
+      "location": [
+        22.002,
+        120.706
+      ],
+      "zoneId": "west"
+    },
+    {
+      "name": "山海",
+      "location": [
+        21.9843,
+        120.71096
+      ],
+      "zoneId": "west"
+    },
+    {
+      "name": "紅柴坑",
+      "location": [
+        21.97254,
+        120.71564
+      ],
+      "zoneId": "west"
+    },
+    {
+      "name": "合界",
+      "location": [
+        21.94841,
+        120.71297
+      ],
+      "zoneId": "west"
+    },
+    {
+      "name": "後壁湖",
+      "location": [
+        21.944,
+        120.746
+      ],
+      "zoneId": "south"
+    },
+    {
+      "name": "出水口",
+      "location": [
+        21.93105,
+        120.74509
+      ],
+      "zoneId": "south"
+    },
+    {
+      "name": "大咕咾",
+      "location": [
+        21.9425,
+        120.75796
+      ],
+      "zoneId": "south"
+    },
+    {
+      "name": "香蕉灣",
+      "location": [
+        21.92595,
+        120.82919
+      ],
+      "zoneId": "east"
+    }
+  ]
+}
