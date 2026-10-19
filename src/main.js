@@ -8,7 +8,7 @@ import { sendReport, fetchRecentReports, buildReportDoc } from './services/repor
 import { buildForecast } from './core/forecast.js';
 import { locate } from './core/locate.js';
 import { spotsByDistance, nearbySpotId, initialSpotId, autoSwitchTarget } from './core/spotChoice.js';
-import { taipeiDate } from './core/time.js';
+import { taipeiDate, openingDayIndex } from './core/time.js';
 import { renderMain } from './ui/mainView.js';
 import { MAPS } from './data/spots/maps/index.js';
 import { updateSeaMap } from './ui/seaMap.js';
@@ -45,7 +45,7 @@ const state = {
   pos: null, // GPS: memory only, never stored or sent
   mapHour: null, // sea map slider; null = the best dive hour
   loading: true,
-  dayIndex: 1, view: 'main', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, reports: [], weatherAt: null,
+  dayIndex: openingDayIndex(Date.now()), view: 'main', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, reports: [], weatherAt: null,
 };
 const spot = () => SPOTS[state.spotId];
 

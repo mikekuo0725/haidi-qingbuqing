@@ -5,7 +5,10 @@ import { MAP_W, mapHeight, project } from '../core/mapProject.js';
 const ARROW = 'M0,-22 L10,-4 L3,-4 L3,20 L-3,20 L-3,-4 L-10,-4Z'; // points north before rotating
 const hourText = (h) => `${String(h).padStart(2, '0')}:00`;
 
-export function defaultHourIndex(forecast) {
+// nowHour is set only for today: start at the current hour when it is one of the day's dive hours.
+export function defaultHourIndex(forecast, nowHour = null) {
+  const now = forecast.currents.findIndex((c) => c.hour === nowHour);
+  if (now >= 0) return now;
   const i = forecast.currents.findIndex((c) => c.hour === forecast.best.start);
   return i < 0 ? 0 : i;
 }
@@ -22,9 +25,9 @@ function zoneDot(bbox, zone, light) {
   return `<g class="cmap-zone" data-mapzone="${esc(zone.id)}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" class="${LIGHT[light].cls}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="22" fill="transparent" class="cmap-hit"/><text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}">${esc(zone.name)}</text></g>`;
 }
 
-export function renderSeaMap({ spot, map, forecast, hourIndex = null }) {
+export function renderSeaMap({ spot, map, forecast, hourIndex = null, nowHour = null }) {
   const n = forecast.currents.length;
-  const i = hourIndex == null ? defaultHourIndex(forecast) : clamp(hourIndex, 0, n - 1);
+  const i = hourIndex == null ? defaultHourIndex(forecast, nowHour) : clamp(hourIndex, 0, n - 1);
   const c = forecast.currents[i];
   const h = mapHeight(map.bbox).toFixed(1);
   const lights = Object.fromEntries(forecast.zones.map((z) => [z.zoneId, z.light]));

@@ -1,6 +1,7 @@
 import { LIGHT, COMPARE_TEXT, CONF_TEXT, hhmm, md, timeAgo, esc, currentSummary, knots, arrow } from './format.js';
 import { renderSeaMap } from './seaMap.js';
 import { latestReading } from '../core/buoy.js';
+import { taipeiDate, taipeiHour } from '../core/time.js';
 
 function locationRow(spot, located) {
   if (located.status === 'near') {
@@ -69,7 +70,7 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   ${spot.notice ? `<div class="notice">⚠️ ${esc(spot.notice)}</div>` : ''}
   ${locationRow(spot, located)}
   ${stale}
-  ${forecast && map ? renderSeaMap({ spot, map, forecast, hourIndex: mapHour }) : ''}
+  ${forecast && map ? renderSeaMap({ spot, map, forecast, hourIndex: mapHour, nowHour: forecast.date === taipeiDate(now) ? taipeiHour(now) : null }) : ''}
   ${forecast ? seaRow(forecast, !map) : ''}
   ${dayIndex === 0 ? buoyRow(spot, buoy, now) : ''}
   ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : `<div class="pad">${esc(emptyText)}</div>`}

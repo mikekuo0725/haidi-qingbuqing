@@ -41,6 +41,15 @@ test('the slider starts at the best dive hour', () => {
   expect(html).toContain(`<span class="cmap-time">${String(forecast.best.start).padStart(2, '0')}:00</span>`);
 });
 
+test('on today the slider starts at the current hour, if it is a dive hour', () => {
+  const ten = forecast.currents.findIndex((c) => c.hour === 10);
+  expect(defaultHourIndex(forecast, 10)).toBe(ten);
+  expect(renderSeaMap({ spot, map, forecast, nowHour: 10 })).toContain(`value="${ten}"`);
+  expect(defaultHourIndex(forecast, 6)).toBe(defaultHourIndex(forecast)); // before the first dive hour: the best hour
+  expect(defaultHourIndex(forecast, 20)).toBe(defaultHourIndex(forecast));
+  expect(renderSeaMap({ spot, map, forecast, hourIndex: 2, nowHour: 10 })).toContain('value="2"'); // the user's choice wins
+});
+
 test('a chosen hour is kept, and clamped to the day', () => {
   expect(renderSeaMap({ spot, map, forecast, hourIndex: 2 })).toContain('value="2"');
   expect(renderSeaMap({ spot, map, forecast, hourIndex: 99 })).toContain('value="8"');

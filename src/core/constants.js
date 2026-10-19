@@ -37,6 +37,7 @@ export const K = {
   maxValid: { waveH: 20, windKmh: 250, currentKmh: 20 },
   upwellingDropC: 2,
   noonHour: 12,
+  todayUntilHour: 15, // opened from this Taipei hour on, the app starts on tomorrow (today's dive hours are nearly over)
   noonWeight: 0.02,
   slackSeaLevelM: 0.05,
   recentReportDays: 7,
