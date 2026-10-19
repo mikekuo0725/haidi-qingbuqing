@@ -17,8 +17,8 @@ export const COASTAL_CRON = '30 5,11,17,23 * * *'; // 01:30, 07:30, 13:30, 19:30
 export const BUOY_CRON = '35 * * * *';
 export const DAILY_HOUR_UTC = 22;
 
-export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now()) {
-  const { zones, satelliteDate } = await computeZones(spot, fetchFn, now);
+export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now(), old = null) {
+  const { zones, satelliteDate } = await computeZones(spot, fetchFn, now, old);
   let bias = {};
   try {
     const reports = await fetchReports(env.FIREBASE_PROJECT_ID, spot.id, now - K.biasWindowDays * DAY_MS, fetchFn);
@@ -33,8 +33,9 @@ export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now
   return { spotId: spot.id, updatedAt: now, satelliteDate, zones };
 }
 
-async function refresh(spot, env) {
-  const data = await buildHelperData(spot, env);
+export async function refresh(spot, env, fetchFn = fetch, now = Date.now()) {
+  const old = parseJson(await env.CACHE.get(`base:${spot.id}`));
+  const data = await buildHelperData(spot, env, fetchFn, now, old);
   await env.CACHE.put(`base:${spot.id}`, JSON.stringify(data));
   return data;
 }
