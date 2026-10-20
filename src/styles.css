@@ -4,7 +4,7 @@
   --tap:44px; --mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
 }
 * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
-html { -webkit-text-size-adjust:100%; }
+html { -webkit-text-size-adjust:100%; overscroll-behavior-y:contain; } /* Android's own pull-to-reload must not fight ours */
 body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 system-ui, -apple-system, "PingFang TC", "Noto Sans TC", sans-serif; }
 #app { max-width:480px; margin:0 auto; padding:env(safe-area-inset-top) env(safe-area-inset-right) calc(24px + env(safe-area-inset-bottom)) env(safe-area-inset-left); overflow-x:clip; } /* clip, not hidden: hidden breaks the sticky day tabs */
 button { font:inherit; color:inherit; }

@@ -9,6 +9,7 @@ import { buildForecast } from './core/forecast.js';
 import { locate } from './core/locate.js';
 import { spotsByDistance, nearbySpotId, initialSpotId, autoSwitchTarget } from './core/spotChoice.js';
 import { taipeiDate, openingDayIndex } from './core/time.js';
+import { shouldAutoRefresh, isPullRefresh } from './core/refresh.js';
 import { renderMain } from './ui/mainView.js';
 import { MAPS } from './data/spots/maps/index.js';
 import { SITE_LAYERS } from './data/spots/sites/index.js';
@@ -192,15 +193,16 @@ window.addEventListener('popstate', (e) => {
 });
 
 let loadId = 0;
-async function load() {
+async function load({ fresh = false } = {}) {
   const id = ++loadId;
   const now = Date.now();
   const s = spot();
   state.loading = true;
   // R11b: reports can take ~10 s offline; render the forecast without them, rebuild when they arrive.
   const reportsP = fetchRecentReports(s.id).catch(() => null);
-  const [weather, helper] = await Promise.all([loadWeatherRaw(s, now), fetchHelper(HELPER_URL, s.id)]);
+  const [weather, helper] = await Promise.all([loadWeatherRaw(s, now), fetchHelper(HELPER_URL, s.id, fetch, { fresh })]);
   if (id !== loadId) return; // a newer load() took over (e.g. the user switched spots)
+  state.loadedAt = now;
   state.weather = weather;
   state.helper = helper;
   state.weatherAt = weather?.savedAt ?? null;
@@ -310,6 +312,32 @@ window.addEventListener('online', () => outbox.flush().then((n) => {
   toast(`補送了 ${n} 筆回報`);
   load(); // show the sent reports on the cards
 }));
+
+// Refresh without closing the app. Not on the report form (a reload must never touch what the user typed)
+// and not under the spot sheet.
+const canRefreshNow = () => state.view === 'main' || state.view === 'detail';
+
+// Back from the phone's app switcher: reload if the data is old enough.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !canRefreshNow()) return;
+  if (shouldAutoRefresh(state.loadedAt, Date.now())) load({ fresh: true });
+});
+
+// Pull down from the top of the page (iPhone home-screen apps have no built-in pull to refresh).
+let pullStartY = null;
+document.addEventListener('touchstart', (e) => {
+  const onSlider = e.target.closest?.('input[type="range"]'); // dragging the sea map slider is not a pull
+  pullStartY = window.scrollY <= 0 && canRefreshNow() && !onSlider ? e.touches[0].clientY : null;
+}, { passive: true });
+document.addEventListener('touchend', async (e) => {
+  if (pullStartY == null) return;
+  const startY = pullStartY;
+  pullStartY = null;
+  if (!isPullRefresh({ startY, endY: e.changedTouches[0].clientY, scrollY: window.scrollY })) return;
+  toast('更新中…');
+  await load({ fresh: true });
+  toast('已更新');
+});
 
 history.replaceState({ view: 'main' }, '', '#');
 // Do not wait for the location prompt: show the forecast first, then pick a spot / zone when (if) GPS arrives.

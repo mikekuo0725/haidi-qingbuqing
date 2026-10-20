@@ -38,6 +38,8 @@ export const K = {
   upwellingDropC: 2,
   noonHour: 12,
   todayUntilHour: 15, // opened from this Taipei hour on, the app starts on tomorrow (today's dive hours are nearly over)
+  autoRefreshMinutes: 30, // coming back to the app after this long reloads the data
+  pullRefreshPx: 70,      // pulling down this far from the top of the page reloads the data
   noonWeight: 0.02,
   slackSeaLevelM: 0.05,
   recentReportDays: 7,
