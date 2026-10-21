@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { renderSeaMap, currentStrip, defaultHourIndex } from '../../src/ui/seaMap.js';
+import { renderSeaMap, currentStrip, defaultHourIndex, updateShips } from '../../src/ui/seaMap.js';
 import { SITE_LAYERS } from '../../src/data/spots/sites/index.js';
 import { LIGHT } from '../../src/ui/format.js';
 import { buildForecast } from '../../src/core/forecast.js';
@@ -93,4 +93,63 @@ test('tapping a dive site, its name or its zone opens that zone', () => {
   expect(html).toMatch(/class="cmap-site" data-mapzone="north"/);
   expect(html).toMatch(/class="cmap-site-name" data-mapzone="north"[^>]*>花瓶岩</);
   expect(html).toMatch(/class="cmap-zone-name" data-mapzone="north"[^>]*>北邊</);
+});
+
+// ---- ship layer ----
+const SHIP_NOW = Date.UTC(2026, 9, 21, 4, 0);
+const sh = (o) => ({ name: 'DISCOVER NO3', mmsi: '416006379', lat: 22.34, lon: 120.37, sog: 0, cog: 90, time: SHIP_NOW - 2 * 60000, ...o });
+const withShips = (ships, extra = {}) => renderSeaMap({ spot, map, layer: SITE_LAYERS.xiaoliuqiu, forecast, ships: { updatedAt: SHIP_NOW, ships }, now: SHIP_NOW, ...extra });
+
+test('a moving ship is a boat turned to its course, a stopped one is a dot', () => {
+  const html = withShips([sh({ sog: 6.9, cog: 135 }), sh({ mmsi: '416000002', sog: 0.2 })]);
+  expect(html).toMatch(/<path class="cmap-ship"[^>]*rotate\(135\)/);
+  expect(html.match(/<circle class="cmap-ship"/g)).toHaveLength(1);
+});
+
+test('a position older than 10 minutes is grey, older than 30 minutes is not drawn', () => {
+  const html = withShips([sh({ time: SHIP_NOW - 11 * 60000 }), sh({ mmsi: '416000003', time: SHIP_NOW - 31 * 60000 })]);
+  expect(html.match(/cmap-ship cmap-ship-old/g)).toHaveLength(1);
+  expect(html.match(/class="cmap-ship[ "]/g)).toHaveLength(1);
+});
+
+test('each ship has a title with name, speed and minutes', () => {
+  expect(withShips([sh({ sog: 6.94, time: SHIP_NOW - 3 * 60000 })])).toContain('<title>DISCOVER NO3・6.9 節・3 分鐘前</title>');
+});
+
+test('ship names are escaped', () => {
+  expect(withShips([sh({ name: '<b>&' })])).toContain('<title>&lt;b&gt;&amp;・');
+});
+
+test('ships are under the dive-site dots and names', () => {
+  const html = withShips([sh()]);
+  const g = html.indexOf('class="cmap-ships"');
+  expect(g).toBeGreaterThan(html.indexOf('class="cmap-land"'));
+  expect(g).toBeLessThan(html.indexOf('class="cmap-site"'));
+  expect(g).toBeLessThan(html.indexOf('cmap-zone-name'));
+});
+
+test('the caption shows the Taiwan time of the fetch, and is hidden with no data', () => {
+  expect(withShips([sh()])).toContain('船位：航港局 AIS 12:00・只顯示有開 AIS 的船');
+  const none = renderSeaMap({ spot, map, layer: SITE_LAYERS.xiaoliuqiu, forecast });
+  expect(none).toContain('class="cmap-ships"');
+  expect(none).toMatch(/<div class="cmap-shipcap" hidden><\/div>/);
+  expect(withShips([])).toMatch(/<div class="cmap-shipcap" hidden><\/div>/);
+  expect(withShips([sh({ time: SHIP_NOW - 40 * 60000 })])).toMatch(/<div class="cmap-shipcap" hidden><\/div>/); // all too old
+});
+
+test('ships also show on the map without dive-site names', () => {
+  const html = renderSeaMap({ spot, map, forecast, ships: { updatedAt: SHIP_NOW, ships: [sh()] }, now: SHIP_NOW });
+  expect(html).toContain('class="cmap-ship"');
+});
+
+test('updateShips swaps only the ship layer and the caption', () => {
+  const nodes = {
+    g: { outerHTML: '' },
+    cap: { outerHTML: '' },
+  };
+  const root = { querySelector: (q) => (q === '.cmap-ships' ? nodes.g : q === '.cmap-shipcap' ? nodes.cap : null) };
+  updateShips(root, map.bbox, { updatedAt: SHIP_NOW, ships: [sh()] }, SHIP_NOW);
+  expect(nodes.g.outerHTML).toContain('class="cmap-ships"');
+  expect(nodes.g.outerHTML).toContain('cmap-ship');
+  expect(nodes.cap.outerHTML).toContain('12:00');
 });

@@ -2,6 +2,8 @@ import { SPOTS, SPOT_LIST, DEFAULT_SPOT_ID } from './data/spots/index.js';
 import { HELPER_URL } from './config.js';
 import { fetchWeather, parseDay } from './services/openmeteo.js';
 import { fetchHelper } from './services/helper.js';
+import { fetchShips } from './services/ships.js';
+import { K } from './core/constants.js';
 import { saveWeather, loadWeather } from './services/cache.js';
 import { createOutbox } from './services/outbox.js';
 import { sendReport, fetchRecentReports, buildReportDoc } from './services/reports.js';
@@ -13,7 +15,7 @@ import { shouldAutoRefresh, isPullRefresh } from './core/refresh.js';
 import { renderMain } from './ui/mainView.js';
 import { MAPS } from './data/spots/maps/index.js';
 import { SITE_LAYERS } from './data/spots/sites/index.js';
-import { updateSeaMap } from './ui/seaMap.js';
+import { updateSeaMap, updateShips } from './ui/seaMap.js';
 import { renderSpotSheet } from './ui/spotSheet.js';
 import { installHint } from './ui/installHint.js';
 import { renderDetail } from './ui/detailView.js';
@@ -46,6 +48,7 @@ const state = {
   pendingSpot: null,
   pos: null, // GPS: memory only, never stored or sent
   mapHour: null, // sea map slider; null = the best dive hour
+  ships: null, // 航港局 AIS positions for this spot: { updatedAt, ships } or null
   loading: true,
   dayIndex: openingDayIndex(Date.now()), view: 'main', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, reports: [], weatherAt: null,
 };
@@ -108,6 +111,11 @@ function dateLabel(i) {
 }
 
 function render() {
+  renderView();
+  syncShips();
+}
+
+function renderView() {
   const now = Date.now();
   const s = spot();
   const forecast = state.forecasts[state.dayIndex];
@@ -134,7 +142,7 @@ function render() {
     // Task 15: from state.weather, not the per-day forecast, so a day with no data at all still says why.
     staleHours: state.weather?.stale ?? null,
     emptyText,
-    map: MAPS[s.id] ?? null, siteLayer: SITE_LAYERS[s.id] ?? null, mapHour: state.mapHour,
+    map: MAPS[s.id] ?? null, siteLayer: SITE_LAYERS[s.id] ?? null, mapHour: state.mapHour, ships: state.ships,
     hint: installHint(navigator.userAgent, matchMedia('(display-mode: standalone)').matches || navigator.standalone === true),
   });
   if (state.view === 'spots') {
@@ -169,7 +177,7 @@ function selectSpot(id, { manual }) {
     if (location.search) history.replaceState(history.state, '', location.pathname + location.hash);
     Object.assign(state, {
       located: locate(state.pos, spot()), forecasts: [], weather: null, helper: null, reports: [], weatherAt: null, loading: true,
-      mapHour: null,
+      mapHour: null, ships: null,
     });
   }
   render();
@@ -313,12 +321,41 @@ window.addEventListener('online', () => outbox.flush().then((n) => {
   load(); // show the sent reports on the cards
 }));
 
+// Live ships on the sea map: asked while the map is on screen and the page is visible, every few minutes.
+// A failure just leaves the old (or no) ships; nothing is shown to the user.
+let shipTimer = null;
+let shipLoadId = 0;
+const mapShown = () => state.view === 'main' && !!MAPS[state.spotId] && !!state.forecasts[state.dayIndex];
+
+async function loadShips() {
+  const id = ++shipLoadId;
+  const spotId = state.spotId;
+  const data = await fetchShips(HELPER_URL, spotId);
+  if (id !== shipLoadId || spotId !== state.spotId) return; // a newer answer or another spot took over
+  if (!data) return;
+  state.ships = data;
+  if (mapShown()) updateShips(app, MAPS[spotId].bbox, data, Date.now());
+}
+
+function syncShips() {
+  const want = document.visibilityState === 'visible' && mapShown();
+  if (want && shipTimer == null) {
+    loadShips();
+    shipTimer = setInterval(loadShips, K.shipRefreshMinutes * 60000);
+  } else if (!want && shipTimer != null) {
+    clearInterval(shipTimer);
+    shipTimer = null;
+    shipLoadId++; // an answer still on its way is dropped
+  }
+}
+
 // Refresh without closing the app. Not on the report form (a reload must never touch what the user typed)
 // and not under the spot sheet.
 const canRefreshNow = () => state.view === 'main' || state.view === 'detail';
 
 // Back from the phone's app switcher: reload if the data is old enough.
 document.addEventListener('visibilitychange', () => {
+  syncShips();
   if (document.visibilityState !== 'visible' || !canRefreshNow()) return;
   if (shouldAutoRefresh(state.loadedAt, Date.now())) load({ fresh: true });
 });

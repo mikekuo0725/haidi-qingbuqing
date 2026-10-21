@@ -48,6 +48,9 @@ button { font:inherit; color:inherit; }
 .cmap-slider input { display:block; width:100%; min-height:var(--tap); margin:0; accent-color:var(--acc); }
 .cmap-max { max-width:480px; margin:0 auto; font-size:14px; color:var(--mut); }
 .cmap-max b { color:var(--fg); }
+.cmap-ship { fill:#e8f1f8; fill-opacity:.8; stroke:#07141f; stroke-width:.6; }
+.cmap-ship-old { fill:#8a97a3; fill-opacity:.6; }
+.cmap-shipcap { max-width:480px; margin:4px auto 0; font-size:12px; color:var(--mut); }
 .cmap-src { max-width:480px; margin:2px auto 0; font-size:12px; color:var(--mut); }
 .sea .warn { margin:0; }
 .card { margin:0 14px 10px; padding:14px 12px; border-radius:12px; background:var(--card); position:relative; }

@@ -70,4 +70,12 @@ export const K = {
   buoyMaxAgeH: 3,    // newest reading older than this → no 「現在實測」 line; each item looks back this far
   buoyMinHours: 12,  // a finished past day needs this many full wave hours to replace Open-Meteo's 前幾天的浪
   buoyKeepDays: 4,   // the Worker keeps this many days of readings in KV
+
+  // 航港局 AIS ships on the sea map
+  shipCacheSeconds: 90,  // the Worker keeps one answer this long (Cache API)
+  shipEmptySeconds: 30,  // an empty / failed answer is kept only this long
+  shipRefreshMinutes: 2, // the page asks again this often while it is visible
+  shipMovingKn: 0.5,     // at or above this speed the ship is drawn as a boat pointing at its course
+  shipGreyMinutes: 10,   // a position older than this is drawn grey
+  shipHideMinutes: 30,   // a position older than this is not drawn
 };

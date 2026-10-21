@@ -3,8 +3,10 @@ import { bearingText, clamp } from '../core/math.js';
 import { MAP_W, mapHeight, project } from '../core/mapProject.js';
 import { zoneRegions, borderLines } from '../core/mapRegions.js';
 import { placeLabels } from '../core/labels.js';
+import { shipLook, shipTitle, clockText } from '../core/ships.js';
 
 const ARROW = 'M0,-22 L10,-4 L3,-4 L3,20 L-3,20 L-3,-4 L-10,-4Z'; // points north before rotating
+const BOAT = 'M0,-5 L3.5,4 L0,2 L-3.5,4Z'; // points north before rotating
 const hourText = (h) => `${String(h).padStart(2, '0')}:00`;
 
 // nowHour is set only for today: start at the current hour when it is one of the day's dive hours.
@@ -44,7 +46,29 @@ export function mapLayout(spot, map, layer) {
   };
 }
 
-function layerSvg(spot, map, layer, lights) {
+// 航港局 AIS ships: a boat turned to its course when under way, a dot when stopped, grey when the position is
+// old, nothing when it is very old. Drawn under the site dots and names so they never hide a name.
+export function shipsSvg(bbox, ships, now) {
+  const items = (ships ?? []).map((ship) => {
+    const look = shipLook(ship, now);
+    if (!look) return '';
+    const [x, y] = project(bbox, [ship.lat, ship.lon]);
+    const cls = look.grey ? 'cmap-ship cmap-ship-old' : 'cmap-ship';
+    const title = `<title>${esc(shipTitle(ship, now))}</title>`;
+    if (!look.moving) return `<circle class="${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.5">${title}</circle>`;
+    return `<path class="${cls}" d="${BOAT}" transform="translate(${x.toFixed(1)},${y.toFixed(1)}) rotate(${Math.round(ship.cog) || 0})">${title}</path>`;
+  }).join('');
+  return `<g class="cmap-ships">${items}</g>`;
+}
+
+// One line under the map; empty (hidden) when no ship is drawn, so "no data" never reads as "no ships".
+export function shipCaption(data, now) {
+  const any = (data?.ships ?? []).some((ship) => shipLook(ship, now));
+  if (!any || !Number.isFinite(data.updatedAt)) return '<div class="cmap-shipcap" hidden></div>';
+  return `<div class="cmap-shipcap">船位：航港局 AIS ${clockText(data.updatedAt)}・只顯示有開 AIS 的船</div>`;
+}
+
+function layerSvg(spot, map, layer, lights, shipLayer) {
   const { regions, borders, sites, labels } = mapLayout(spot, map, layer);
   const fills = regions.map((r) => `<polygon class="cmap-region ${LIGHT[lights[r.zoneId] ?? 'gray'].cls}" data-mapzone="${esc(r.zoneId)}" points="${pts(r.points)}"/>`).join('');
   const lines = borders.map((b) => `<line class="cmap-border" x1="${b.from[0].toFixed(1)}" y1="${b.from[1].toFixed(1)}" x2="${b.to[0].toFixed(1)}" y2="${b.to[1].toFixed(1)}"/>`).join('');
@@ -54,7 +78,7 @@ function layerSvg(spot, map, layer, lights) {
     const leader = l.leader ? `<line class="cmap-leader" x1="${l.leader[0].toFixed(1)}" y1="${l.leader[1].toFixed(1)}" x2="${l.leader[2].toFixed(1)}" y2="${l.leader[3].toFixed(1)}"/>` : '';
     return `${leader}<text class="cmap-${l.kind}-name" data-mapzone="${esc(l.zoneId)}" x="${(l.box[0] + 1).toFixed(1)}" y="${(l.box[3] - 3).toFixed(1)}">${esc(l.text)}</text>`;
   }).join('');
-  return `${fills}${lines}${land}${dots}${names}`;
+  return `${fills}${lines}${land}${shipLayer}${dots}${names}`;
 }
 
 function zoneDot(bbox, zone, light) {
@@ -64,20 +88,22 @@ function zoneDot(bbox, zone, light) {
   return `<g class="cmap-zone" data-mapzone="${esc(zone.id)}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" class="${LIGHT[light].cls}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="22" fill="transparent" class="cmap-hit"/><text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}">${esc(zone.name)}</text></g>`;
 }
 
-export function renderSeaMap({ spot, map, layer = null, forecast, hourIndex = null, nowHour = null }) {
+export function renderSeaMap({ spot, map, layer = null, forecast, hourIndex = null, nowHour = null, ships = null, now = Date.now() }) {
   const n = forecast.currents.length;
   const i = hourIndex == null ? defaultHourIndex(forecast, nowHour) : clamp(hourIndex, 0, n - 1);
   const c = forecast.currents[i];
   const h = mapHeight(map.bbox).toFixed(1);
   const lights = Object.fromEntries(forecast.zones.map((z) => [z.zoneId, z.light]));
+  const shipLayer = shipsSvg(map.bbox, ships?.ships, now);
   const body = layer
-    ? layerSvg(spot, map, layer, lights)
-    : map.land.map((d) => `<path class="cmap-land" d="${d}"/>`).join('') + spot.zones.map((z) => zoneDot(map.bbox, z, lights[z.id] ?? 'gray')).join('');
+    ? layerSvg(spot, map, layer, lights, shipLayer)
+    : map.land.map((d) => `<path class="cmap-land" d="${d}"/>`).join('') + shipLayer + spot.zones.map((z) => zoneDot(map.bbox, z, lights[z.id] ?? 'gray')).join('');
   return `<div class="cmap">
     <div class="cmap-box">
       <svg viewBox="0 0 ${MAP_W} ${h}" role="img" aria-label="${esc(spot.name)}地圖：分區燈號和潛點"><rect class="cmap-sea" width="${MAP_W}" height="${h}"/>${body}</svg>
       ${map.note ? `<div class="cmap-note">${esc(map.note)}</div>` : ''}
     </div>
+    ${shipCaption(ships, now)}
     ${currentStrip(c)}
     <label class="cmap-slider">⏰ <span class="cmap-time">${hourText(c.hour)}</span> 的海流
       <input type="range" min="0" max="${n - 1}" step="1" value="${i}" aria-valuetext="${c.hour} 點">
@@ -92,4 +118,12 @@ export function updateSeaMap(root, c) {
   root.querySelector('.cmap-now').outerHTML = currentStrip(c);
   root.querySelector('.cmap-time').textContent = hourText(c.hour);
   root.querySelector('.cmap input[type="range"]').setAttribute('aria-valuetext', `${c.hour} 點`);
+}
+
+// New ship positions arrived: swap only the ship layer and its caption.
+export function updateShips(root, bbox, data, now) {
+  const g = root.querySelector('.cmap-ships');
+  const cap = root.querySelector('.cmap-shipcap');
+  if (g) g.outerHTML = shipsSvg(bbox, data?.ships, now);
+  if (cap) cap.outerHTML = shipCaption(data, now);
 }

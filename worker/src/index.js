@@ -8,6 +8,9 @@ import { computeZones } from './base.js';
 import { fetchReports } from './firestore.js';
 import { fetchCoastal, mergeSeries } from './cwa.js';
 import { fetchBuoys } from './buoy.js';
+import { loadShips } from './ships.js';
+import { shipsForBox } from '../../src/core/ships.js';
+import { MAPS } from '../../src/data/spots/maps/index.js';
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json; charset=utf-8' };
 export const COASTAL_CRON = '30 5,11,17,23 * * *'; // 01:30, 07:30, 13:30, 19:30 Taiwan time (see wrangler.toml)
@@ -95,10 +98,20 @@ function usableCoastal(raw, now) {
   return now - Date.parse(c.issuedAt) <= K.coastalMaxAgeH * 3600000 ? c : null;
 }
 
+async function handleShips(url) {
+  const id = url.searchParams.get('spot');
+  if (!Object.hasOwn(MAPS, id ?? '')) return new Response('{"error":"unknown spot"}', { status: 404, headers: CORS });
+  const all = await loadShips(caches.default);
+  const body = { updatedAt: all.updatedAt, ships: shipsForBox(all.ships, MAPS[id].bbox) };
+  if (all.error) body.error = all.error;
+  return new Response(JSON.stringify(body), { headers: { ...CORS, 'Cache-Control': 'public, max-age=60' } });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
+    if (url.pathname === '/v1/ships') return handleShips(url);
     if (url.pathname !== '/v1/base') return new Response('{"error":"not found"}', { status: 404, headers: CORS });
     const spot = SPOTS[url.searchParams.get('spot')];
     if (!spot) return new Response('{"error":"unknown spot"}', { status: 404, headers: CORS });

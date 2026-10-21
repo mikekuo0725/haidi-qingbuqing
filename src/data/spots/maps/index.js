@@ -1,5 +1,5 @@
 // Sea map shapes, made by `node scripts/coastline.mjs`. Kept out of the spot JSON on purpose:
-// the Worker imports the spot list and does not need them.
+// the Worker imports the spot list and does not need the shapes (only the bboxes, for the ship list).
 import xiaoliuqiu from './xiaoliuqiu.json';
 import kenting from './kenting.json';
 import qixing from './qixing.json';
