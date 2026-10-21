@@ -74,7 +74,7 @@ test('stale weather under 1 hour old says so instead of "0 小時前"', () => {
 test('header is a button that opens the spot list', () => {
   const html = renderMain(base);
   expect(html).toContain('<button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是小琉球">📍 小琉球 <span aria-hidden="true">▾</span></button>');
-  expect(html).toContain('海底清不清 · 預測，不是保證');
+  expect(html).toContain('海底能見度預測');
 });
 
 test('no data at all shows the given text and keeps the spot button', () => {

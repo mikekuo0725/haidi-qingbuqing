@@ -65,7 +65,7 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
     freshness.satelliteDate ? `衛星 ${md(freshness.satelliteDate)}` : '衛星資料暫缺，準度較低',
     freshness.lastReportAt ? `回報 ${timeAgo(freshness.lastReportAt, now)}` : '還沒有回報',
   ].join(' ・ ');
-  return `<header class="pad"><button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是${esc(spot.name)}">📍 ${esc(spot.name)} <span aria-hidden="true">▾</span></button><div class="mut">海底清不清 · 預測，不是保證</div></header>
+  return `<header class="pad"><button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是${esc(spot.name)}">📍 ${esc(spot.name)} <span aria-hidden="true">▾</span></button><div class="mut">海底能見度預測</div></header>
   <nav class="days">${days}</nav>
   ${spot.notice ? `<div class="notice">⚠️ ${esc(spot.notice)}</div>` : ''}
   ${locationRow(spot, located)}
