@@ -1,0 +1,114 @@
+{
+  "center": [
+    22.045,
+    121.55
+  ],
+  "bounds": [
+    {
+      "name": "貝殼砂",
+      "from": [
+        22.07531,
+        121.56765
+      ],
+      "bearing": 50,
+      "next": "dongqing",
+      "osm": "node/5621613921"
+    },
+    {
+      "name": "龍門港",
+      "from": [
+        22.00452,
+        121.58109
+      ],
+      "bearing": 150,
+      "next": "badai",
+      "osm": "relation/10482791"
+    },
+    {
+      "name": "饅頭岩",
+      "from": [
+        22.04618,
+        121.50942
+      ],
+      "bearing": 245,
+      "next": "kaiyuan",
+      "osm": "node/3854046577"
+    },
+    {
+      "name": "鱷魚岩",
+      "from": [
+        22.08417,
+        121.50251
+      ],
+      "bearing": 315,
+      "next": "langdao",
+      "osm": "node/14301372429"
+    }
+  ],
+  "sites": [
+    {
+      "name": "開元港藍洞",
+      "location": [
+        22.05672,
+        121.50618
+      ],
+      "zoneId": "kaiyuan"
+    },
+    {
+      "name": "玉女岩",
+      "location": [
+        22.0821,
+        121.518
+      ],
+      "zoneId": "langdao"
+    },
+    {
+      "name": "母雞岩",
+      "location": [
+        22.083,
+        121.5595
+      ],
+      "zoneId": "langdao"
+    },
+    {
+      "name": "雙獅岩",
+      "location": [
+        22.08647,
+        121.56745
+      ],
+      "zoneId": "langdao"
+    },
+    {
+      "name": "軍艦岩",
+      "location": [
+        22.0804,
+        121.5799
+      ],
+      "zoneId": "dongqing"
+    },
+    {
+      "name": "情人洞",
+      "location": [
+        22.062,
+        121.5742
+      ],
+      "zoneId": "dongqing"
+    },
+    {
+      "name": "八代灣沉船",
+      "location": [
+        22.01703,
+        121.54898
+      ],
+      "zoneId": "badai"
+    },
+    {
+      "name": "機場外礁",
+      "location": [
+        22.02025,
+        121.53467
+      ],
+      "zoneId": "badai"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "center": [
+    23.26,
+    119.6
+  ],
+  "bounds": [
+    {
+      "name": "西吉北邊外海",
+      "from": [
+        23.27336,
+        119.60254
+      ],
+      "bearing": 10,
+      "next": "dongji"
+    },
+    {
+      "name": "東西吉廊道",
+      "from": [
+        23.2487,
+        119.64125
+      ],
+      "bearing": 106.5,
+      "next": "xiji"
+    },
+    {
+      "name": "西吉西南外海",
+      "from": [
+        23.2399,
+        119.59418
+      ],
+      "bearing": 195,
+      "next": "yuping"
+    }
+  ],
+  "sites": [
+    {
+      "name": "薰衣草森林",
+      "location": [
+        23.24998,
+        119.67397
+      ],
+      "zoneId": "dongji"
+    },
+    {
+      "name": "東吉之狼",
+      "location": [
+        23.24126,
+        119.68391
+      ],
+      "zoneId": "dongji"
+    },
+    {
+      "name": "東吉之眼",
+      "location": [
+        23.25657,
+        119.6663
+      ],
+      "zoneId": "dongji"
+    },
+    {
+      "name": "西吉斷層",
+      "location": [
+        23.24507,
+        119.61368
+      ],
+      "zoneId": "xiji"
+    },
+    {
+      "name": "東嶼坪七尺門",
+      "location": [
+        23.25558,
+        119.51313
+      ],
+      "zoneId": "yuping"
+    },
+    {
+      "name": "東嶼坪瀨仔尾",
+      "location": [
+        23.26084,
+        119.51346
+      ],
+      "zoneId": "yuping"
+    },
+    {
+      "name": "東嶼坪五米礁",
+      "location": [
+        23.25697,
+        119.51965
+      ],
+      "zoneId": "yuping"
+    },
+    {
+      "name": "西嶼坪北側",
+      "location": [
+        23.27268,
+        119.50629
+      ],
+      "zoneId": "yuping"
+    }
+  ]
+}

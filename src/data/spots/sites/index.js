@@ -6,5 +6,19 @@
 import xiaoliuqiu from './xiaoliuqiu.json';
 import kenting from './kenting.json';
 import ludao from './ludao.json';
+import qixing from './qixing.json';
+import northeast from './northeast.json';
+import lanyu from './lanyu.json';
+import penghuNorth from './penghu-north.json';
+import penghuSouth from './penghu-south.json';
 
-export const SITE_LAYERS = { xiaoliuqiu, kenting, ludao };
+export const SITE_LAYERS = {
+  xiaoliuqiu,
+  kenting,
+  ludao,
+  qixing,
+  northeast,
+  lanyu,
+  'penghu-north': penghuNorth,
+  'penghu-south': penghuSouth,
+};

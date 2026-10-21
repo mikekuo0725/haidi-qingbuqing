@@ -1,0 +1,89 @@
+{
+  "center": [
+    25.112,
+    121.905
+  ],
+  "bounds": [
+    {
+      "name": "鼻頭山",
+      "from": [
+        25.1234,
+        121.91956
+      ],
+      "bearing": 55,
+      "next": "longdong",
+      "osm": "node/2688466746"
+    },
+    {
+      "name": "龍洞灣岬",
+      "from": [
+        25.1076,
+        121.92242
+      ],
+      "bearing": 106,
+      "next": "hemei",
+      "osm": "node/10558717045"
+    },
+    {
+      "name": "南雅山",
+      "from": [
+        25.11375,
+        121.89952
+      ],
+      "bearing": 240,
+      "next": "bitou",
+      "hidden": true,
+      "osm": "node/2864197220"
+    }
+  ],
+  "sites": [
+    {
+      "name": "南雅子母岩",
+      "location": [
+        25.12036,
+        121.9005
+      ],
+      "zoneId": "bitou"
+    },
+    {
+      "name": "鼻頭角公園",
+      "location": [
+        25.12567,
+        121.91517
+      ],
+      "zoneId": "bitou"
+    },
+    {
+      "name": "龍洞1.5號",
+      "location": [
+        25.11594,
+        121.9155
+      ],
+      "zoneId": "longdong"
+    },
+    {
+      "name": "龍洞4號",
+      "location": [
+        25.11328,
+        121.91973
+      ],
+      "zoneId": "longdong"
+    },
+    {
+      "name": "龍洞南口四季灣",
+      "location": [
+        25.09967,
+        121.91803
+      ],
+      "zoneId": "hemei"
+    },
+    {
+      "name": "蚊子坑",
+      "location": [
+        25.09306,
+        121.91603
+      ],
+      "zoneId": "hemei"
+    }
+  ]
+}

@@ -7,8 +7,10 @@ import { mapLayout } from '../../src/ui/seaMap.js';
 
 const layers = Object.entries(SITE_LAYERS);
 
-test('小琉球, 墾丁 and 綠島 have dive sites and zone borders', () => {
-  expect(Object.keys(SITE_LAYERS).sort()).toEqual(['kenting', 'ludao', 'xiaoliuqiu']);
+test('all 8 spots have dive sites and zone borders', () => {
+  expect(Object.keys(SITE_LAYERS).sort()).toEqual(
+    ['kenting', 'lanyu', 'ludao', 'northeast', 'penghu-north', 'penghu-south', 'qixing', 'xiaoliuqiu'],
+  );
 });
 
 test('borders go clockwise by bearing and name every zone of the spot exactly once', () => {
