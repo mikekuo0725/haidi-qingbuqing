@@ -41,10 +41,25 @@ export function parseBuoys(json) {
   return out;
 }
 
+// Same hour in old and fresh: a fresh value wins, a fresh null keeps the old one (the API sends its oldest hour
+// all "None", which must not wipe a saved reading). Current speed and direction move together or not at all.
+function mergeRow(old, fresh) {
+  if (!old) return fresh;
+  const out = { ...old };
+  for (const [k, v] of Object.entries(fresh)) if (v != null) out[k] = v;
+  if (fresh.currentKn == null || fresh.currentToDeg == null) {
+    out.currentKn = old.currentKn;
+    out.currentToDeg = old.currentToDeg;
+    if (out.currentKn === undefined) delete out.currentKn;
+    if (out.currentToDeg === undefined) delete out.currentToDeg;
+  }
+  return out;
+}
+
 // keepFrom is a date ("2026-09-26"): string compare keeps every hour of that day and later.
 export function mergeReadings(old, fresh, keepFrom) {
   const all = new Map();
-  for (const r of [...(old ?? []), ...(fresh ?? [])]) if (r?.time >= keepFrom) all.set(r.time, r);
+  for (const r of [...(old ?? []), ...(fresh ?? [])]) if (r?.time >= keepFrom) all.set(r.time, mergeRow(all.get(r.time), r));
   return [...all.values()].sort(byTime);
 }
 

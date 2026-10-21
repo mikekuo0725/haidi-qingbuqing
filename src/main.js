@@ -221,8 +221,8 @@ async function load({ fresh = false } = {}) {
 function currentSnapshot(zoneId) {
   const f = state.forecasts[0] ?? state.forecasts[state.dayIndex];
   const z = f?.zones.find((x) => x.zoneId === zoneId);
-  if (!z) return { date: f?.date ?? null, base: null, bias: 1, factors: {}, rawMeters: null, meters: null };
-  return { date: f.date, base: z.base, bias: z.bias, factors: z.factors, rawMeters: z.rawMeters, meters: z.meters };
+  if (!z) return { date: f?.date ?? null, base: null, bias: 1, factors: {}, rawMeters: null, meters: null, coastalAt: f?.coastalAt ?? null };
+  return { date: f.date, base: z.base, bias: z.bias, factors: z.factors, rawMeters: z.rawMeters, meters: z.meters, coastalAt: f.coastalAt ?? null };
 }
 
 app.addEventListener('click', async (e) => {

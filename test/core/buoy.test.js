@@ -47,6 +47,27 @@ test('mergeReadings: fresh wins on the same hour, older than keepFrom is dropped
   expect(mergeReadings(null, null, '2026-09-26')).toEqual([]);
 });
 
+test('mergeReadings: an all-null fresh row never wipes an old reading (the API sends its oldest hour empty)', () => {
+  const full = { time: '2026-09-29T10:00', waveH: 1, waveT: 5, waveDir: 200, sst: 27, currentKn: 1, currentToDeg: 90 };
+  const empty = { time: '2026-09-29T10:00', waveH: null, waveT: null, waveDir: null, sst: null, currentKn: null, currentToDeg: null };
+  expect(mergeReadings([full], [empty], '2026-09-26')).toEqual([full]);
+  expect(mergeReadings([empty], [full], '2026-09-26')).toEqual([full]);
+});
+
+test('mergeReadings: same hour merges field by field, a fresh value wins, a fresh null keeps the old one', () => {
+  const old = { time: '2026-09-29T10:00', waveH: 1, waveT: 5, sst: 27 };
+  const fresh = { time: '2026-09-29T10:00', waveH: 2, waveT: 5, sst: null };
+  expect(mergeReadings([old], [fresh], '2026-09-26')).toEqual([{ time: '2026-09-29T10:00', waveH: 2, waveT: 5, sst: 27 }]);
+});
+
+test('mergeReadings: currentKn and currentToDeg stay from one reading', () => {
+  const t = '2026-09-29T10:00';
+  const old = { time: t, currentKn: 1, currentToDeg: 90 };
+  expect(mergeReadings([old], [{ time: t, currentKn: 2, currentToDeg: null }], '2026-09-26')[0]).toMatchObject({ currentKn: 1, currentToDeg: 90 });
+  expect(mergeReadings([old], [{ time: t, currentKn: null, currentToDeg: 10 }], '2026-09-26')[0]).toMatchObject({ currentKn: 1, currentToDeg: 90 });
+  expect(mergeReadings([old], [{ time: t, currentKn: 2, currentToDeg: 10 }], '2026-09-26')[0]).toMatchObject({ currentKn: 2, currentToDeg: 10 });
+});
+
 test('readingMs reads the key as Taiwan time', () => {
   expect(readingMs('2026-09-30T13:00')).toBe(Date.UTC(2026, 8, 30, 5, 0));
 });
