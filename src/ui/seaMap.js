@@ -23,6 +23,12 @@ export function currentStrip(c) {
   return `<div class="cmap-now"><svg viewBox="-27 -27 54 54" width="34" height="34" aria-hidden="true"><path class="cmap-arrow ${LIGHT[c.level].cls}" d="${ARROW}" transform="rotate(${Math.round(c.toDeg)})"/></svg><div><b>往${bearingText(c.toDeg)} ${knots(c.kn)}</b><br><span class="cmap-cap">整片海的大概流向</span></div></div>`;
 }
 
+// The drifting lines are drawn on this canvas by ui/flowCanvas.js. It sits under the map svg, so land, tints and
+// names cover it. Direction and speed ride on the element: the loop reads them every frame.
+export function flowCanvas(c) {
+  return `<canvas class="cmap-flow" aria-hidden="true" data-kn="${c.kn.toFixed(2)}" data-to="${Math.round(c.toDeg)}"></canvas>`;
+}
+
 const pts = (points) => points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
 const SITE_DOT = 5; // half-size of the space a dive-site dot keeps free of names
 
@@ -100,6 +106,7 @@ export function renderSeaMap({ spot, map, layer = null, forecast, hourIndex = nu
     : map.land.map((d) => `<path class="cmap-land" d="${d}"/>`).join('') + shipLayer + spot.zones.map((z) => zoneDot(map.bbox, z, lights[z.id] ?? 'gray')).join('');
   return `<div class="cmap">
     <div class="cmap-box">
+      ${flowCanvas(c)}
       <svg viewBox="0 0 ${MAP_W} ${h}" role="img" aria-label="${esc(spot.name)}地圖：分區燈號和潛點"><rect class="cmap-sea" width="${MAP_W}" height="${h}"/>${body}</svg>
       ${map.note ? `<div class="cmap-note">${esc(map.note)}</div>` : ''}
     </div>
@@ -118,6 +125,9 @@ export function updateSeaMap(root, c) {
   root.querySelector('.cmap-now').outerHTML = currentStrip(c);
   root.querySelector('.cmap-time').textContent = hourText(c.hour);
   root.querySelector('.cmap input[type="range"]').setAttribute('aria-valuetext', `${c.hour} 點`);
+  const flow = root.querySelector('.cmap-flow');
+  flow?.setAttribute('data-kn', c.kn.toFixed(2));
+  flow?.setAttribute('data-to', String(Math.round(c.toDeg)));
 }
 
 // New ship positions arrived: swap only the ship layer and its caption.

@@ -22,9 +22,11 @@ button { font:inherit; color:inherit; }
 .sea { margin:0 14px 10px; padding:12px; border-radius:12px; background:var(--card); display:grid; grid-template-columns:1fr 1fr; gap:10px; font-size:14px; }
 .sea .wide, .sea .warn { grid-column:1 / -1; }
 .cmap { margin:0 14px 10px; }
-.cmap-box { position:relative; max-width:480px; margin:0 auto; border-radius:12px; overflow:hidden; }
+.cmap-box { position:relative; max-width:480px; margin:0 auto; border-radius:12px; overflow:hidden; background:#0d3a52; }
 .cmap svg { display:block; width:100%; height:auto; }
-.cmap-sea { fill:#0d3a52; }
+.cmap-box svg { position:relative; } /* paints above the flow canvas */
+.cmap-flow { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+.cmap-sea { fill:transparent; } /* the sea colour is the box background, so the flow canvas shows through */
 .cmap-land { fill:#33493f; stroke:#4d6a5c; stroke-width:1; }
 .cmap-zone { cursor:pointer; }
 .cmap-zone circle { stroke:#fff; stroke-width:2.5; }

@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { renderSeaMap, currentStrip, defaultHourIndex, updateShips } from '../../src/ui/seaMap.js';
+import { renderSeaMap, currentStrip, defaultHourIndex, updateShips, updateSeaMap, flowCanvas } from '../../src/ui/seaMap.js';
 import { SITE_LAYERS } from '../../src/data/spots/sites/index.js';
 import { LIGHT } from '../../src/ui/format.js';
 import { buildForecast } from '../../src/core/forecast.js';
@@ -152,4 +152,35 @@ test('updateShips swaps only the ship layer and the caption', () => {
   expect(nodes.g.outerHTML).toContain('class="cmap-ships"');
   expect(nodes.g.outerHTML).toContain('cmap-ship');
   expect(nodes.cap.outerHTML).toContain('12:00');
+});
+
+test('the flow canvas sits before the svg and carries the chosen hour current', () => {
+  const html = renderSeaMap({ spot, map, forecast, hourIndex: 2 });
+  expect(html).toContain('class="cmap-flow"');
+  expect(html.indexOf('class="cmap-flow"')).toBeLessThan(html.indexOf('<svg viewBox'));
+  const c = forecast.currents[2];
+  expect(html).toContain(`data-kn="${c.kn.toFixed(2)}"`);
+  expect(html).toContain(`data-to="${Math.round(c.toDeg)}"`);
+});
+
+test('flowCanvas writes plain numbers: knots to 2 decimals, degrees rounded', () => {
+  const html = flowCanvas({ kn: 0.8, toDeg: 224.6 });
+  expect(html).toContain('data-kn="0.80"');
+  expect(html).toContain('data-to="225"');
+  expect(html).toContain('aria-hidden="true"');
+});
+
+test('updateSeaMap also hands the new current to the flow canvas, and copes without one', () => {
+  const attrs = {};
+  const nodes = {
+    '.cmap-now': { outerHTML: '' },
+    '.cmap-time': { textContent: '' },
+    '.cmap input[type="range"]': { setAttribute() {} },
+    '.cmap-flow': { setAttribute: (k, v) => { attrs[k] = v; } },
+  };
+  const make = (withFlow) => ({ querySelector: (q) => (q === '.cmap-flow' && !withFlow ? null : nodes[q] ?? null) });
+  const c = { hour: 10, kn: 1.234, toDeg: 89.6, level: 'green' };
+  updateSeaMap(make(true), c);
+  expect(attrs).toEqual({ 'data-kn': '1.23', 'data-to': '90' });
+  expect(() => updateSeaMap(make(false), c)).not.toThrow();
 });
