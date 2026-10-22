@@ -78,4 +78,12 @@ export const K = {
   shipMovingKn: 0.5,     // at or above this speed the ship is drawn as a boat pointing at its course
   shipGreyMinutes: 10,   // a position older than this is drawn grey
   shipHideMinutes: 30,   // a position older than this is not drawn
+
+  // drifting lines on the sea map (map units: the map is 300 wide)
+  flowSpeedPerKn: 22,    // map units per second for each knot of current
+  flowDensity: 220,      // map units² per line
+  flowMaxParticles: 600,
+  flowLifeMin: 3,        // seconds a line lives before it restarts somewhere else
+  flowLifeMax: 6,
+  flowFade: 0.045,       // alpha removed from the canvas each frame: how long the tails are
 };
