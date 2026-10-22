@@ -363,7 +363,7 @@ function syncFlow() {
 }
 
 function syncShips() {
-  const want = document.visibilityState === 'visible' && mapShown();
+  const want = K.shipsOn && document.visibilityState === 'visible' && mapShown();
   if (want && shipTimer == null) {
     loadShips();
     shipTimer = setInterval(loadShips, K.shipRefreshMinutes * 60000);

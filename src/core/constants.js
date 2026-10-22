@@ -72,6 +72,7 @@ export const K = {
   buoyKeepDays: 4,   // the Worker keeps this many days of readings in KV
 
   // 航港局 AIS ships on the sea map
+  shipsOn: false,        // off since 2026-10-22: Cloudflare's US machines cannot reach 航港局 (times out after ~20 s)
   shipCacheSeconds: 90,  // the Worker keeps one answer this long (Cache API)
   shipEmptySeconds: 30,  // an empty / failed answer is kept only this long
   shipRefreshMinutes: 2, // the page asks again this often while it is visible
