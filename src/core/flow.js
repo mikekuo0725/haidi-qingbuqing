@@ -40,7 +40,7 @@ export function stepParticle(p, dt, v, w, h, t, rand = Math.random) {
     spawn(p, w, h, rand);
     return;
   }
-  const sway = Math.sin(t * 0.6 + p.phase) * WOBBLE;
+  const sway = v[0] || v[1] ? Math.sin(t * 0.6 + p.phase) * WOBBLE : 0; // still water stays still
   p.x += (v[0] + sway) * dt;
   p.y += (v[1] + sway) * dt;
 }

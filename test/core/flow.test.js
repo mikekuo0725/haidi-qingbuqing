@@ -70,3 +70,10 @@ test('particleAlpha fades in, holds, fades out, and stays within 0..1', () => {
   expect(particleAlpha({ age: -1, life: 5 })).toBe(0);
   expect(particleAlpha({ age: 9, life: 5 })).toBe(0);
 });
+
+test('stepParticle keeps a particle still when the water is still (no wobble at 0 knots)', () => {
+  const p = { x: 100, y: 100, age: 0, life: 5, phase: 1 };
+  stepParticle(p, 0.5, [0, 0], 300, 278, 3, () => 0.5);
+  expect(p.x).toBe(100);
+  expect(p.y).toBe(100);
+});

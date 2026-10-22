@@ -16,6 +16,7 @@ import { renderMain } from './ui/mainView.js';
 import { MAPS } from './data/spots/maps/index.js';
 import { SITE_LAYERS } from './data/spots/sites/index.js';
 import { updateSeaMap, updateShips } from './ui/seaMap.js';
+import { createFlow } from './ui/flowCanvas.js';
 import { renderSpotSheet } from './ui/spotSheet.js';
 import { installHint } from './ui/installHint.js';
 import { renderDetail } from './ui/detailView.js';
@@ -113,6 +114,7 @@ function dateLabel(i) {
 function render() {
   renderView();
   syncShips();
+  syncFlow();
 }
 
 function renderView() {
@@ -337,6 +339,14 @@ async function loadShips() {
   if (mapShown()) updateShips(app, MAPS[spotId].bbox, data, Date.now());
 }
 
+// Drifting lines on the sea map: run while the map is on screen and the page is visible. The phone's
+// "reduce motion" setting is deliberately ignored (Michael's call).
+const flow = createFlow({ find: () => app.querySelector('.cmap-flow') });
+function syncFlow() {
+  if (document.visibilityState === 'visible' && mapShown()) flow.start();
+  else flow.stop();
+}
+
 function syncShips() {
   const want = document.visibilityState === 'visible' && mapShown();
   if (want && shipTimer == null) {
@@ -356,6 +366,7 @@ const canRefreshNow = () => state.view === 'main' || state.view === 'detail';
 // Back from the phone's app switcher: reload if the data is old enough.
 document.addEventListener('visibilitychange', () => {
   syncShips();
+  syncFlow();
   if (document.visibilityState !== 'visible' || !canRefreshNow()) return;
   if (shouldAutoRefresh(state.loadedAt, Date.now())) load({ fresh: true });
 });
