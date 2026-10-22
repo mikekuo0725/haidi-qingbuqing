@@ -27,6 +27,11 @@ test('no reports message; reports list escapes html', () => {
   expect(html).toContain('海龜');
 });
 
+test('a report with no nickname shows as 匿名', () => {
+  const r = [{ id: 'a', zoneId: 'west', meters: 20, depth: 10, diveTime: NOW, nickname: '', note: '' }];
+  expect(renderDetail({ spot, zone: west, dateLabel: 'x', reports: r, now: NOW })).toContain('匿名');
+});
+
 test('waterfall: biggest loss first, flagged as 最大扣分, and the steps add up to the forecast', () => {
   const html = renderDetail({ spot, zone: west, dateLabel: 'x', reports: [], now: NOW });
   const nums = [...html.matchAll(/class="wf-n[^"]*">([+−])([\d.]+)</g)].map((m) => (m[1] === '−' ? -1 : 1) * Number(m[2]));

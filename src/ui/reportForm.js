@@ -20,7 +20,7 @@ export function renderReportForm({ spot, defaultZoneId, nickname, now }) {
     <div class="q">看到幾米？</div><div class="opts">${radios('meters', METERS, null)}</div>
     <div class="q">大概幾米深？</div><div class="opts">${radios('depth', DEPTHS, '10')}</div>
     <div class="q">什麼時候下水？（今天）</div><input class="inp" type="time" name="time" value="${hhmm(now)}">
-    <div class="q">暱稱</div><input class="inp" name="nickname" maxlength="${MAX_NICKNAME}" value="${esc(nickname ?? '')}">
+    <div class="q">暱稱</div><input class="inp" name="nickname" maxlength="${MAX_NICKNAME}" placeholder="不填也可以" value="${esc(nickname ?? '')}">
     <div class="q">想說的話（可以不填）</div><input class="inp" name="note" maxlength="${MAX_NOTE}">
     <div class="err" id="report-error" role="alert"></div>
     <button class="btn" type="submit">送出</button>
@@ -39,7 +39,6 @@ export function parseReportForm(v, now) {
   const depth = v.depth ?? '10';
   if (!inRange(depth)) return { error: '請選大概幾米深' };
   const nickname = String(v.nickname ?? '').trim();
-  if (!nickname) return { error: '請輸入暱稱' };
   if (nickname.length > MAX_NICKNAME) return { error: `暱稱最多 ${MAX_NICKNAME} 個字` };
   const note = String(v.note ?? '').trim();
   if (note.length > MAX_NOTE) return { error: `想說的話最多 ${MAX_NOTE} 個字` };

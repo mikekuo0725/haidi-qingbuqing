@@ -47,7 +47,7 @@ function stepRow(s, scale, i) {
 
 function reportRow(r) {
   const note = r.note ? ` ・ ${esc(r.note)}` : '';
-  return `<div class="rep">${r.meters}m ・ ${r.depth}m 深 ・ ${hhmm(r.diveTime)} ・ ${esc(r.nickname)}${note}</div>`;
+  return `<div class="rep">${r.meters}m ・ ${r.depth}m 深 ・ ${hhmm(r.diveTime)} ・ ${esc(r.nickname || '匿名')}${note}</div>`;
 }
 
 export function renderDetail({ spot, zone, dateLabel, reports }) {

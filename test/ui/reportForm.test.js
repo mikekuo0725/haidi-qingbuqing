@@ -20,9 +20,9 @@ test('parse: valid form', () => {
   expect(r.diveTime).toBe(Date.UTC(2026, 8, 28, 1, 15));
 });
 
-test('parse: missing meters or nickname → error', () => {
+test('parse: missing meters → error; a blank nickname is fine', () => {
   expect(parseReportForm({ zoneId: 'west', depth: '10', time: '09:15', nickname: 'M' }, NOW)).toEqual({ error: '請選看到幾米' });
-  expect(parseReportForm({ zoneId: 'west', meters: '20', depth: '10', time: '09:15', nickname: ' ' }, NOW)).toEqual({ error: '請輸入暱稱' });
+  expect(parseReportForm({ zoneId: 'west', meters: '20', depth: '10', time: '09:15', nickname: ' ' }, NOW)).toMatchObject({ nickname: '' });
 });
 
 test('parse: a dive time later than now → error', () => {
