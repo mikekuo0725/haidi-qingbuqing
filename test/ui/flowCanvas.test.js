@@ -2,11 +2,12 @@ import { test, expect } from 'vitest';
 import { createFlow } from '../../src/ui/flowCanvas.js';
 
 function fakeCtx() {
-  const calls = { stroke: 0, segments: [], fade: 0 };
+  const calls = { stroke: 0, segments: [], cleared: 0, filled: 0 };
   let from = null;
   const ctx = {
     calls,
-    fillRect: () => { calls.fade++; },
+    clearRect: () => { calls.cleared++; },
+    fillRect: () => { calls.filled++; },
     beginPath: () => {},
     moveTo: (x, y) => { from = [x, y]; },
     lineTo: (x, y) => { calls.segments.push([from, [x, y]]); },
@@ -88,4 +89,14 @@ test('at 0 knots the lines do not move', () => {
   const moved = ctx.calls.segments.filter(([a, b]) => Math.abs(a[0] - b[0]) > 1e-9 || Math.abs(a[1] - b[1]) > 1e-9);
   // a respawned line jumps to a new place; with 3 s minimum life nothing respawns in 5 frames of 16 ms
   expect(moved).toHaveLength(0);
+});
+
+test('every frame wipes the whole canvas: no fade-by-overlay, so no faint residue is left behind', () => {
+  const ctx = fakeCtx();
+  const r = rig(fakeCanvas(ctx));
+  r.flow.start();
+  for (let i = 0; i < 4; i++) r.frame();
+  expect(ctx.calls.cleared).toBe(4);
+  expect(ctx.calls.filled).toBe(0);
+  expect(ctx.globalCompositeOperation).not.toBe('destination-out');
 });

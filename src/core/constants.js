@@ -85,5 +85,5 @@ export const K = {
   flowMaxParticles: 600,
   flowLifeMin: 3,        // seconds a line lives before it restarts somewhere else
   flowLifeMax: 6,
-  flowFade: 0.045,       // alpha removed from the canvas each frame: how long the tails are
+  flowTrail: 10,         // positions a line remembers: how long its tail is
 };

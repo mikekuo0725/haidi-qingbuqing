@@ -39,23 +39,38 @@ export function createFlow({
 
     const v = flowVelocity(Number(c.dataset.kn) || 0, Number(c.dataset.to) || 0);
     const k = pw / W;
-    ctx.globalCompositeOperation = 'destination-out'; // old pixels fade: that is the tail
-    ctx.fillStyle = `rgba(0,0,0,${K.flowFade})`;
-    ctx.fillRect(0, 0, pw, ph);
-    ctx.globalCompositeOperation = 'source-over';
+    ctx.clearRect(0, 0, pw, ph); // wiped every frame: tails come from remembered positions, so nothing is left behind
     ctx.lineCap = 'round';
     ctx.lineWidth = 1.8 * ratio;
     const t = ts / 1000;
+    const groups = [[], [], [], []]; // lines by how visible they are now (fading in or out)
     for (const p of particles) {
-      const ox = p.x;
-      const oy = p.y;
       stepParticle(p, dt, v, W, h, t);
-      if (p.age === 0) continue; // it just restarted somewhere else: no streak across the map
-      ctx.strokeStyle = `rgba(150,225,255,${(0.85 * particleAlpha(p)).toFixed(2)})`;
-      ctx.beginPath();
-      ctx.moveTo(ox * k, oy * k);
-      ctx.lineTo(p.x * k, p.y * k);
-      ctx.stroke();
+      const trail = (p.trail ??= []);
+      if (p.age === 0) trail.length = 0; // it just restarted somewhere else: no streak across the map
+      trail.push(p.x, p.y);
+      if (trail.length > 2 * K.flowTrail) trail.splice(0, 2);
+      const a = particleAlpha(p);
+      if (a > 0) groups[Math.min(3, Math.ceil(a * 4) - 1)].push(trail);
+    }
+    // One stroke per (tail step, visibility group): a few dozen calls a frame, not one per line.
+    for (let s = 0; s < K.flowTrail - 1; s++) {
+      const fade = 1 - s / K.flowTrail; // s = 0 is the newest step
+      groups.forEach((trails, g) => {
+        ctx.beginPath();
+        let any = false;
+        for (const trail of trails) {
+          const n = trail.length / 2;
+          if (n < s + 2) continue;
+          const i = 2 * (n - 2 - s);
+          ctx.moveTo(trail[i] * k, trail[i + 1] * k);
+          ctx.lineTo(trail[i + 2] * k, trail[i + 3] * k);
+          any = true;
+        }
+        if (!any) return;
+        ctx.strokeStyle = `rgba(150,225,255,${(0.85 * ((g + 1) / 4) * fade).toFixed(2)})`;
+        ctx.stroke();
+      });
     }
   }
 
