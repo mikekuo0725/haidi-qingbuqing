@@ -52,7 +52,7 @@ export function buildForecast({ spot, day, stale, helper, reports, now, isToday 
     // For the sea map's hour slider: the whole-sea current, hour by hour.
     currents: day.hours.map((h) => {
       const kn = kmhToKnots(h.currentKmh);
-      return { hour: h.hour, kn, toDeg: h.currentDir, level: currentLevel(kn, spot.safety) };
+      return { hour: h.hour, kn, toDeg: h.currentDir, level: currentLevel(kn, spot.safety), windKmh: h.windKmh, windDir: h.windDir };
     }),
   };
 }

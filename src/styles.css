@@ -33,8 +33,10 @@ button { font:inherit; color:inherit; }
 .cmap-zone circle.cmap-hit { stroke:none; }
 .cmap-zone circle.pu{fill:#a45cff}.cmap-zone circle.gr{fill:#2ecc71}.cmap-zone circle.ye{fill:#f5c518}.cmap-zone circle.re{fill:#ff4d4d}.cmap-zone circle.gy{fill:#7a8a99}
 .cmap-zone text { fill:#fff; font-size:13px; font-weight:800; text-anchor:middle; paint-order:stroke; stroke:#07141f; stroke-width:3px; }
-.cmap-now { display:flex; align-items:center; gap:10px; max-width:480px; margin:8px auto 0; padding:6px 10px; border-radius:10px; background:rgba(7,20,31,.92); font-size:14px; line-height:1.3; }
-.cmap-now svg { flex:none; width:34px; height:34px; }
+.cmap-now, .cmap-wind { display:flex; align-items:center; gap:10px; max-width:480px; margin:8px auto 0; padding:6px 10px; border-radius:10px; background:rgba(7,20,31,.92); font-size:14px; line-height:1.3; }
+.cmap-now svg, .cmap-wind svg { flex:none; width:34px; height:34px; }
+.cmap-wind[hidden] { display:none; }
+.cmap-warrow { fill:#9fb3c8; }
 .cmap-region { fill-opacity:.28; cursor:pointer; }
 .cmap-region.pu{fill:#a45cff}.cmap-region.gr{fill:#2ecc71}.cmap-region.ye{fill:#f5c518}.cmap-region.re{fill:#ff4d4d}.cmap-region.gy{fill:#7a8a99}
 .cmap-border { stroke:#fff; stroke-opacity:.75; stroke-width:1.5; stroke-dasharray:5 4; }

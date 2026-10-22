@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { renderSeaMap, currentStrip, defaultHourIndex, updateShips, updateSeaMap, flowCanvas } from '../../src/ui/seaMap.js';
+import { renderSeaMap, currentStrip, defaultHourIndex, updateShips, updateSeaMap, flowCanvas, windStrip } from '../../src/ui/seaMap.js';
 import { SITE_LAYERS } from '../../src/data/spots/sites/index.js';
 import { LIGHT } from '../../src/ui/format.js';
 import { buildForecast } from '../../src/core/forecast.js';
@@ -64,6 +64,33 @@ test('the current strip turns the arrow to where the water flows, coloured by st
   expect(b).toContain('class="cmap-arrow gr"');
   expect(b).toContain('整片海的大概流向');
   expect(currentStrip({ hour: 10, kn: 1.3, toDeg: 0, level: 'red' })).toContain('class="cmap-arrow re"');
+});
+
+test('the wind strip names where the wind comes from and turns the arrow to where it blows', () => {
+  const w = windStrip({ windDir: 0, windKmh: 17.6 });
+  expect(w).toContain('風 從北來 18 公里/時');
+  expect(w).toContain('rotate(180)');
+  expect(windStrip({ windDir: 225, windKmh: 5 })).toContain('rotate(405)');
+  expect(windStrip({ windDir: 225, windKmh: 5 })).toContain('從西南來');
+});
+
+test('no wind data: the wind strip stays as a hidden node', () => {
+  expect(windStrip({})).toBe('<div class="cmap-wind" hidden></div>');
+  expect(windStrip({ windDir: NaN, windKmh: 3 })).toContain('hidden');
+});
+
+test('the wind strip sits under the map, after the current strip', () => {
+  const html = renderSeaMap({ spot, map, forecast });
+  expect(html.indexOf('class="cmap-wind"')).toBeGreaterThan(html.indexOf('class="cmap-now"'));
+});
+
+test('updateSeaMap swaps the wind strip too, and copes without one', () => {
+  const wind = { outerHTML: '' };
+  const nodes = { '.cmap-now': { outerHTML: '' }, '.cmap-time': { textContent: '' }, '.cmap input[type="range"]': { setAttribute() {} }, '.cmap-wind': wind };
+  const c = { hour: 10, kn: 1, toDeg: 90, level: 'green', windKmh: 10, windDir: 90 };
+  updateSeaMap({ querySelector: (q) => nodes[q] ?? null }, c);
+  expect(wind.outerHTML).toContain('風 從東來');
+  expect(() => updateSeaMap({ querySelector: (q) => (q === '.cmap-wind' ? null : nodes[q] ?? null) }, c)).not.toThrow();
 });
 
 test('shows the strongest current of the day under the slider', () => {

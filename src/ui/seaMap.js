@@ -23,6 +23,13 @@ export function currentStrip(c) {
   return `<div class="cmap-now"><svg viewBox="-27 -27 54 54" width="34" height="34" aria-hidden="true"><path class="cmap-arrow ${LIGHT[c.level].cls}" d="${ARROW}" transform="rotate(${Math.round(c.toDeg)})"/></svg><div><b>往${bearingText(c.toDeg)} ${knots(c.kn)}</b><br><span class="cmap-cap">整片海的大概流向</span></div></div>`;
 }
 
+// Wind under the current strip. windDir is where the wind comes FROM, so the arrow turns 180° to show where it blows.
+// No wind data for that hour: an empty hidden node stays, so the slider can still swap it later.
+export function windStrip(c) {
+  if (!Number.isFinite(c.windDir) || !Number.isFinite(c.windKmh)) return '<div class="cmap-wind" hidden></div>';
+  return `<div class="cmap-wind"><svg viewBox="-27 -27 54 54" width="34" height="34" aria-hidden="true"><path class="cmap-warrow" d="${ARROW}" transform="rotate(${Math.round(c.windDir + 180)})"/></svg><div><b>風 從${bearingText(c.windDir)}來 ${Math.round(c.windKmh)} 公里/時</b><br><span class="cmap-cap">箭頭指風吹去的方向</span></div></div>`;
+}
+
 // The drifting lines are drawn on this canvas by ui/flowCanvas.js. It sits under the map svg, so land, tints and
 // names cover it. Direction and speed ride on the element: the loop reads them every frame.
 export function flowCanvas(c) {
@@ -112,6 +119,7 @@ export function renderSeaMap({ spot, map, layer = null, forecast, hourIndex = nu
     </div>
     ${shipCaption(ships, now)}
     ${currentStrip(c)}
+    ${windStrip(c)}
     <label class="cmap-slider">⏰ <span class="cmap-time">${hourText(c.hour)}</span> 的海流
       <input type="range" min="0" max="${n - 1}" step="1" value="${i}" aria-valuetext="${c.hour} 點">
     </label>
@@ -123,6 +131,8 @@ export function renderSeaMap({ spot, map, layer = null, forecast, hourIndex = nu
 // Slider moved: swap only the current strip and the time, so the page does not jump or lose focus.
 export function updateSeaMap(root, c) {
   root.querySelector('.cmap-now').outerHTML = currentStrip(c);
+  const wind = root.querySelector('.cmap-wind');
+  if (wind) wind.outerHTML = windStrip(c);
   root.querySelector('.cmap-time').textContent = hourText(c.hour);
   root.querySelector('.cmap input[type="range"]').setAttribute('aria-valuetext', `${c.hour} 點`);
   const flow = root.querySelector('.cmap-flow');

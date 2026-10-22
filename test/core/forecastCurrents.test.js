@@ -12,7 +12,8 @@ test('one current per forecast hour, 08 to 16', () => {
 });
 
 test('current is in knots, keeps the flow-to direction and gets the spot light', () => {
-  expect(build({ currentKmh: 1.852, currentDir: 225 }).currents[0]).toEqual({ hour: 8, kn: 1, toDeg: 225, level: 'red' });
+  expect(build({ currentKmh: 1.852, currentDir: 225 }).currents[0]).toMatchObject({ hour: 8, kn: 1, toDeg: 225, level: 'red' });
+  expect(build({ windKmh: 18, windDir: 40 }).currents[0]).toMatchObject({ windKmh: 18, windDir: 40 });
   expect(build({ currentKmh: 1.2, currentDir: 90 }).currents[0].level).toBe('yellow');
   expect(build({ currentKmh: 0.5, currentDir: 90 }).currents[0].level).toBe('green');
 });
