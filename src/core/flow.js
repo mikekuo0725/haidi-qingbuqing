@@ -13,7 +13,19 @@ export function flowVelocity(kn, toDeg) {
   return [Math.sin(r) * s, -Math.cos(r) * s];
 }
 
+// fromDeg is where the wind blows FROM (0 = north); the lines drift the other way.
+export function windVelocity(kmh, fromDeg) {
+  const r = ((fromDeg + 180) * Math.PI) / 180;
+  const s = kmh * K.windSpeedPerKmh;
+  return [Math.sin(r) * s, -Math.cos(r) * s];
+}
+
 export const particleCount = (w, h) => clamp(Math.round((w * h) / K.flowDensity), 1, K.flowMaxParticles);
+export const windParticleCount = (w, h) => clamp(Math.round(particleCount(w, h) * K.windShare), 1, K.flowMaxParticles);
+
+// Which lines the map draws: both, only the current, or only the wind.
+export const LINE_MODES = ['both', 'cur', 'wind'];
+export const normLines = (v) => (LINE_MODES.includes(v) ? v : 'both');
 
 const spawn = (p, w, h, rand) => {
   p.x = rand() * w;

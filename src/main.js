@@ -15,7 +15,8 @@ import { shouldAutoRefresh, isPullRefresh } from './core/refresh.js';
 import { renderMain } from './ui/mainView.js';
 import { MAPS } from './data/spots/maps/index.js';
 import { SITE_LAYERS } from './data/spots/sites/index.js';
-import { updateSeaMap, updateShips } from './ui/seaMap.js';
+import { updateSeaMap, updateShips, setLines } from './ui/seaMap.js';
+import { normLines } from './core/flow.js';
 import { createFlow } from './ui/flowCanvas.js';
 import { renderSpotSheet } from './ui/spotSheet.js';
 import { installHint } from './ui/installHint.js';
@@ -29,6 +30,7 @@ import { registerSW } from 'virtual:pwa-register';
 import { renderUpdateBar } from './ui/updateBar.js';
 
 const SPOT_KEY = 'haidi:spot';
+const LINES_KEY = 'haidi:lines';
 const app = document.getElementById('app');
 const outbox = createOutbox(localStorage, sendReport);
 const DAY_LABELS = ['今天', '明天', '後天'];
@@ -38,6 +40,12 @@ function readSavedSpot() {
 }
 function saveSpot(id) {
   try { localStorage.setItem(SPOT_KEY, id); } catch { /* storage full or blocked */ }
+}
+function readSavedLines() {
+  try { return normLines(localStorage.getItem(LINES_KEY)); } catch { return 'both'; }
+}
+function saveLines(mode) {
+  try { localStorage.setItem(LINES_KEY, mode); } catch { /* storage full or blocked */ }
 }
 
 const urlSpotId = new URLSearchParams(location.search).get('spot');
@@ -50,6 +58,7 @@ const state = {
   pos: null, // GPS: memory only, never stored or sent
   mapHour: null, // sea map slider; null = the best dive hour
   ships: null, // 航港局 AIS positions for this spot: { updatedAt, ships } or null
+  lines: readSavedLines(), // which drifting lines the sea map draws: both | cur | wind
   loading: true,
   dayIndex: openingDayIndex(Date.now()), view: 'main', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, reports: [], weatherAt: null,
 };
@@ -144,7 +153,7 @@ function renderView() {
     // Task 15: from state.weather, not the per-day forecast, so a day with no data at all still says why.
     staleHours: state.weather?.stale ?? null,
     emptyText,
-    map: MAPS[s.id] ?? null, siteLayer: SITE_LAYERS[s.id] ?? null, mapHour: state.mapHour, ships: state.ships,
+    map: MAPS[s.id] ?? null, siteLayer: SITE_LAYERS[s.id] ?? null, mapHour: state.mapHour, ships: state.ships, lines: state.lines,
     hint: installHint(navigator.userAgent, matchMedia('(display-mode: standalone)').matches || navigator.standalone === true),
   });
   if (state.view === 'spots') {
@@ -236,6 +245,12 @@ function currentSnapshot(zoneId) {
 }
 
 app.addEventListener('click', async (e) => {
+  const linesBtn = e.target.closest('.cmap-lines [data-lines]');
+  if (linesBtn) {
+    state.lines = normLines(linesBtn.dataset.lines);
+    saveLines(state.lines);
+    return setLines(app, state.lines); // only the lines change: no page redraw
+  }
   const pick = e.target.closest('[data-spot]');
   if (pick) { state.pendingSpot = pick.dataset.spot; return history.back(); } // popstate does the switch
   const day = e.target.closest('[data-day]');

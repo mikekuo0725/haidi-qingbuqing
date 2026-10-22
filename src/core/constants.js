@@ -86,4 +86,6 @@ export const K = {
   flowLifeMin: 3,        // seconds a line lives before it restarts somewhere else
   flowLifeMax: 6,
   flowTrail: 10,         // positions a line remembers: how long its tail is
+  windSpeedPerKmh: 0.8,  // map units per second for each km/h of wind
+  windShare: 0.5,        // wind lines are this share of the current lines
 };

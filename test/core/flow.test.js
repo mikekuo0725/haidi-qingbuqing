@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { flowVelocity, particleCount, makeParticles, stepParticle, particleAlpha } from '../../src/core/flow.js';
+import { flowVelocity, windVelocity, windParticleCount, normLines, particleCount, makeParticles, stepParticle, particleAlpha } from '../../src/core/flow.js';
 import { K } from '../../src/core/constants.js';
 
 const near = (got, want) => {
@@ -76,4 +76,22 @@ test('stepParticle keeps a particle still when the water is still (no wobble at 
   stepParticle(p, 0.5, [0, 0], 300, 278, 3, () => 0.5);
   expect(p.x).toBe(100);
   expect(p.y).toBe(100);
+});
+
+test('windVelocity drifts the lines the way the wind blows: wind from the north moves them south', () => {
+  near(windVelocity(10, 0), [0, 10 * K.windSpeedPerKmh]);
+  near(windVelocity(10, 270), [10 * K.windSpeedPerKmh, 0]);
+  near(windVelocity(0, 123), [0, 0]);
+});
+
+test('there are fewer wind lines than current lines, but always at least one', () => {
+  expect(windParticleCount(300, 300)).toBe(Math.round(particleCount(300, 300) * K.windShare));
+  expect(windParticleCount(300, 300)).toBeLessThan(particleCount(300, 300));
+  expect(windParticleCount(1, 1)).toBe(1);
+});
+
+test('normLines keeps the three modes and falls back to both', () => {
+  expect(['both', 'cur', 'wind'].map(normLines)).toEqual(['both', 'cur', 'wind']);
+  expect(normLines('x')).toBe('both');
+  expect(normLines(null)).toBe('both');
 });

@@ -15,9 +15,9 @@ function fakeCtx() {
   };
   return ctx;
 }
-const fakeCanvas = (ctx, kn = '1', to = '90') => ({
+const fakeCanvas = (ctx, kn = '1', to = '90', extra = {}) => ({
   clientWidth: 300, clientHeight: 278, width: 0, height: 0,
-  dataset: { kn, to },
+  dataset: { kn, to, ...extra },
   getContext: () => ctx,
 });
 function rig(initial) {
@@ -99,4 +99,57 @@ test('every frame wipes the whole canvas: no fade-by-overlay, so no faint residu
   expect(ctx.calls.cleared).toBe(4);
   expect(ctx.calls.filled).toBe(0);
   expect(ctx.globalCompositeOperation).not.toBe('destination-out');
+});
+
+const colors = (ctx) => ctx.calls.colors;
+function colorCtx() {
+  const ctx = fakeCtx();
+  ctx.calls.colors = new Set();
+  let style = '';
+  Object.defineProperty(ctx, 'strokeStyle', { set: (v) => { style = v; }, get: () => style });
+  const stroke = ctx.stroke;
+  ctx.stroke = () => { ctx.calls.colors.add(style.startsWith('rgba(255') ? 'wind' : 'cur'); stroke(); };
+  return ctx;
+}
+const draws = (extra) => {
+  const ctx = colorCtx();
+  const r = rig(fakeCanvas(ctx, '1', '90', extra));
+  r.flow.start();
+  for (let i = 0; i < 4; i++) r.frame();
+  return [...colors(ctx)].sort();
+};
+
+test('lines both: current and wind are drawn, in their own colours', () => {
+  expect(draws({ lines: 'both', wkmh: '20', wfrom: '315' })).toEqual(['cur', 'wind']);
+});
+
+test('lines cur draws only the current, lines wind only the wind', () => {
+  expect(draws({ lines: 'cur', wkmh: '20', wfrom: '315' })).toEqual(['cur']);
+  expect(draws({ lines: 'wind', wkmh: '20', wfrom: '315' })).toEqual(['wind']);
+});
+
+test('no wind data for the hour: no wind lines, the current still draws', () => {
+  expect(draws({ lines: 'both' })).toEqual(['cur']);
+  expect(draws({ lines: 'wind' })).toEqual([]);
+});
+
+test('switching modes in place: the canvas is wiped, and a set that comes back has no old tails', () => {
+  const ctx = colorCtx();
+  const canvas = fakeCanvas(ctx, '1', '90', { lines: 'cur', wkmh: '20', wfrom: '315' });
+  const r = rig(canvas);
+  r.flow.start();
+  for (let i = 0; i < 3; i++) r.frame();
+  canvas.dataset.lines = 'wind';
+  ctx.calls.colors.clear();
+  r.frame();
+  r.frame(); // a tail needs two positions: the first frame after a switch shows none
+  expect([...colors(ctx)]).toEqual(['wind']);
+});
+
+test('wind at 0 km/h still draws lines, and they do not move', () => {
+  const ctx = fakeCtx();
+  const r = rig(fakeCanvas(ctx, '0', '0', { lines: 'wind', wkmh: '0', wfrom: '90' }));
+  r.flow.start();
+  for (let i = 0; i < 5; i++) r.frame();
+  expect(ctx.calls.segments.length).toBeGreaterThan(0);
 });

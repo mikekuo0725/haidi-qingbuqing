@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { renderSeaMap, currentStrip, defaultHourIndex, updateShips, updateSeaMap, flowCanvas, windStrip } from '../../src/ui/seaMap.js';
+import { renderSeaMap, currentStrip, defaultHourIndex, updateShips, updateSeaMap, flowCanvas, windStrip, lineToggle, setLines } from '../../src/ui/seaMap.js';
 import { SITE_LAYERS } from '../../src/data/spots/sites/index.js';
 import { LIGHT } from '../../src/ui/format.js';
 import { buildForecast } from '../../src/core/forecast.js';
@@ -203,11 +203,51 @@ test('updateSeaMap also hands the new current to the flow canvas, and copes with
     '.cmap-now': { outerHTML: '' },
     '.cmap-time': { textContent: '' },
     '.cmap input[type="range"]': { setAttribute() {} },
-    '.cmap-flow': { setAttribute: (k, v) => { attrs[k] = v; } },
+    '.cmap-flow': { setAttribute: (k, v) => { attrs[k] = v; }, removeAttribute: (k) => { delete attrs[k]; } },
   };
   const make = (withFlow) => ({ querySelector: (q) => (q === '.cmap-flow' && !withFlow ? null : nodes[q] ?? null) });
   const c = { hour: 10, kn: 1.234, toDeg: 89.6, level: 'green' };
   updateSeaMap(make(true), c);
   expect(attrs).toEqual({ 'data-kn': '1.23', 'data-to': '90' });
   expect(() => updateSeaMap(make(false), c)).not.toThrow();
+});
+
+test('the line toggle has the three buttons, 海流/風 first, and marks the chosen one', () => {
+  const html = lineToggle('cur');
+  expect([...html.matchAll(/data-lines="(\w+)"[^>]*>([^<]+)</g)].map((m) => [m[1], m[2]])).toEqual([['both', '海流/風'], ['cur', '海流'], ['wind', '風']]);
+  expect(html).toContain('data-lines="cur" class="on" aria-pressed="true"');
+  expect(html).toContain('data-lines="wind" class="" aria-pressed="false"');
+  expect(lineToggle('nonsense')).toContain('data-lines="both" class="on"');
+});
+
+test('the toggle sits above the map and the map carries no caption for the lines', () => {
+  const html = renderSeaMap({ spot, map, forecast, lines: 'wind' });
+  expect(html.indexOf('class="cmap-lines"')).toBeLessThan(html.indexOf('class="cmap-box"'));
+  expect(html).toContain('<canvas class="cmap-flow" aria-hidden="true" data-lines="wind"');
+});
+
+test('the canvas carries the wind of the chosen hour, and leaves it out when there is none', () => {
+  const c = { hour: 10, kn: 1, toDeg: 90, level: 'green', windKmh: 17.64, windDir: 224.6 };
+  expect(flowCanvas(c)).toContain('data-wkmh="17.6" data-wfrom="225"');
+  expect(flowCanvas({ ...c, windDir: NaN })).not.toContain('data-wfrom');
+  expect(flowCanvas({ hour: 10, kn: 1, toDeg: 90 })).not.toContain('data-wkmh');
+});
+
+test('setLines changes the canvas and the buttons in place', () => {
+  const attrs = {};
+  const mkBtn = (mode) => {
+    const b = { dataset: { lines: mode }, on: null, pressed: null };
+    b.classList = { toggle: (_c, v) => { b.on = v; } };
+    b.setAttribute = (_k, v) => { b.pressed = v; };
+    return b;
+  };
+  const btns = ['both', 'cur', 'wind'].map(mkBtn);
+  const root = {
+    querySelector: (q) => (q === '.cmap-flow' ? { setAttribute: (k, v) => { attrs[k] = v; } } : null),
+    querySelectorAll: () => btns,
+  };
+  setLines(root, 'wind');
+  expect(attrs).toEqual({ 'data-lines': 'wind' });
+  expect(btns.map((b) => b.on)).toEqual([false, false, true]);
+  expect(btns.map((b) => b.pressed)).toEqual(['false', 'false', 'true']);
 });

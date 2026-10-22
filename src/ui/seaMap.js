@@ -1,5 +1,6 @@
 import { LIGHT, knots, esc, currentSummary } from './format.js';
 import { bearingText, clamp } from '../core/math.js';
+import { normLines } from '../core/flow.js';
 import { MAP_W, mapHeight, project } from '../core/mapProject.js';
 import { zoneRegions, borderLines } from '../core/mapRegions.js';
 import { placeLabels } from '../core/labels.js';
@@ -32,8 +33,34 @@ export function windStrip(c) {
 
 // The drifting lines are drawn on this canvas by ui/flowCanvas.js. It sits under the map svg, so land, tints and
 // names cover it. Direction and speed ride on the element: the loop reads them every frame.
-export function flowCanvas(c) {
-  return `<canvas class="cmap-flow" aria-hidden="true" data-kn="${c.kn.toFixed(2)}" data-to="${Math.round(c.toDeg)}"></canvas>`;
+export function flowCanvas(c, lines = 'both') {
+  return `<canvas class="cmap-flow" aria-hidden="true" data-lines="${normLines(lines)}" data-kn="${c.kn.toFixed(2)}" data-to="${Math.round(c.toDeg)}"${windAttrs(c)}></canvas>`;
+}
+
+// Wind for the canvas; left out when the hour has no wind, so the loop draws no wind lines then.
+function windAttrs(c) {
+  if (!Number.isFinite(c.windDir) || !Number.isFinite(c.windKmh)) return '';
+  return ` data-wkmh="${c.windKmh.toFixed(1)}" data-wfrom="${Math.round(c.windDir)}"`;
+}
+
+const LINE_BUTTONS = [['both', '海流/風'], ['cur', '海流'], ['wind', '風']];
+
+// Above the map: pick which drifting lines it draws. The map itself carries no extra caption.
+export function lineToggle(lines = 'both') {
+  const now = normLines(lines);
+  const buttons = LINE_BUTTONS.map(([mode, text]) => `<button type="button" data-lines="${mode}" class="${mode === now ? 'on' : ''}" aria-pressed="${mode === now}">${text}</button>`).join('');
+  return `<div class="cmap-lines" role="group" aria-label="地圖上的小線">${buttons}</div>`;
+}
+
+// A button was pressed: change the buttons and the canvas in place, no redraw of the page.
+export function setLines(root, lines) {
+  const now = normLines(lines);
+  root.querySelector('.cmap-flow')?.setAttribute('data-lines', now);
+  for (const b of root.querySelectorAll('.cmap-lines button')) {
+    const on = b.dataset.lines === now;
+    b.classList.toggle('on', on);
+    b.setAttribute('aria-pressed', String(on));
+  }
 }
 
 const pts = (points) => points.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
@@ -101,7 +128,7 @@ function zoneDot(bbox, zone, light) {
   return `<g class="cmap-zone" data-mapzone="${esc(zone.id)}"><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10" class="${LIGHT[light].cls}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="22" fill="transparent" class="cmap-hit"/><text x="${tx.toFixed(1)}" y="${ty.toFixed(1)}">${esc(zone.name)}</text></g>`;
 }
 
-export function renderSeaMap({ spot, map, layer = null, forecast, hourIndex = null, nowHour = null, ships = null, now = Date.now() }) {
+export function renderSeaMap({ spot, map, layer = null, forecast, hourIndex = null, nowHour = null, ships = null, lines = 'both', now = Date.now() }) {
   const n = forecast.currents.length;
   const i = hourIndex == null ? defaultHourIndex(forecast, nowHour) : clamp(hourIndex, 0, n - 1);
   const c = forecast.currents[i];
@@ -112,8 +139,9 @@ export function renderSeaMap({ spot, map, layer = null, forecast, hourIndex = nu
     ? layerSvg(spot, map, layer, lights, shipLayer)
     : map.land.map((d) => `<path class="cmap-land" d="${d}"/>`).join('') + shipLayer + spot.zones.map((z) => zoneDot(map.bbox, z, lights[z.id] ?? 'gray')).join('');
   return `<div class="cmap">
+    ${lineToggle(lines)}
     <div class="cmap-box">
-      ${flowCanvas(c)}
+      ${flowCanvas(c, lines)}
       <svg viewBox="0 0 ${MAP_W} ${h}" role="img" aria-label="${esc(spot.name)}地圖：分區燈號和潛點"><rect class="cmap-sea" width="${MAP_W}" height="${h}"/>${body}</svg>
       ${map.note ? `<div class="cmap-note">${esc(map.note)}</div>` : ''}
     </div>
@@ -138,6 +166,16 @@ export function updateSeaMap(root, c) {
   const flow = root.querySelector('.cmap-flow');
   flow?.setAttribute('data-kn', c.kn.toFixed(2));
   flow?.setAttribute('data-to', String(Math.round(c.toDeg)));
+  if (flow) {
+    const hasWind = Number.isFinite(c.windDir) && Number.isFinite(c.windKmh);
+    if (hasWind) {
+      flow.setAttribute('data-wkmh', c.windKmh.toFixed(1));
+      flow.setAttribute('data-wfrom', String(Math.round(c.windDir)));
+    } else {
+      flow.removeAttribute('data-wkmh');
+      flow.removeAttribute('data-wfrom');
+    }
+  }
 }
 
 // New ship positions arrived: swap only the ship layer and its caption.
