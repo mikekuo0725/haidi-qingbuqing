@@ -103,3 +103,9 @@ test('site card shows the protection line and link; a site without an entry show
   expect(permit).toContain('⚠️ 要先申請');
   expect(renderSiteCard({ site: { name: '花瓶岩', zoneId: 'north' }, spot, forecast, dayIndex: 0, dayLabels: DAYS })).not.toContain('官方公告');
 });
+
+test('a site in one of our spots on a day with no data does not promise a future spot', () => {
+  const html = renderSiteCard({ site: { name: '花瓶岩', zoneId: 'north' }, spot, forecast: null, dayIndex: 2, dayLabels: DAYS });
+  expect(html).not.toContain('以後加了這個潛點就會有');
+  expect(html).toContain('後天沒有資料');
+});

@@ -46,7 +46,9 @@ export function renderSiteCard({ site, spot, forecast, dayIndex, dayLabels }) {
     <div class="tstrip"><span>🌊 海流<br><b>${flowText(c.kn, c.toDeg)}</b></span><span>🌬️ 風<br><b>${windText(c.windKmh, c.windDir)}</b></span><span>⏰ 最佳下水<br><b>${forecast.best.start}~${forecast.best.end} 點</b></span></div>
     <div class="tp-btns"><button type="button" class="btn btn2" data-action="map-spot">← 看這個潛點各區</button><button type="button" class="btn" data-action="open-spot">海流、風動態圖 →</button></div>`;
   } else {
-    body = `<div class="tli">${dot('gray')}<div>這裡還沒有能見度預測<small>以後加了這個潛點就會有</small></div></div>`;
+    body = spot
+      ? `<div class="tli">${dot('gray')}<div>${dayLabels[dayIndex]}沒有資料<small>${esc(spot.name)}：抓不到天氣，或還在載入</small></div></div>`
+      : `<div class="tli">${dot('gray')}<div>這裡還沒有能見度預測<small>以後加了這個潛點就會有</small></div></div>`;
   }
   const p = site.protection;
   const prot = p ? `<div class="tp-prot">${p.kind === 'permit' ? '⚠️' : '🛡️'} ${esc(p.text)} <a href="${esc(p.url)}" target="_blank" rel="noopener">官方公告 ↗</a></div>` : '';

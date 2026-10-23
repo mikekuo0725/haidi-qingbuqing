@@ -122,7 +122,7 @@ function renderView() {
     freshness: { weatherAt: state.weatherAt, satelliteDate: state.helper?.satelliteDate ?? null }, now,
     buoy: state.helper?.buoy ?? null,
     // Task 15: from state.weather, not the per-day forecast, so a day with no data at all still says why.
-    staleHours: state.weather?.stale ?? null,
+    staleHours: state.weather ? state.weather.stale : forecast?.stale ?? null,
     emptyText,
     map: MAPS[s.id] ?? null, siteLayer: SITE_LAYERS[s.id] ?? null, mapHour: state.mapHour, ships: state.ships, lines: state.lines,
     hint: installHint(navigator.userAgent, matchMedia('(display-mode: standalone)').matches || navigator.standalone === true),
@@ -167,6 +167,8 @@ function renderMapView() {
     if (state.mapSpotId) taiwan.jumpToSpot(SPOTS[state.mapSpotId]);
   }
   taiwan.show();
+  if (state.mapJump && state.mapSpotId) taiwan.jumpToSpot(SPOTS[state.mapSpotId]);
+  state.mapJump = false;
   const summaries = state.overview?.summaries ?? {};
   taiwan.setPins(spotPins(SPOT_LIST, summaries, state.dayIndex), sitePins(SITE_LAYERS, EXTRA_SITES, summaries, state.dayIndex));
   taiwan.setMe(state.pos);
@@ -213,7 +215,14 @@ async function loadMap({ fresh = false } = {}) {
   if (id !== overviewId) return;
   state.overview = ov;
   state.overviewAt = now;
-  if (state.loadedSpotId) state.forecasts = ov.forecasts[state.loadedSpotId];
+  if (state.loadedSpotId) {
+    if (state.loadedAt > now) shareWithMap(state.loadedSpotId, state.forecasts); // the spot page's own load is newer: keep it
+    else {
+      // The map's data is newer: the spot page must reload too, or it would mix new forecasts with old weather.
+      state.loadedSpotId = null;
+      if (state.view !== 'map') load();
+    }
+  }
   render();
 }
 
@@ -241,6 +250,8 @@ function selectSpot(id, { manual }) {
       located: locate(state.pos, spot()), forecasts: [], weather: null, helper: null, weatherAt: null, loading: true,
       mapHour: null, ships: null, loadedSpotId: null,
     });
+    // Switched on the spot page (spot sheet): back on the map, show this spot's panel.
+    if (state.view !== 'map') Object.assign(state, { mapSpotId: id, mapSite: null, mapPicked: null, mapJump: true });
   }
   // The map already has this spot's forecasts: show them at once, the spot's own load adds buoy and helper details.
   if (state.loadedSpotId !== id && state.overview?.forecasts[id]) state.forecasts = state.overview.forecasts[id];
@@ -261,6 +272,11 @@ window.addEventListener('popstate', (e) => {
     state.pendingSpot = null;
     selectSpot(id, { manual: true });
     return;
+  }
+  // A spot page entry from before a reload: its spot was never loaded in this page.
+  if (state.view !== 'map' && state.loadedSpotId !== state.spotId) {
+    if (state.overview?.forecasts[state.spotId]) state.forecasts = state.overview.forecasts[state.spotId];
+    load();
   }
   render();
   window.scrollTo(0, state.view === 'main' ? mainScrollY : 0);
