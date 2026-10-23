@@ -43,6 +43,10 @@ export const K = {
   noonWeight: 0.02,
   slackSeaLevelM: 0.05,
 
+  // Taiwan map: below mapSiteZoom one dot per spot, from it the named dive sites, names from mapLabelZoom
+  mapSiteZoom: 9.5,
+  mapLabelZoom: 11.5,
+
   // satellite
   satMinValues: 10,
   satMaxAgeDays: 45,
