@@ -10,7 +10,7 @@ import EXTRA_SITES from './data/spots/extraSites.json';
 import { fetchShips } from './services/ships.js';
 import { K } from './core/constants.js';
 import { locate } from './core/locate.js';
-import { spotsByDistance, nearbySpotId, initialSpotId, autoSwitchTarget } from './core/spotChoice.js';
+import { spotsByDistance, nearbySpotId, initialSpotId } from './core/spotChoice.js';
 import { openingDayIndex } from './core/time.js';
 import { shouldAutoRefresh, isPullRefresh } from './core/refresh.js';
 import { renderMain } from './ui/mainView.js';
@@ -147,7 +147,7 @@ function mapPanelHtml() {
   if (state.mapSpotId) {
     const s = SPOTS[state.mapSpotId];
     if (!ov) return `${renderMapSpot({ spot: s, summary: null, forecast: null, dayIndex: day, dayLabels: DAY_LABELS })}`.replace('沒有資料', '載入中…');
-    return renderMapSpot({ spot: s, summary: ov.summaries[s.id]?.[day] ?? null, forecast: ov.forecasts[s.id]?.[day] ?? null, dayIndex: day, dayLabels: DAY_LABELS, picked: state.mapPicked });
+    return renderMapSpot({ spot: s, summary: ov.summaries[s.id]?.[day] ?? null, forecast: ov.forecasts[s.id]?.[day] ?? null, dayIndex: day, dayLabels: DAY_LABELS, picked: state.mapPicked, located: locate(state.pos, s) });
   }
   const home = renderMapHome({ summaries: ov?.summaries ?? {}, spots: SPOT_LIST, dayIndex: day, dayLabels: DAY_LABELS });
   return ov ? home : home.replace('點地圖上的圓點看各區', '載入中…');
@@ -442,9 +442,10 @@ try {
 getPosition().then((pos) => {
   if (!pos) return;
   state.pos = pos;
-  const target = autoSwitchTarget({ pos, spots: SPOT_LIST, currentId: state.spotId, locked: state.lockedSpot });
-  if (target && state.view === 'main') return selectSpot(target, { manual: false });
   state.located = locate(pos, spot());
+  // Near a spot and still on the map's home view (not opened from a shared link): open that spot's panel.
+  const near = nearbySpotId(pos, SPOT_LIST);
+  if (near && state.view === 'map' && !state.mapSpotId && !state.mapSite && !state.lockedSpot) return openMapSpot(near);
   render();
 });
 render(); // the map + 載入中… right away

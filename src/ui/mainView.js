@@ -1,4 +1,4 @@
-import { LIGHT, COMPARE_TEXT, CONF_TEXT, hhmm, md, esc, currentSummary, knots, arrow } from './format.js';
+import { hhmm, md, esc, currentSummary, knots, arrow } from './format.js';
 import { renderSeaMap } from './seaMap.js';
 import { latestReading } from '../core/buoy.js';
 import { taipeiDate, taipeiHour } from '../core/time.js';
@@ -40,16 +40,6 @@ function buoyRow(spot, buoy, now) {
   return `<div class="buoy">🛟 ${esc(spot.buoy.name)} ${r.time.slice(11, 16)} 實測：${parts.join(' ・ ')}</div>`;
 }
 
-function card(z, located) {
-  const me = located.status === 'near' && located.zoneId === z.zoneId;
-  const label = esc(`${z.name} ${LIGHT[z.light].emoji} ${z.low}~${z.high} 米`);
-  return `<div class="card${me ? ' me' : ''}" data-zone="${z.zoneId}" role="button" tabindex="0" aria-label="${label}">${me ? '<span class="tag">你在這裡</span>' : ''}
-    <div class="top"><div class="dot ${LIGHT[z.light].cls}"></div><div class="zn">${esc(z.name)}</div><div class="m">${z.low}~${z.high}m</div></div>
-    <div class="sub">${esc(z.reason)}</div>
-    <div class="chips"><span class="chip ${z.compare}">${COMPARE_TEXT[z.compare]}</span><span class="chip">把握度 ${CONF_TEXT[z.confidence]}</span></div>
-  </div>`;
-}
-
 export function renderMain({ spot, forecast, dayIndex, dayLabels, located, freshness, now, hint = null, staleHours = forecast?.stale ?? null, emptyText = '這天沒有資料', map = null, siteLayer = null, mapHour = null, buoy = null, ships = null, lines = 'both' }) {
   const days = dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('');
   // staleHours comes from the app's overall weather state, not just this day's forecast,
@@ -69,7 +59,7 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   ${forecast && map ? renderSeaMap({ spot, map, layer: siteLayer, forecast, hourIndex: mapHour, ships, lines, now, nowHour: forecast.date === taipeiDate(now) ? taipeiHour(now) : null }) : ''}
   ${forecast ? seaRow(forecast, !map) : ''}
   ${dayIndex === 0 ? buoyRow(spot, buoy, now) : ''}
-  ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : `<div class="pad">${esc(emptyText)}</div>`}
+  ${forecast ? '' : `<div class="pad">${esc(emptyText)}</div>`}
   ${forecast ? '<button type="button" class="btn btn2" data-action="share">📤 分享給潛伴</button>' : ''}
   <footer class="foot">${foot}<br>海流是整片海的預測，分不出各區${hint ? `<br>${esc(hint)}` : ''}</footer>`;
 }

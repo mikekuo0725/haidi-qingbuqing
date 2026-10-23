@@ -10,17 +10,17 @@ const NOW = Date.UTC(2024, 0, 18, 4, 0);
 const forecast = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: null, helper: null });
 const base = { spot, forecast, dayIndex: 0, dayLabels: ['今天', '明天', '後天'], located: { status: 'none' }, freshness: { weatherAt: NOW, satelliteDate: '2024-01-10' }, now: NOW };
 
-test('shows 4 cards in forecast order with ranges', () => {
+test('spot page has no zone cards (they live on the Taiwan map)', () => {
   const html = renderMain(base);
-  const order = [...html.matchAll(/data-zone="(\w+)"/g)].map((m) => m[1]);
-  expect(order).toEqual(forecast.zones.map((z) => z.zoneId));
-  expect(html).toContain(`${forecast.zones[0].low}~${forecast.zones[0].high}m`);
+  expect(html).not.toContain('class="cards"');
+  expect(html).not.toContain('data-zone=');
+  expect(html).toContain('data-action="share"');
+  expect(renderMain({ ...base, forecast: null, emptyText: '載入中…' })).toContain('載入中…');
 });
 
 test('marks the zone you are in', () => {
   const html = renderMain({ ...base, located: { status: 'near', zoneId: 'west', km: 0.5 } });
   expect(html).toContain('📍 你現在在小琉球<b>西邊</b>');
-  expect(html).toMatch(/data-zone="west"[^>]*>\s*<span class="tag">你在這裡<\/span>/);
 });
 
 test('far away shows the distance', () => {
@@ -90,15 +90,13 @@ test('a spot notice shows under the day tabs; spots without one show nothing', (
   expect(html).toMatch(/<\/nav>\s*<div class="notice">⚠️ 高級潛點：只能搭船去<\/div>/);
 });
 
-test('with a map: the map replaces the 🌀 cell, cards stay in order', () => {
+test('with a map: the map replaces the 🌀 cell', () => {
   const html = renderMain({ ...base, map: MAPS.xiaoliuqiu });
   expect(html).toContain('class="cmap"');
   expect(html).not.toContain('🌀 海流<br>');
   expect(html).toContain('🌡️');
   expect(html).toContain('⏰ 最佳下水');
-  expect(html.indexOf('class="cmap"')).toBeLessThan(html.indexOf('class="cards"'));
-  const order = [...html.matchAll(/data-zone="(\w+)"/g)].map((m) => m[1]);
-  expect(order).toEqual(forecast.zones.map((z) => z.zoneId));
+  expect(html).toContain('data-mapzone='); // tapping a zone on the sea map still opens its detail page
 });
 
 test('the chosen slider hour survives a re-render', () => {

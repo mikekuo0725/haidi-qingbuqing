@@ -75,3 +75,21 @@ test('spot panel shows the BlueTrend link for a picked BlueTrend site', () => {
   expect(html).toContain('初級 · 最深 12 米 · 岸潛');
   expect(html).toContain('<a href="https://bluetrend.media/x" target="_blank" rel="noopener">BlueTrend 介紹 ↗</a>');
 });
+
+test('map panel rows carry compare and confidence', () => {
+  const f2 = { ...forecast, zones: forecast.zones.map((z, i) => (i === 0 ? { ...z, compare: 'up', confidence: 'high' } : z)) };
+  const html = renderMapSpot({ spot, summary, forecast: f2, dayIndex: 0, dayLabels: DAYS });
+  const first = html.slice(html.indexOf(`data-zone="${f2.zones[0].zoneId}"`)).split('</div></div>')[0];
+  expect(first).toContain('比平常清 ↑');
+  expect(first).toContain('把握度 高');
+  const card = renderSiteCard({ site: { name: 'x', zoneId: f2.zones[0].zoneId }, spot, forecast: f2, dayIndex: 0, dayLabels: DAYS });
+  expect(card).toContain('比平常清 ↑');
+  expect(card).toContain('把握度 高');
+});
+
+test('map panel marks the zone you are in', () => {
+  const html = renderMapSpot({ spot, summary, forecast, dayIndex: 0, dayLabels: DAYS, located: { status: 'near', zoneId: 'west' } });
+  const row = html.slice(html.indexOf('data-zone="west"'));
+  expect(row.slice(0, row.indexOf('</span></div>') + 20)).toContain('你在這裡');
+  expect(html.match(/你在這裡/g)).toHaveLength(1);
+});

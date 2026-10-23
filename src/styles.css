@@ -63,18 +63,11 @@ button { font:inherit; color:inherit; }
 .cmap-src { max-width:480px; margin:2px auto 0; font-size:12px; color:var(--mut); }
 .sea .warn { margin:0; }
 .card { margin:0 14px 10px; padding:14px 12px; border-radius:12px; background:var(--card); position:relative; }
-.card[data-zone] { cursor:pointer; }
-.card[data-zone]:active, .btn:active, .days button:active { filter:brightness(1.2); }
-.card.me { outline:2px solid var(--acc); }
-.card.me:focus-visible { outline-color:#fff; }
-.tag { position:absolute; top:-10px; right:12px; background:var(--acc); color:var(--ink); font-size:12px; padding:1px 8px; border-radius:8px; font-weight:700; }
-.top { display:flex; align-items:center; gap:10px; }
-.dot { width:30px; height:30px; border-radius:50%; flex:none; }
+.tli:active, .btn:active, .days button:active { filter:brightness(1.2); }
+.tag { display:inline-block; vertical-align:1px; background:var(--acc); color:var(--ink); font-size:12px; padding:1px 8px; border-radius:8px; font-weight:700; }
 .pu{background:#a45cff}.gr{background:#2ecc71}.ye{background:#f5c518}.re{background:#ff4d4d}.gy{background:#7a8a99}
-.zn { font-weight:800; font-size:16px; white-space:nowrap; }
 .m { margin-left:auto; font:600 20px var(--mono); white-space:nowrap; }
-.sub { margin:6px 0 0 40px; font-size:14px; color:var(--mut); }
-.chips { margin:6px 0 0 40px; display:flex; flex-wrap:wrap; gap:6px; }
+.tchips { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
 .chip { font-size:12.5px; padding:2px 8px; border-radius:8px; background:var(--chip); }
 .num { font-family:var(--mono); font-weight:600; }
 .acc { color:var(--acc); }
@@ -110,12 +103,11 @@ body.has-update { padding-bottom:calc(var(--tap) + 24px + env(safe-area-inset-bo
    Detail page stays phone-width, centered — easier to read. */
 @media (min-width:720px) {
   #app[data-view="main"] { max-width:860px; }
-  #app[data-view="main"] .cards { display:grid; grid-template-columns:1fr 1fr; }
   #app[data-view="main"] .sea { grid-template-columns:repeat(4, 1fr); }
   #app[data-view="main"] .sea .wide { grid-column:auto; }
 }
 @media (hover:hover) {
-  .card[data-zone]:hover, .btn:hover, .days button:hover { filter:brightness(1.15); }
+  .tli:hover, .btn:hover, .days button:hover { filter:brightness(1.15); }
   .spotbtn:hover, .srow:hover { background:var(--chip); }
 }
 
