@@ -138,3 +138,40 @@ body.has-update { padding-bottom:calc(var(--tap) + 24px + env(safe-area-inset-bo
 .wf-top b { color:#ff8a7a; }
 .wf-calm { margin:0 16px 10px; }
 .wf-top { font-size:13px; line-height:1.55; }
+
+/* Taiwan map: the map fills the screen, the panel sits over its bottom part */
+#app[data-view="map"] { max-width:none; padding:0; }
+.tmap { position:fixed; inset:0; z-index:0; background:#0d3a52; }
+.tmap .leaflet-tile-pane { filter:invert(1) hue-rotate(180deg) brightness(.8) saturate(.5); }
+.tmap .leaflet-container, .tmap.leaflet-container { background:#0d3a52; font:inherit; }
+.tmap .leaflet-control-attribution { background:rgba(7,20,31,.7); color:var(--mut); font-size:10px; }
+.tmap .leaflet-control-attribution a { color:var(--acc); }
+.tpin, .tsite { display:flex !important; align-items:center; gap:4px; width:auto !important; height:auto !important; white-space:nowrap; color:#fff; font-weight:700; text-shadow:0 1px 3px #000, 0 0 2px #000; }
+.tpin { font-size:13px; }
+.tpin i, .tsite i { flex:none; display:inline-block; border-radius:50%; border:2px solid #fff; }
+.tpin i { width:22px; height:22px; }
+.tpin b { display:inline-block; color:#ffd36b; font-size:15px; }
+.tsite { font-size:11px; font-weight:600; }
+.tsite i { width:12px; height:12px; border-width:1.5px; }
+.nolabel .tsite span { display:none; }
+.tpin i.pu, .tsite i.pu, .tdot.pu { background:#a45cff; } .tpin i.gr, .tsite i.gr, .tdot.gr { background:#2ecc71; }
+.tpin i.ye, .tsite i.ye, .tdot.ye { background:#f5c518; } .tpin i.re, .tsite i.re, .tdot.re { background:#ff4d4d; }
+.tpin i.gy, .tsite i.gy, .tdot.gy { background:#7a8a99; }
+.tpanel { position:fixed; left:0; right:0; bottom:0; z-index:1000; max-width:480px; max-height:45vh; margin:0 auto; overflow-y:auto; padding:10px 0 calc(10px + env(safe-area-inset-bottom)); border-radius:18px 18px 0 0; background:rgba(7,20,31,.97); box-shadow:0 -4px 16px #0008; }
+.tpanel .days { position:static; margin-bottom:8px; }
+.tp-head { display:flex; align-items:center; gap:8px; margin:0 14px 4px; font-size:17px; font-weight:800; }
+.tp-head .link { margin-left:auto; font-size:15px; }
+.tp-hint, .tp-facts, .tp-src { margin:4px 16px 6px; }
+.tp-pick { margin:0 16px 6px; font-size:14px; }
+.tli { display:flex; align-items:center; gap:10px; min-height:var(--tap); margin:0 14px 6px; padding:8px 12px; border-radius:12px; background:var(--card); cursor:pointer; }
+.tli > div { min-width:0; }
+.tli small { display:block; color:var(--mut); font-size:12px; }
+.tli .m { margin-left:auto; flex:none; font-weight:800; }
+.tli.on { outline:2px solid #ffd36b; }
+.tli.big .m { font-size:18px; }
+.tdot { flex:none; width:14px; height:14px; border-radius:50%; }
+.tstrip { display:flex; gap:8px; margin:0 14px 8px; font-size:12px; color:var(--mut); }
+.tstrip span { flex:1; padding:6px 8px; border-radius:10px; background:var(--card); }
+.tstrip b { color:var(--fg); }
+.tp-btns { display:flex; gap:8px; margin:0 14px; }
+.tp-btns .btn { width:auto; flex:1; margin:4px 0; font-size:15px; }

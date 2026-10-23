@@ -46,6 +46,9 @@ export const K = {
   // Taiwan map: below mapSiteZoom one dot per spot, from it the named dive sites, names from mapLabelZoom
   mapSiteZoom: 9.5,
   mapLabelZoom: 11.5,
+  mapHome: { center: [22.55, 120.75], zoom: 6.9 },
+  // zoom when a spot is opened on the Taiwan map: its whole area fits above the bottom panel
+  mapSpotZoom: { xiaoliuqiu: 13.2, kenting: 11, qixing: 13.5, northeast: 11.6, ludao: 12.4, lanyu: 12, 'penghu-north': 11.6, 'penghu-south': 11.4 },
 
   // satellite
   satMinValues: 10,
