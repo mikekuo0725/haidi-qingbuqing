@@ -1,14 +1,11 @@
 import { SPOTS, SPOT_LIST, DEFAULT_SPOT_ID } from './data/spots/index.js';
 import { HELPER_URL } from './config.js';
-import { fetchWeather, parseDay } from './services/openmeteo.js';
-import { fetchHelper } from './services/helper.js';
+import { loadSpot, buildDayForecasts } from './services/spotData.js';
 import { fetchShips } from './services/ships.js';
 import { K } from './core/constants.js';
-import { saveWeather, loadWeather } from './services/cache.js';
-import { buildForecast } from './core/forecast.js';
 import { locate } from './core/locate.js';
 import { spotsByDistance, nearbySpotId, initialSpotId, autoSwitchTarget } from './core/spotChoice.js';
-import { taipeiDate, openingDayIndex } from './core/time.js';
+import { openingDayIndex } from './core/time.js';
 import { shouldAutoRefresh, isPullRefresh } from './core/refresh.js';
 import { renderMain } from './ui/mainView.js';
 import { MAPS } from './data/spots/maps/index.js';
@@ -21,8 +18,6 @@ import { installHint } from './ui/installHint.js';
 import { renderDetail } from './ui/detailView.js';
 import { buildShareText, shareOrCopy } from './ui/share.js';
 import { md } from './ui/format.js';
-import { applyCoastal } from './core/cwa.js';
-import { applyBuoy } from './core/buoy.js';
 import { registerSW } from 'virtual:pwa-register';
 import { renderUpdateBar } from './ui/updateBar.js';
 
@@ -80,35 +75,8 @@ function getPosition() {
   });
 }
 
-const safeParseDay = (raw, date) => {
-  try { return parseDay(raw, date); } catch { return null; } // malformed data counts as "no data"
-};
-
-// R3: only a copy that parses for today replaces the cache, so one bad fetch never overwrites a good cache.
-async function loadWeatherRaw(s, now) {
-  try {
-    const raw = await fetchWeather(s);
-    if (safeParseDay(raw, taipeiDate(now))) {
-      saveWeather(localStorage, s.id, raw, now);
-      return { raw, savedAt: now, stale: null };
-    }
-  } catch { /* offline or API down: fall back to the cached copy */ }
-  const cached = loadWeather(localStorage, s.id);
-  return cached ? { ...cached, stale: (now - cached.savedAt) / 3600000 } : null;
-}
-
 function buildForecasts(now) {
-  const { weather, helper } = state;
-  const s = spot();
-  const today = taipeiDate(now);
-  state.forecasts = [0, 1, 2].map((i) => {
-    // Taiwan spots: 氣象署 waves/currents/wind when the helper has them, and buoy-measured waves for
-    // finished past days (前 3 天的浪); otherwise Open-Meteo as before.
-    const parsed = weather ? applyCoastal(safeParseDay(weather.raw, taipeiDate(now, i)), helper?.coastal) : null;
-    const day = applyBuoy(parsed, helper?.buoy?.readings, today);
-    if (!day) return null;
-    return buildForecast({ spot: s, day, stale: weather.stale, helper });
-  });
+  state.forecasts = buildDayForecasts({ spot: spot(), weather: state.weather, helper: state.helper, now });
 }
 
 function dateLabel(i) {
@@ -206,7 +174,7 @@ async function load({ fresh = false } = {}) {
   const now = Date.now();
   const s = spot();
   state.loading = true;
-  const [weather, helper] = await Promise.all([loadWeatherRaw(s, now), fetchHelper(HELPER_URL, s.id, fetch, { fresh })]);
+  const { weather, helper } = await loadSpot(s, { now, helperUrl: HELPER_URL, fresh });
   if (id !== loadId) return; // a newer load() took over (e.g. the user switched spots)
   state.loadedAt = now;
   state.weather = weather;
