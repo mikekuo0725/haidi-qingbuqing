@@ -1,4 +1,4 @@
-import { LIGHT, COMPARE_TEXT, CONF_TEXT, hhmm, md, timeAgo, esc, currentSummary, knots, arrow } from './format.js';
+import { LIGHT, COMPARE_TEXT, CONF_TEXT, hhmm, md, esc, currentSummary, knots, arrow } from './format.js';
 import { renderSeaMap } from './seaMap.js';
 import { latestReading } from '../core/buoy.js';
 import { taipeiDate, taipeiHour } from '../core/time.js';
@@ -60,7 +60,6 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
     ...(Number.isFinite(Date.parse(forecast?.coastalAt)) ? [`海況 氣象署 ${hhmm(Date.parse(forecast.coastalAt))}`] : []),
     freshness.weatherAt ? `天氣 ${hhmm(freshness.weatherAt)}` : '天氣 —',
     freshness.satelliteDate ? `衛星 ${md(freshness.satelliteDate)}` : '衛星資料暫缺，準度較低',
-    freshness.lastReportAt ? `回報 ${timeAgo(freshness.lastReportAt, now)}` : '還沒有回報',
   ].join(' ・ ');
   return `<header class="pad"><button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是${esc(spot.name)}">📍 ${esc(spot.name)} <span aria-hidden="true">▾</span></button><div class="mut">海底能見度預測</div></header>
   <nav class="days">${days}</nav>
@@ -71,7 +70,6 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
   ${forecast ? seaRow(forecast, !map) : ''}
   ${dayIndex === 0 ? buoyRow(spot, buoy, now) : ''}
   ${forecast ? `<div class="cards">${forecast.zones.map((z) => card(z, located)).join('')}</div>` : `<div class="pad">${esc(emptyText)}</div>`}
-  <button type="button" class="btn" data-action="report">🤿 我下水了，回報能見度</button>
   ${forecast ? '<button type="button" class="btn btn2" data-action="share">📤 分享給潛伴</button>' : ''}
   <footer class="foot">${foot}<br>海流是整片海的預測，分不出各區${hint ? `<br>${esc(hint)}` : ''}</footer>`;
 }

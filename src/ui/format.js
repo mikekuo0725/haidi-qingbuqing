@@ -20,11 +20,4 @@ export const currentSummary = (s) => `${knots(s.currentKn)} ${arrow(s.currentToD
 export const hhmm = (ms) => new Date(ms + 8 * 3600000).toISOString().slice(11, 16);
 export const md = (dateStr) => `${Number(dateStr.slice(5, 7))}/${Number(dateStr.slice(8, 10))}`;
 
-export function timeAgo(ms, now) {
-  const min = Math.max(0, Math.round((now - ms) / 60000));
-  if (min < 60) return `${min} 分鐘前`;
-  if (min < 1440) return `${Math.round(min / 60)} 小時前`;
-  return `${Math.round(min / 1440)} 天前`;
-}
-
 export const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);

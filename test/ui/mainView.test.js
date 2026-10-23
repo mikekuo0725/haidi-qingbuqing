@@ -148,3 +148,9 @@ test('a spot without a buoy shows no buoy line', () => {
 test('zone card has no report chip', () => {
   expect(renderMain(base)).not.toContain('人回報');
 });
+
+test('no report button and no report footer', () => {
+  const html = renderMain(base);
+  expect(html).not.toContain('data-action="report"');
+  expect(html).not.toContain('回報');
+});

@@ -100,17 +100,6 @@ button { font:inherit; color:inherit; }
 .bar .v i { display:block; height:100%; background:#f5c518; }
 .bar .n { flex:0 0 3.2em; text-align:right; font-size:13px; }
 .res { margin-top:8px; }
-.rep { padding:8px 0; border-bottom:1px solid var(--line); font-size:14px; overflow-wrap:anywhere; }
-.q { margin:14px 14px 6px; font-weight:700; }
-.opts { display:flex; flex-wrap:wrap; gap:8px; margin:0 14px; }
-/* hide the radio dot but keep it usable */
-.opt { position:relative; }
-.opt input { position:absolute; opacity:0; width:1px; height:1px; }
-.opt span { display:inline-flex; align-items:center; justify-content:center; min-width:var(--tap); min-height:var(--tap); padding:0 14px; border-radius:12px; background:var(--card); cursor:pointer; }
-.opt input:checked + span { background:var(--acc); color:var(--ink); font-weight:700; }
-.opt input:focus-visible + span { outline:2px solid #fff; outline-offset:2px; }
-.inp { display:block; width:calc(100% - 28px); min-height:var(--tap); margin:0 14px; padding:10px 12px; border:0; border-radius:10px; background:var(--card); color:var(--fg); font:inherit; font-size:16px; color-scheme:dark; }
-.err { margin:8px 14px 0; color:#ff9a9a; min-height:1.2em; }
 .toast { position:fixed; left:50%; bottom:calc(24px + env(safe-area-inset-bottom)); transform:translateX(-50%); max-width:calc(100% - 32px); background:#000d; padding:12px 16px; border-radius:12px; z-index:10; }
 .toast[hidden] { display:none; }
 .update-bar { position:fixed; left:0; right:0; bottom:0; z-index:9; display:flex; align-items:center; justify-content:center; gap:12px; padding:10px 16px calc(10px + env(safe-area-inset-bottom)); background:var(--chip); font-size:15px; }
@@ -118,17 +107,15 @@ button { font:inherit; color:inherit; }
 body.has-update { padding-bottom:calc(var(--tap) + 24px + env(safe-area-inset-bottom)); }
 
 /* Computers (sometimes people check at home): main list gets wider with 2 card columns.
-   Detail page and report form stay phone-width, centered — easier to read. */
+   Detail page stays phone-width, centered — easier to read. */
 @media (min-width:720px) {
   #app[data-view="main"] { max-width:860px; }
   #app[data-view="main"] .cards { display:grid; grid-template-columns:1fr 1fr; }
   #app[data-view="main"] .sea { grid-template-columns:repeat(4, 1fr); }
   #app[data-view="main"] .sea .wide { grid-column:auto; }
-  #app[data-view="main"] .btn { float:left; width:calc(50% - 21px); margin:10px 0 10px 14px; } /* float, not inline-block: no whitespace gap pushing the 2nd button out */
-  #app[data-view="main"] .foot { clear:both; }
 }
 @media (hover:hover) {
-  .card[data-zone]:hover, .btn:hover, .days button:hover, .opt span:hover { filter:brightness(1.15); }
+  .card[data-zone]:hover, .btn:hover, .days button:hover { filter:brightness(1.15); }
   .spotbtn:hover, .srow:hover { background:var(--chip); }
 }
 
