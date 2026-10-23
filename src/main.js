@@ -5,8 +5,6 @@ import { fetchHelper } from './services/helper.js';
 import { fetchShips } from './services/ships.js';
 import { K } from './core/constants.js';
 import { saveWeather, loadWeather } from './services/cache.js';
-import { createOutbox } from './services/outbox.js';
-import { sendReport, fetchRecentReports, buildReportDoc } from './services/reports.js';
 import { buildForecast } from './core/forecast.js';
 import { locate } from './core/locate.js';
 import { spotsByDistance, nearbySpotId, initialSpotId, autoSwitchTarget } from './core/spotChoice.js';
@@ -21,7 +19,6 @@ import { createFlow } from './ui/flowCanvas.js';
 import { renderSpotSheet } from './ui/spotSheet.js';
 import { installHint } from './ui/installHint.js';
 import { renderDetail } from './ui/detailView.js';
-import { renderReportForm, parseReportForm } from './ui/reportForm.js';
 import { buildShareText, shareOrCopy } from './ui/share.js';
 import { md } from './ui/format.js';
 import { applyCoastal } from './core/cwa.js';
@@ -32,7 +29,6 @@ import { renderUpdateBar } from './ui/updateBar.js';
 const SPOT_KEY = 'haidi:spot';
 const LINES_KEY = 'haidi:lines';
 const app = document.getElementById('app');
-const outbox = createOutbox(localStorage, sendReport);
 const DAY_LABELS = ['今天', '明天', '後天'];
 
 function readSavedSpot() {
@@ -60,7 +56,7 @@ const state = {
   ships: null, // 航港局 AIS positions for this spot: { updatedAt, ships } or null
   lines: readSavedLines(), // which drifting lines the sea map draws: both | cur | wind
   loading: true,
-  dayIndex: openingDayIndex(Date.now()), view: 'main', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, reports: [], weatherAt: null,
+  dayIndex: openingDayIndex(Date.now()), view: 'main', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, weatherAt: null,
 };
 const spot = () => SPOTS[state.spotId];
 
@@ -102,7 +98,7 @@ async function loadWeatherRaw(s, now) {
 }
 
 function buildForecasts(now) {
-  const { weather, helper, reports } = state;
+  const { weather, helper } = state;
   const s = spot();
   const today = taipeiDate(now);
   state.forecasts = [0, 1, 2].map((i) => {
@@ -111,7 +107,7 @@ function buildForecasts(now) {
     const parsed = weather ? applyCoastal(safeParseDay(weather.raw, taipeiDate(now, i)), helper?.coastal) : null;
     const day = applyBuoy(parsed, helper?.buoy?.readings, today);
     if (!day) return null;
-    return buildForecast({ spot: s, day, stale: weather.stale, helper, reports, now, isToday: day.date === today });
+    return buildForecast({ spot: s, day, stale: weather.stale, helper });
   });
 }
 
@@ -133,22 +129,16 @@ function renderView() {
   const zone = state.view === 'detail' ? forecast?.zones.find((z) => z.zoneId === state.zoneId) : null;
   app.dataset.view = state.view; // CSS widens only the main list on computers
   if (zone) {
-    app.innerHTML = renderDetail({ spot: s, zone, dateLabel: dateLabel(state.dayIndex), reports: state.reports, now });
-    return;
-  }
-  if (state.view === 'report') {
-    const defaultZoneId = state.located.status === 'near' ? state.located.zoneId : null;
-    app.innerHTML = renderReportForm({ spot: s, defaultZoneId, nickname: localStorage.getItem('haidi:nickname'), now });
+    app.innerHTML = renderDetail({ spot: s, zone, dateLabel: dateLabel(state.dayIndex) });
     return;
   }
   app.dataset.view = 'main';
   const hasData = state.forecasts.some(Boolean);
   let emptyText = '這天沒有資料';
   if (!hasData) emptyText = state.loading ? '載入中…' : '抓不到天氣資料，也沒有之前存的預測。請確認網路後重新整理。';
-  const lastReportAt = state.reports.length ? Math.max(...state.reports.map((r) => r.diveTime)) : null;
   let html = renderMain({
     spot: s, forecast: forecast ?? null, dayIndex: state.dayIndex, dayLabels: DAY_LABELS, located: state.located,
-    freshness: { weatherAt: state.weatherAt, satelliteDate: state.helper?.satelliteDate ?? null, lastReportAt }, now,
+    freshness: { weatherAt: state.weatherAt, satelliteDate: state.helper?.satelliteDate ?? null }, now,
     buoy: state.helper?.buoy ?? null,
     // Task 15: from state.weather, not the per-day forecast, so a day with no data at all still says why.
     staleHours: state.weather?.stale ?? null,
@@ -160,11 +150,6 @@ function renderView() {
     html += renderSpotSheet({ rows: spotsByDistance(state.pos, SPOT_LIST), currentId: s.id, nearId: nearbySpotId(state.pos, SPOT_LIST) });
   }
   app.innerHTML = html;
-}
-
-// Late data (location, reports) re-renders the list and detail, never the report form: that would wipe what the user typed.
-function refresh() {
-  if (state.view !== 'report') render();
 }
 
 // Phone back button: every view change is a history entry, so "back" returns to the list instead of leaving the site.
@@ -187,7 +172,7 @@ function selectSpot(id, { manual }) {
     // A shared ?spot= link must not win over this choice when the page is reloaded.
     if (location.search) history.replaceState(history.state, '', location.pathname + location.hash);
     Object.assign(state, {
-      located: locate(state.pos, spot()), forecasts: [], weather: null, helper: null, reports: [], weatherAt: null, loading: true,
+      located: locate(state.pos, spot()), forecasts: [], weather: null, helper: null, weatherAt: null, loading: true,
       mapHour: null, ships: null,
     });
   }
@@ -198,9 +183,13 @@ function selectSpot(id, { manual }) {
   }
 }
 
+// A history entry from an older version can name a view that is gone (the report form): show the list.
+const VIEWS = ['main', 'detail', 'spots'];
 window.addEventListener('popstate', (e) => {
-  state.view = e.state?.view ?? 'main';
-  state.zoneId = e.state?.zoneId ?? null;
+  const view = e.state?.view;
+  state.view = VIEWS.includes(view) ? view : 'main';
+  state.zoneId = state.view === view ? e.state?.zoneId ?? null : null;
+  if (state.view !== view) history.replaceState({ view: 'main' }, '', '#');
   if (state.pendingSpot) { // a row in the sheet was picked: switch now that we are back on the main entry
     const id = state.pendingSpot;
     state.pendingSpot = null;
@@ -217,8 +206,6 @@ async function load({ fresh = false } = {}) {
   const now = Date.now();
   const s = spot();
   state.loading = true;
-  // R11b: reports can take ~10 s offline; render the forecast without them, rebuild when they arrive.
-  const reportsP = fetchRecentReports(s.id).catch(() => null);
   const [weather, helper] = await Promise.all([loadWeatherRaw(s, now), fetchHelper(HELPER_URL, s.id, fetch, { fresh })]);
   if (id !== loadId) return; // a newer load() took over (e.g. the user switched spots)
   state.loadedAt = now;
@@ -229,19 +216,7 @@ async function load({ fresh = false } = {}) {
   buildForecasts(now);
   if (!state.forecasts[state.dayIndex]) state.dayIndex = state.forecasts.findIndex(Boolean);
   if (state.dayIndex < 0) state.dayIndex = 0;
-  refresh();
-  const reports = await reportsP;
-  if (id !== loadId || reports == null) return;
-  state.reports = reports;
-  buildForecasts(Date.now());
-  refresh();
-}
-
-function currentSnapshot(zoneId) {
-  const f = state.forecasts[0] ?? state.forecasts[state.dayIndex];
-  const z = f?.zones.find((x) => x.zoneId === zoneId);
-  if (!z) return { date: f?.date ?? null, base: null, bias: 1, factors: {}, rawMeters: null, meters: null, coastalAt: f?.coastalAt ?? null };
-  return { date: f.date, base: z.base, bias: z.bias, factors: z.factors, rawMeters: z.rawMeters, meters: z.meters, coastalAt: f.coastalAt ?? null };
+  render();
 }
 
 app.addEventListener('click', async (e) => {
@@ -263,7 +238,6 @@ app.addEventListener('click', async (e) => {
     app.querySelector('.srow.on')?.focus(); // keyboard users land on the current spot
     return;
   }
-  if (action === 'report') return go('report');
   if (action === 'share') {
     const forecast = state.forecasts[state.dayIndex];
     if (!forecast) return;
@@ -302,42 +276,6 @@ document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape' && state.view === 'spots') history.back();
 });
 
-let sending = false;
-app.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  if (sending) return; // a double tap must not send twice
-  const values = Object.fromEntries(new FormData(e.target).entries());
-  const form = parseReportForm(values, Date.now());
-  if (form.error) { document.getElementById('report-error').textContent = form.error; return; }
-  sending = true;
-  const submit = e.target.querySelector('[type="submit"]');
-  submit.disabled = true;
-  let ok = false;
-  try {
-    localStorage.setItem('haidi:nickname', form.nickname);
-    // Built once per submit, before the outbox, so the stored item keeps its id across retries (R4).
-    const doc = buildReportDoc({ spotId: spot().id, form, snapshot: currentSnapshot(form.zoneId) });
-    const result = await outbox.add(doc);
-    ok = true;
-    toast(result === 'sent' ? '謝謝回報！' : '已存好，有網路會自動送出');
-    // Sending can take seconds: if the user already left the form (back, or opened a card), do not pop their page.
-    if (state.view === 'report' && history.state?.view === 'report') history.back(); // popstate renders the list
-  } catch {
-    const err = document.getElementById('report-error');
-    if (err) err.textContent = '送出失敗，請再試一次';
-  } finally {
-    sending = false;
-    submit.disabled = false; // harmless if the form is gone
-  }
-  if (ok) await load();
-});
-
-window.addEventListener('online', () => outbox.flush().then((n) => {
-  if (!n) return;
-  toast(`補送了 ${n} 筆回報`);
-  load(); // show the sent reports on the cards
-}));
-
 // Live ships on the sea map: asked while the map is on screen and the page is visible, every few minutes.
 // A failure just leaves the old (or no) ships; nothing is shown to the user.
 let shipTimer = null;
@@ -374,8 +312,7 @@ function syncShips() {
   }
 }
 
-// Refresh without closing the app. Not on the report form (a reload must never touch what the user typed)
-// and not under the spot sheet.
+// Refresh without closing the app. Not under the spot sheet.
 const canRefreshNow = () => state.view === 'main' || state.view === 'detail';
 
 // Back from the phone's app switcher: reload if the data is old enough.
@@ -403,6 +340,11 @@ document.addEventListener('touchend', async (e) => {
 });
 
 history.replaceState({ view: 'main' }, '', '#');
+// 潛伴回報 was removed: drop a report still waiting to be sent, and the saved nickname, quietly.
+try {
+  localStorage.removeItem('haidi:outbox');
+  localStorage.removeItem('haidi:nickname');
+} catch {}
 // Do not wait for the location prompt: show the forecast first, then pick a spot / zone when (if) GPS arrives.
 getPosition().then((pos) => {
   if (!pos) return;
@@ -410,9 +352,8 @@ getPosition().then((pos) => {
   const target = autoSwitchTarget({ pos, spots: SPOT_LIST, currentId: state.spotId, locked: state.lockedSpot });
   if (target && state.view === 'main') return selectSpot(target, { manual: false });
   state.located = locate(pos, spot());
-  refresh();
+  render();
 });
-outbox.flush();
 render(); // header + 載入中… right away
 load();
 
