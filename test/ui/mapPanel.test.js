@@ -1,0 +1,70 @@
+import { test, expect } from 'vitest';
+import { renderMapHome, renderMapSpot, renderSiteCard } from '../../src/ui/mapPanel.js';
+import { buildForecast } from '../../src/core/forecast.js';
+import { summarizeDay } from '../../src/core/overview.js';
+import { SPOTS } from '../../src/data/spots/index.js';
+import { makeDay } from '../helpers/makeDay.js';
+
+const spot = SPOTS.xiaoliuqiu;
+const DAYS = ['今天', '明天', '後天'];
+const forecast = buildForecast({ spot, day: makeDay({ date: '2024-01-18', hour: { waveH: 1.2, waveT: 9, waveDir: 270 } }), stale: null, helper: null });
+const summary = summarizeDay(forecast);
+
+test('home panel lists the two clearest spots and every day tab', () => {
+  const summaries = { a: [{ meters: 5, light: 'red', zoneName: 'X' }], b: [{ meters: 20, light: 'purple', zoneName: 'Y' }], c: [{ meters: 12, light: 'green', zoneName: 'Z' }] };
+  const spots = [{ id: 'a', name: '甲' }, { id: 'b', name: '乙' }, { id: 'c', name: '丙' }];
+  const html = renderMapHome({ summaries, spots, dayIndex: 0, dayLabels: DAYS });
+  for (const d of DAYS) expect(html).toContain(d);
+  expect([...html.matchAll(/data-mapspot="(\w+)"/g)].map((m) => m[1])).toEqual(['b', 'c']);
+  expect(html).toContain('點地圖上的圓點看各區');
+});
+
+test('spot panel has every zone, the open button, and 沒有資料 when empty', () => {
+  const html = renderMapSpot({ spot, summary, forecast, dayIndex: 0, dayLabels: DAYS });
+  const rows = [...html.matchAll(/data-zone="(\w+)"/g)].map((m) => m[1]);
+  expect(rows).toEqual(forecast.zones.map((z) => z.zoneId));
+  for (const z of forecast.zones) expect(html).toContain(z.name);
+  expect(html).toContain('看海流、風的動態圖和每小時 →');
+  expect(html).toContain('data-action="open-spot"');
+  expect(html).toContain('data-action="map-home"');
+  const empty = renderMapSpot({ spot, summary: null, forecast: null, dayIndex: 2, dayLabels: DAYS });
+  expect(empty).toContain('沒有資料');
+  expect(empty).not.toContain('data-zone=');
+});
+
+test('spot panel outlines the picked site zone', () => {
+  const html = renderMapSpot({ spot, summary, forecast, dayIndex: 0, dayLabels: DAYS, picked: { name: '花瓶岩', zoneId: 'north' } });
+  expect(html).toContain('📌 <b>花瓶岩</b> 在「北邊」這一區');
+  expect(html).toMatch(/class="tli on" data-zone="north"/);
+});
+
+test('names are escaped', () => {
+  const html = renderSiteCard({ site: { name: '<b>', zoneId: null }, spot: null, forecast: null, dayIndex: 0, dayLabels: DAYS });
+  expect(html).toContain('&lt;b&gt;');
+  expect(html).not.toContain('<b><b>');
+});
+
+test('site card shows the zone forecast range and reason', () => {
+  const zone = forecast.zones.find((z) => z.zoneId === 'north');
+  const html = renderSiteCard({ site: { name: '花瓶岩', zoneId: 'north' }, spot, forecast, dayIndex: 1, dayLabels: DAYS });
+  expect(html).toContain(`${zone.low}～${zone.high} 米`);
+  expect(html).toContain(zone.reason);
+  expect(html).toContain('小琉球・北邊');
+  expect(html).toContain('明天能見度預測');
+  expect(html).toContain('← 看這個潛點各區');
+  expect(html).toContain('海流、風動態圖 →');
+  expect(html).toMatch(/data-action="open-spot" data-zone="north"/);
+});
+
+test('site card without level data has no 最深 line', () => {
+  expect(renderSiteCard({ site: { name: '花瓶岩', zoneId: 'north' }, spot, forecast, dayIndex: 0, dayLabels: DAYS })).not.toContain('最深');
+  const withLevel = renderSiteCard({ site: { name: '花瓶岩', zoneId: 'north', level: '中級', maxDepthM: 20, entry: '岸潛' }, spot, forecast, dayIndex: 0, dayLabels: DAYS });
+  expect(withLevel).toContain('中級潛點 · 最深 20 米 · 岸潛');
+});
+
+test('site outside our spots says 這裡還沒有能見度預測 and has no open-spot button', () => {
+  const html = renderSiteCard({ site: { name: '和平島', zoneId: null }, spot: null, forecast: null, dayIndex: 0, dayLabels: DAYS });
+  expect(html).toContain('這裡還沒有能見度預測');
+  expect(html).not.toContain('open-spot');
+  expect(html).not.toContain('map-spot');
+});
