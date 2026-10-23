@@ -19,7 +19,7 @@ test('pin label rounds metres', () => {
 });
 
 test('site light follows its zone', () => {
-  const pins = sitePins(SITE_LAYERS, { xiaoliuqiu: [sum(10, 'green', { north: 'purple', west: 'red' })] }, 0);
+  const pins = sitePins(SITE_LAYERS, { sites: {}, details: {} }, { xiaoliuqiu: [sum(10, 'green', { north: 'purple', west: 'red' })] }, 0);
   expect(pins.find((p) => p.name === '花瓶岩')).toMatchObject({ spotId: 'xiaoliuqiu', zoneId: 'north', light: 'purple' });
   expect(pins.find((p) => p.name === '杉福漁港').light).toBe('red');
   expect(pins.find((p) => p.spotId === 'kenting').light).toBe('gray'); // no summary → grey
@@ -31,4 +31,16 @@ test('layerFor switches at 9.5 and labels at 11.5', () => {
   expect(layerFor(9.5).spots).toBe(false);
   expect(layerFor(11.4).labels).toBe(false);
   expect(layerFor(11.5).labels).toBe(true);
+});
+
+test('sitePins includes extra sites with their details, and our own sites carry details when matched', () => {
+  const extra = {
+    sites: { xiaoliuqiu: [{ name: '新點', location: [22.33, 120.37], zoneId: 'south', level: '初級', maxDepthM: 12, entry: '岸潛', url: 'https://bluetrend.media/x' }],
+      other: [{ name: '和平島', location: [25.16, 121.76], zoneId: null, level: '初級', maxDepthM: 10, entry: '岸潛', url: 'https://bluetrend.media/y' }] },
+    details: { xiaoliuqiu: { 花瓶岩: { level: '中級', maxDepthM: 20, entry: '岸潛', url: 'https://bluetrend.media/z' } } },
+  };
+  const pins = sitePins(SITE_LAYERS, extra, { xiaoliuqiu: [sum(10, 'green', { south: 'yellow' })] }, 0);
+  expect(pins.find((p) => p.name === '新點')).toMatchObject({ spotId: 'xiaoliuqiu', light: 'yellow', level: '初級', url: 'https://bluetrend.media/x' });
+  expect(pins.find((p) => p.name === '和平島')).toMatchObject({ spotId: null, zoneId: null, light: 'gray' });
+  expect(pins.find((p) => p.name === '花瓶岩')).toMatchObject({ level: '中級', maxDepthM: 20, url: 'https://bluetrend.media/z' });
 });

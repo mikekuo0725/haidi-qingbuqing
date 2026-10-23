@@ -23,6 +23,7 @@ export function createTaiwanMap(el, { onSpot, onSite, panelHeight = () => 0 }) {
   map.createPane('coast').style.zIndex = 150;
   L.geoJSON(coast, { pane: 'coast', interactive: false, style: { color: '#4d6a5c', weight: 1, fillColor: '#26404c', fillOpacity: 1 } }).addTo(map);
   L.tileLayer(TILES, { maxZoom: 18, attribution: '© 內政部國土測繪中心' }).addTo(map);
+  map.attributionControl.addAttribution('潛點資料：BlueTrend 藍色脈動');
 
   const spots = L.layerGroup().addTo(map);
   const sites = L.layerGroup();

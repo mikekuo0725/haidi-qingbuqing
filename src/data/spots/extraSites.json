@@ -1,0 +1,854 @@
+{
+ "sites": {
+  "other": [
+   {
+    "name": "和平島",
+    "location": [
+     25.16199,
+     121.76149
+    ],
+    "zoneId": null,
+    "level": "初級",
+    "maxDepthM": 5,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/heping-island/"
+   },
+   {
+    "name": "大武崙外木山沈船",
+    "location": [
+     25.17111,
+     121.73412
+    ],
+    "zoneId": null,
+    "level": "高級",
+    "maxDepthM": 10,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/dawulunwaimmushan-shipwreck/"
+   },
+   {
+    "name": "野柳",
+    "location": [
+     25.20483,
+     121.69598
+    ],
+    "zoneId": null,
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/yehliu/"
+   },
+   {
+    "name": "杭灣",
+    "location": [
+     23.51554,
+     119.61084
+    ],
+    "zoneId": null,
+    "level": "初級",
+    "maxDepthM": 7,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/hang-bay/"
+   },
+   {
+    "name": "秘密花園",
+    "location": [
+     25.14195,
+     121.80437
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/secret-garden/"
+   },
+   {
+    "name": "山水（海扇森林、T字路口）",
+    "location": [
+     23.50895,
+     119.60482
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/shanshui-sea-fan-forest-t-junction/"
+   },
+   {
+    "name": "風櫃",
+    "location": [
+     23.53618,
+     119.54405
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 15,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/fengui/"
+   },
+   {
+    "name": "青灣",
+    "location": [
+     23.52864,
+     119.5571
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 10,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/qingwan/"
+   },
+   {
+    "name": "虎井沉城",
+    "location": [
+     23.48189,
+     119.51659
+    ],
+    "zoneId": null,
+    "level": "高級",
+    "maxDepthM": 8,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/hujing-sunken-city/"
+   },
+   {
+    "name": "東西吉廊道",
+    "location": [
+     23.36984,
+     119.46876
+    ],
+    "zoneId": null,
+    "level": "高級",
+    "maxDepthM": 25,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/east-west-jisland-corridor/"
+   },
+   {
+    "name": "七美月鯉灣",
+    "location": [
+     23.20034,
+     119.43488
+    ],
+    "zoneId": null,
+    "level": "初級",
+    "maxDepthM": 12,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/yueli-bay-qimei/"
+   },
+   {
+    "name": "七美凌雲艦",
+    "location": [
+     23.18394,
+     119.46156
+    ],
+    "zoneId": null,
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/lingyun-warship-artificial-reef/"
+   },
+   {
+    "name": "蝙蝠洞",
+    "location": [
+     25.12717,
+     121.83072
+    ],
+    "zoneId": null,
+    "level": "初級",
+    "maxDepthM": 30,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/bat-cave/"
+   },
+   {
+    "name": "美灩山",
+    "location": [
+     25.07193,
+     121.92267
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 15,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/meiyan-mountain/"
+   },
+   {
+    "name": "卯澳",
+    "location": [
+     25.01267,
+     121.99055
+    ],
+    "zoneId": null,
+    "level": "初級",
+    "maxDepthM": 15,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/mao-ao/"
+   },
+   {
+    "name": "萊萊",
+    "location": [
+     24.99485,
+     121.9886
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 25,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/lailai/"
+   },
+   {
+    "name": "粉鳥林",
+    "location": [
+     24.49731,
+     121.84445
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/fenniaolinm-fishing-harbor/"
+   },
+   {
+    "name": "豆腐岬",
+    "location": [
+     24.58364,
+     121.87258
+    ],
+    "zoneId": null,
+    "level": "初級",
+    "maxDepthM": 8,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/doufujia/"
+   },
+   {
+    "name": "中正艦",
+    "location": [
+     22.09861,
+     120.7004
+    ],
+    "zoneId": null,
+    "level": "高級",
+    "maxDepthM": 40,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/zhongzheng-rocs-chung-cheng/"
+   },
+   {
+    "name": "海子口鎮海艦",
+    "location": [
+     22.30684,
+     120.36049
+    ],
+    "zoneId": null,
+    "level": "高級",
+    "maxDepthM": 40,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/haizikow-zhenhai-naval-vessel/"
+   },
+   {
+    "name": "水晶宮",
+    "location": [
+     25.13346,
+     121.8176
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/crystal-palace/"
+   },
+   {
+    "name": "花牆",
+    "location": [
+     25.14766,
+     121.80932
+    ],
+    "zoneId": null,
+    "level": "高級",
+    "maxDepthM": 15,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/flower-wall/"
+   },
+   {
+    "name": "海建號",
+    "location": [
+     25.1406,
+     121.80807
+    ],
+    "zoneId": null,
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/hai-jian/"
+   }
+  ],
+  "lanyu": [
+   {
+    "name": "貝殼砂（蘭嶼一線天）",
+    "location": [
+     21.9983,
+     121.58965
+    ],
+    "zoneId": "dongqing",
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/shell-sand-orchid-island-one-slit-heaven/"
+   },
+   {
+    "name": "野銀小峽谷（馬鞍礁）",
+    "location": [
+     22.03327,
+     121.59825
+    ],
+    "zoneId": "dongqing",
+    "level": "高級",
+    "maxDepthM": 50,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/yinyu-canyon-maan-reef-orchid-island/"
+   },
+   {
+    "name": "關東石",
+    "location": [
+     22.05674,
+     121.56739
+    ],
+    "zoneId": "dongqing",
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/guandong-rock/"
+   },
+   {
+    "name": "東清灣",
+    "location": [
+     22.05697,
+     121.56858
+    ],
+    "zoneId": "dongqing",
+    "level": "初級",
+    "maxDepthM": 30,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/dongqing-bay/"
+   },
+   {
+    "name": "椰油斷層",
+    "location": [
+     22.06985,
+     121.50309
+    ],
+    "zoneId": "kaiyuan",
+    "level": "中級",
+    "maxDepthM": 40,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/yeyou-fault/"
+   },
+   {
+    "name": "四條溝",
+    "location": [
+     22.00384,
+     121.56708
+    ],
+    "zoneId": "badai",
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/four-channels/"
+   },
+   {
+    "name": "八代灣沈船",
+    "location": [
+     22.01084,
+     121.55043
+    ],
+    "zoneId": "badai",
+    "level": "高級",
+    "maxDepthM": 40,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/badai-bay-wreck/"
+   }
+  ],
+  "ludao": [
+   {
+    "name": "滾水鼻",
+    "location": [
+     22.63351,
+     121.51056
+    ],
+    "zoneId": "east",
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/gunshui-bi/"
+   },
+   {
+    "name": "飛馬號沈船",
+    "location": [
+     22.63351,
+     121.51056
+    ],
+    "zoneId": "east",
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/pegasus-wreck/"
+   },
+   {
+    "name": "綏陽艦",
+    "location": [
+     22.67806,
+     121.47739
+    ],
+    "zoneId": "chaikou",
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/suiyang-warship/"
+   },
+   {
+    "name": "蝴蝶谷",
+    "location": [
+     22.66264,
+     121.47195
+    ],
+    "zoneId": "shilang",
+    "level": "中級",
+    "maxDepthM": 15,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/butterfly-valley/"
+   },
+   {
+    "name": "紫坪",
+    "location": [
+     22.63292,
+     121.50025
+    ],
+    "zoneId": "dabaisha",
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/ziping/"
+   },
+   {
+    "name": "龜灣鼻",
+    "location": [
+     22.64519,
+     121.47055
+    ],
+    "zoneId": "shilang",
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/guiwan-bi/"
+   },
+   {
+    "name": "溫泉港",
+    "location": [
+     22.64603,
+     121.50003
+    ],
+    "zoneId": "east",
+    "level": "初級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/wenquan-harbour/"
+   },
+   {
+    "name": "中寮港",
+    "location": [
+     22.67673,
+     121.47329
+    ],
+    "zoneId": "chaikou",
+    "level": "初級",
+    "maxDepthM": 15,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/zhongliao-harbor/"
+   },
+   {
+    "name": "馬蹄橋、教堂",
+    "location": [
+     22.64154,
+     121.48866
+    ],
+    "zoneId": "dabaisha",
+    "level": "初級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/horseshoe-bridge-the-cathedral/"
+   }
+  ],
+  "penghu-south": [
+   {
+    "name": "二塭",
+    "location": [
+     23.3659,
+     119.49288
+    ],
+    "zoneId": "yuping",
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/erwu/"
+   },
+   {
+    "name": "鐘仔礁",
+    "location": [
+     23.25466,
+     119.6084
+    ],
+    "zoneId": "xiji",
+    "level": "中級",
+    "maxDepthM": 10,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/zhongjiao-reef/"
+   }
+  ],
+  "kenting": [
+   {
+    "name": "艷光礁",
+    "location": [
+     21.98997,
+     120.70712
+    ],
+    "zoneId": "west",
+    "level": "中級",
+    "maxDepthM": 15,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/yanguang-reef/"
+   },
+   {
+    "name": "頂白沙",
+    "location": [
+     21.95488,
+     120.70946
+    ],
+    "zoneId": "west",
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/ding-baisha/"
+   },
+   {
+    "name": "後壁湖保育區",
+    "location": [
+     21.93667,
+     120.74641
+    ],
+    "zoneId": "south",
+    "level": "中級",
+    "maxDepthM": 15,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/houbihu-marine-reserve/"
+   },
+   {
+    "name": "雙峰藍洞、小咾咕",
+    "location": [
+     21.93717,
+     120.76689
+    ],
+    "zoneId": "south",
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/shuangfeng-blue-cave-xiao-laogu/"
+   },
+   {
+    "name": "南灣三角町",
+    "location": [
+     21.95222,
+     120.76277
+    ],
+    "zoneId": "south",
+    "level": "中級",
+    "maxDepthM": 21,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/nanbay-triangle-town/"
+   },
+   {
+    "name": "眺石",
+    "location": [
+     21.95684,
+     120.7636
+    ],
+    "zoneId": "south",
+    "level": "中級",
+    "maxDepthM": 15,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/tiaoshi/"
+   },
+   {
+    "name": "砂島沈船",
+    "location": [
+     21.91221,
+     120.84464
+    ],
+    "zoneId": "east",
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/shadao-shipwreck/"
+   }
+  ],
+  "xiaoliuqiu": [
+   {
+    "name": "肚仔坪",
+    "location": [
+     22.34786,
+     120.36229
+    ],
+    "zoneId": "north",
+    "level": "初級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/duzaiping/"
+   },
+   {
+    "name": "棄嬰洞",
+    "location": [
+     22.34624,
+     120.36066
+    ],
+    "zoneId": "north",
+    "level": "高級",
+    "maxDepthM": 40,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/abandoned-cave/"
+   }
+  ]
+ },
+ "details": {
+  "lanyu": {
+   "軍艦岩": {
+    "level": "中級",
+    "maxDepthM": 25,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/gunkan-rock/"
+   },
+   "母雞岩": {
+    "level": "中級",
+    "maxDepthM": 25,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/hen-rock/"
+   },
+   "機場外礁": {
+    "level": "中級",
+    "maxDepthM": 64,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/airport-outer-reef/"
+   },
+   "開元港藍洞": {
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/blue-cave-frog-rock/"
+   },
+   "雙獅岩": {
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/shuang-shi-yan-double-lion-rock/"
+   }
+  },
+  "ludao": {
+   "將軍岩": {
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/the-grand-canyon/"
+   },
+   "樓門岩": {
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/sankuaishi-three-rocks/"
+   },
+   "雞仔礁": {
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/jizai-reef/"
+   },
+   "柴口": {
+    "level": "初級",
+    "maxDepthM": 15,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/chaikou/"
+   },
+   "大白沙": {
+    "level": "初級",
+    "maxDepthM": 20,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/dabaisha/"
+   },
+   "石朗": {
+    "level": "初級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/shilang-conservation-area-underwater-mailbox-giant-mushroom-coral-atlantis-moai-statues/"
+   },
+   "公館鼻": {
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/guanlibi/"
+   }
+  },
+  "penghu-south": {
+   "東嶼坪瀨仔尾": {
+    "level": "中級",
+    "maxDepthM": 7,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/dongyuping-laizaiwei/"
+   },
+   "東嶼坪五米礁": {
+    "level": "中級",
+    "maxDepthM": 25,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/dongyu-ping-5-metre-reef/"
+   },
+   "東吉之狼": {
+    "level": "高級",
+    "maxDepthM": 25,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/dongji-wolf/"
+   },
+   "薰衣草森林": {
+    "level": "初級",
+    "maxDepthM": 10,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/lavender-forest/"
+   },
+   "東吉之眼": {
+    "level": "中級",
+    "maxDepthM": 10,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/dongji-island-daping-front/"
+   },
+   "西吉斷層": {
+    "level": "中級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/xiji-fault/"
+   }
+  },
+  "northeast": {
+   "南雅子母岩": {
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/82-5k-zimu-rock/"
+   },
+   "鼻頭角公園": {
+    "level": "初級",
+    "maxDepthM": 20,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/bitou-cape-bitoujiao/"
+   },
+   "龍洞4號": {
+    "level": "初級",
+    "maxDepthM": 25,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/longdong/"
+   },
+   "蚊子坑": {
+    "level": "初級",
+    "maxDepthM": 14,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/hemei-street-mosquito-pit/"
+   }
+  },
+  "kenting": {
+   "萬里桐": {
+    "level": "初級",
+    "maxDepthM": 25,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/wanlitong/"
+   },
+   "山海": {
+    "level": "中級",
+    "maxDepthM": 20,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/shanhai/"
+   },
+   "紅柴坑": {
+    "level": "初級",
+    "maxDepthM": 15,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/hongchaiken/"
+   },
+   "合界": {
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/hejie/"
+   },
+   "出水口": {
+    "level": "中級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/leidashi-thunder-rock/"
+   },
+   "大咕咾": {
+    "level": "中級",
+    "maxDepthM": 26,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/duili-reef/"
+   },
+   "香蕉灣": {
+    "level": "初級",
+    "maxDepthM": 10,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/chuanfan-rock/"
+   }
+  },
+  "qixing": {
+   "七星岩": {
+    "level": "高級",
+    "maxDepthM": 30,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/qixing-rock/"
+   }
+  },
+  "xiaoliuqiu": {
+   "龍蝦洞": {
+    "level": "中級",
+    "maxDepthM": 34,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/lobster-cave/"
+   },
+   "杉福漁港": {
+    "level": "初級",
+    "maxDepthM": 25,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/shanfu-wreck-broken-shipwreck/"
+   },
+   "美人洞": {
+    "level": "中級",
+    "maxDepthM": 30,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/meirendong/"
+   },
+   "花瓶岩": {
+    "level": "中級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/vase-rock/"
+   },
+   "大福漁港": {
+    "level": "初級",
+    "maxDepthM": 20,
+    "entry": "岸潛/船潛",
+    "url": "https://bluetrend.media/dive-sites/dafu-west/"
+   },
+   "威尼斯沈船": {
+    "level": "高級",
+    "maxDepthM": 38,
+    "entry": "船潛",
+    "url": "https://bluetrend.media/dive-sites/venice-wreck/"
+   },
+   "厚石裙礁": {
+    "level": "初級",
+    "maxDepthM": 15,
+    "entry": "岸潛",
+    "url": "https://bluetrend.media/dive-sites/houshi-reef/"
+   }
+  }
+ }
+}

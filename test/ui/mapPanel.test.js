@@ -68,3 +68,10 @@ test('site outside our spots says 這裡還沒有能見度預測 and has no open
   expect(html).not.toContain('open-spot');
   expect(html).not.toContain('map-spot');
 });
+
+test('spot panel shows the BlueTrend link for a picked BlueTrend site', () => {
+  const picked = { name: '新點', zoneId: 'north', level: '初級', maxDepthM: 12, entry: '岸潛', url: 'https://bluetrend.media/x' };
+  const html = renderMapSpot({ spot, summary, forecast, dayIndex: 0, dayLabels: DAYS, picked });
+  expect(html).toContain('初級 · 最深 12 米 · 岸潛');
+  expect(html).toContain('<a href="https://bluetrend.media/x" target="_blank" rel="noopener">BlueTrend 介紹 ↗</a>');
+});

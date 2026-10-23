@@ -6,6 +6,7 @@ import { summarizeSpot } from './core/overview.js';
 import { spotPins, sitePins } from './core/mapPins.js';
 import { renderMapHome, renderMapSpot, renderSiteCard } from './ui/mapPanel.js';
 import { createTaiwanMap } from './ui/taiwanMap.js';
+import EXTRA_SITES from './data/spots/extraSites.json';
 import { fetchShips } from './services/ships.js';
 import { K } from './core/constants.js';
 import { locate } from './core/locate.js';
@@ -166,7 +167,7 @@ function renderMapView() {
   }
   taiwan.show();
   const summaries = state.overview?.summaries ?? {};
-  taiwan.setPins(spotPins(SPOT_LIST, summaries, state.dayIndex), sitePins(SITE_LAYERS, summaries, state.dayIndex));
+  taiwan.setPins(spotPins(SPOT_LIST, summaries, state.dayIndex), sitePins(SITE_LAYERS, EXTRA_SITES, summaries, state.dayIndex));
   taiwan.setMe(state.pos);
 }
 
@@ -331,7 +332,7 @@ function mapClick(e) {
   if (action === 'map-home') { mapHome(); return true; }
   if (action === 'map-spot') {
     const site = state.mapSite;
-    Object.assign(state, { mapSite: null, mapSpotId: site.spotId, mapPicked: { name: site.name, zoneId: site.zoneId } });
+    Object.assign(state, { mapSite: null, mapSpotId: site.spotId, mapPicked: site });
     render();
     return true;
   }

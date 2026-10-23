@@ -15,16 +15,25 @@ export function spotPins(spots, summaries, dayIndex) {
   });
 }
 
-// A site takes the light of the zone it is in, for the chosen day.
-export function sitePins(siteLayers, summaries, dayIndex) {
-  return Object.entries(siteLayers).flatMap(([spotId, layer]) => layer.sites.map((site) => ({
+// A site takes the light of the zone it is in, for the chosen day. Our own sites plus BlueTrend's
+// (extraSites: `other` = outside every spot, no forecast); `details` gives our sites BlueTrend's facts.
+export function sitePins(siteLayers, extraSites, summaries, dayIndex) {
+  const pin = (spotId, site, facts = {}) => ({
     spotId,
     zoneId: site.zoneId,
     name: site.name,
     lat: site.location[0],
     lon: site.location[1],
-    light: summaries[spotId]?.[dayIndex]?.zoneLights?.[site.zoneId] ?? 'gray',
-  })));
+    light: (spotId && summaries[spotId]?.[dayIndex]?.zoneLights?.[site.zoneId]) ?? 'gray',
+    ...facts,
+  });
+  const facts = ({ level, maxDepthM, entry, url }) => ({ level, maxDepthM, entry, url });
+  const ours = Object.entries(siteLayers).flatMap(([spotId, layer]) => layer.sites.map((site) => {
+    const d = extraSites.details?.[spotId]?.[site.name];
+    return pin(spotId, site, d ? facts(d) : {});
+  }));
+  const extra = Object.entries(extraSites.sites ?? {}).flatMap(([key, list]) => list.map((site) => pin(key === 'other' ? null : key, site, facts(site))));
+  return [...ours, ...extra];
 }
 
 export const layerFor = (zoom) => ({

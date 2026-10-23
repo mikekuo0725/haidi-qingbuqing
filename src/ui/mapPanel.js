@@ -26,7 +26,9 @@ export function renderMapSpot({ spot, summary, forecast, dayIndex, dayLabels, pi
   if (!summary || !forecast) return `${head}<div class="pad mut">沒有資料</div>`;
   const pickedZone = picked && forecast.zones.find((z) => z.zoneId === picked.zoneId);
   const strip = `<div class="tstrip"><span>🌊 海流<br><b>${flowText(summary.flowKn, summary.flowToDeg)}</b></span><span>🌬️ 風<br><b>${windText(summary.windKmh, summary.windDir)}</b></span><span>🌡️ 水溫<br><b>${summary.sst == null ? '—' : `${Math.round(summary.sst)}°C`}</b></span></div>`;
-  const pick = pickedZone ? `<div class="tp-pick">📌 <b>${esc(picked.name)}</b> 在「${esc(pickedZone.name)}」這一區</div>` : '';
+  const facts = picked ? [picked.level, picked.maxDepthM ? `最深 ${picked.maxDepthM} 米` : null, picked.entry].filter(Boolean).join(' · ') : '';
+  const link = picked?.url ? ` <a href="${esc(picked.url)}" target="_blank" rel="noopener">BlueTrend 介紹 ↗</a>` : '';
+  const pick = pickedZone ? `<div class="tp-pick">📌 <b>${esc(picked.name)}</b> 在「${esc(pickedZone.name)}」這一區${facts || link ? `<br><span class="mut">${esc(facts)}${link}</span>` : ''}</div>` : '';
   const rows = forecast.zones.map((z) => `<div class="tli${pickedZone?.zoneId === z.zoneId ? ' on' : ''}" data-zone="${z.zoneId}" role="button" tabindex="0">${dot(z.light)}<div>${esc(z.name)}<small>${esc(z.reason)}</small></div><span class="m">${z.low}~${z.high} 米</span></div>`).join('');
   return `${head}${strip}${pick}${rows}<button type="button" class="btn" data-action="open-spot">看海流、風的動態圖和每小時 →</button>`;
 }
