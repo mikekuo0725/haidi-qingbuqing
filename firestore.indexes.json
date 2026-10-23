@@ -1,7 +1,1 @@
-{
-  "indexes": [
-    { "collectionGroup": "reports", "queryScope": "COLLECTION",
-      "fields": [ { "fieldPath": "spotId", "order": "ASCENDING" }, { "fieldPath": "diveTime", "order": "DESCENDING" } ] }
-  ],
-  "fieldOverrides": []
-}
+{ "indexes": [], "fieldOverrides": [] }

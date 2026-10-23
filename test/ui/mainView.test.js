@@ -8,7 +8,7 @@ import { makeDay } from '../helpers/makeDay.js';
 const spot = SPOTS.xiaoliuqiu;
 const NOW = Date.UTC(2024, 0, 18, 4, 0);
 const forecast = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: null, helper: null });
-const base = { spot, forecast, dayIndex: 0, dayLabels: ['今天', '明天', '後天'], located: { status: 'none' }, freshness: { weatherAt: NOW, satelliteDate: '2024-01-10', lastReportAt: null }, now: NOW };
+const base = { spot, forecast, dayIndex: 0, dayLabels: ['今天', '明天', '後天'], located: { status: 'none' }, freshness: { weatherAt: NOW, satelliteDate: '2024-01-10' }, now: NOW };
 
 test('shows 4 cards in forecast order with ranges', () => {
   const html = renderMain(base);
