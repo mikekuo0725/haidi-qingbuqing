@@ -15,7 +15,7 @@ const ORDER = ['wave', 'pastWave', 'wind', 'cloud', 'tide', 'river', 'currentDir
 
 const MIN_SHOW = 0.05; // metres; a smaller change would print as "−0.0"
 
-// Waterfall: start at the base, apply each factor in turn (biggest first), then the report correction.
+// Waterfall: start at the base, apply each factor in turn (biggest first).
 // Each step is [label, multiplier note, change in metres]; positive = gained.
 function waterfall(zone) {
   let cur = zone.base;
@@ -28,12 +28,6 @@ function waterfall(zone) {
   steps.sort((a, b) => a.delta - b.delta);
   let run = zone.base;
   for (const s of steps) { s.before = run; run += s.delta; s.after = run; }
-  const biased = zone.base * ORDER.reduce((a, k) => a * zone.factors[k], 1) * zone.bias;
-  const extra = [
-    { label: '回報修正', note: `×${zone.bias.toFixed(2)}`, delta: biased - run },
-    { label: '今天的回報', note: '', delta: zone.meters - biased },
-  ];
-  for (const e of extra) { e.before = run; run += e.delta; e.after = run; if (Math.abs(e.delta) >= MIN_SHOW) steps.push(e); }
   return steps;
 }
 
@@ -53,7 +47,6 @@ function reportRow(r) {
 export function renderDetail({ spot, zone, dateLabel, reports }) {
   const z = spot.zones.find((x) => x.id === zone.zoneId);
   const baseLine = zone.baseSource === 'sat' ? '（衛星最近 30 天）' : '（衛星資料暫缺，用保守數字）';
-  const biasLine = zone.biasN >= 5 ? `<div>依過去 ${zone.biasN} 筆回報，這區 ×${zone.bias.toFixed(2)}</div>` : '';
   const steps = waterfall(zone);
   const shown = steps.filter((s) => Math.abs(s.delta) >= MIN_SHOW);
   const calm = steps.filter((s) => s.key && Math.abs(s.delta) < MIN_SHOW);
@@ -68,7 +61,6 @@ export function renderDetail({ spot, zone, dateLabel, reports }) {
     <div class="mut wf-src">平常底分：<b>${Math.round(zone.base)} 米</b>${baseLine}</div>
     ${shown.map((s, i) => stepRow(s, scale, i)).join('')}
     <div class="wf-row end"><div class="wf-l">預測</div><div class="wf-b"><i class="${LIGHT[zone.light].cls}" style="left:0;width:${(zone.meters / scale * 100).toFixed(1)}%"></i></div><div class="wf-n">${zone.meters.toFixed(1)}</div></div>
-    ${biasLine}
   </section>
   ${worst ? `<section class="card wf-top"><b>最大扣分：${worst.label}</b><br>${EXPLAIN[worst.key] ?? ''}</section>` : ''}
   ${calm.length ? `<div class="mut wf-calm">沒影響：${calm.map((s) => s.label.replace(/^\S+\s/, '')).join('、')}</div>` : ''}

@@ -4,7 +4,6 @@ import { SPOTS } from '../../src/data/spots/index.js';
 import { makeDay } from '../helpers/makeDay.js';
 
 const spot = SPOTS.xiaoliuqiu;
-const NOW = Date.UTC(2024, 0, 18, 4, 0); // 2024-01-18 12:00 Taipei, not spring tide
 const day = makeDay({ date: '2024-01-18', hour: { cloud: 0 } });
 const helper = {
   satelliteDate: '2024-01-10',
@@ -17,7 +16,7 @@ const helper = {
 };
 
 test('zones are sorted best first and carry lights and ranges', () => {
-  const f = buildForecast({ spot, day, stale: null, helper, reports: [], now: NOW, isToday: false });
+  const f = buildForecast({ spot, day, stale: null, helper });
   const m = f.zones.map((z) => z.meters);
   expect(m).toEqual([...m].sort((a, b) => b - a));
   expect(f.zones[0].zoneId).toBe('west');
@@ -26,7 +25,7 @@ test('zones are sorted best first and carry lights and ranges', () => {
 });
 
 test('satellite missing → fallback base, lower confidence', () => {
-  const f = buildForecast({ spot, day, stale: null, helper, reports: [], now: NOW, isToday: false });
+  const f = buildForecast({ spot, day, stale: null, helper });
   const north = f.zones.find((z) => z.zoneId === 'north');
   expect(north.baseSource).toBe('fallback');
   expect(north.base).toBe(10);
@@ -34,48 +33,31 @@ test('satellite missing → fallback base, lower confidence', () => {
 });
 
 test('helper missing entirely → all fallback', () => {
-  const f = buildForecast({ spot, day, stale: null, helper: null, reports: [], now: NOW, isToday: false });
+  const f = buildForecast({ spot, day, stale: null, helper: null });
   expect(f.zones.every((z) => z.baseSource === 'fallback')).toBe(true);
 });
 
 test('stale weather → gray lights', () => {
-  const f = buildForecast({ spot, day, stale: 5, helper, reports: [], now: NOW, isToday: false });
+  const f = buildForecast({ spot, day, stale: 5, helper });
   expect(f.zones.every((z) => z.light === 'gray')).toBe(true);
   expect(f.zones.find((z) => z.zoneId === 'north').confidence).toBe('low');
 });
 
-test('bias from helper is applied', () => {
-  const f = buildForecast({ spot, day, stale: null, helper, reports: [], now: NOW, isToday: false });
+test('confidence is high with satellite and fresh weather', () => {
+  const f = buildForecast({ spot, day, stale: null, helper });
+  expect(f.zones.find((z) => z.zoneId === 'south').confidence).toBe('high');
+});
+
+test('a cached bias in the helper is ignored', () => {
+  const f = buildForecast({ spot, day, stale: null, helper });
   const east = f.zones.find((z) => z.zoneId === 'east');
-  expect(east.meters).toBeCloseTo(east.rawMeters * 0.9);
-  expect(east.biasN).toBe(12);
-});
-
-test('today with a report: nowcast applied and reason rewritten', () => {
-  const reports = [{ id: 'a', zoneId: 'south', meters: 30, depth: 10, diveTime: NOW, rawMeters: 15 }];
-  const f = buildForecast({ spot, day, stale: null, helper, reports, now: NOW, isToday: true });
-  const south = f.zones.find((z) => z.zoneId === 'south');
-  expect(south.nowcastN).toBe(1);
-  expect(south.reason).toBe('依今天 1 人回報調整');
-  expect(south.confidence).toBe('high');
-});
-
-test('a report with a future diveTime does not count as recent (Task 10)', () => {
-  const future = [{ id: 'f', zoneId: 'south', meters: 30, depth: 10, diveTime: NOW + 999999999, rawMeters: 15 }];
-  const f = buildForecast({ spot, day, stale: null, helper, reports: future, now: NOW, isToday: false });
-  const south = f.zones.find((z) => z.zoneId === 'south');
-  expect(south.confidence).toBe('medium'); // sat data but no genuinely-recent report yet
-});
-
-test('not today: reports do not change meters', () => {
-  const reports = [{ id: 'a', zoneId: 'south', meters: 30, depth: 10, diveTime: NOW, rawMeters: 15 }];
-  const a = buildForecast({ spot, day, stale: null, helper, reports, now: NOW, isToday: false });
-  const b = buildForecast({ spot, day, stale: null, helper, reports: [], now: NOW, isToday: false });
-  expect(a.zones.find((z) => z.zoneId === 'south').meters).toBeCloseTo(b.zones.find((z) => z.zoneId === 'south').meters);
+  expect(east.meters).toBe(east.rawMeters);
+  expect(east).not.toHaveProperty('bias');
+  expect(east).not.toHaveProperty('biasN');
 });
 
 test('forecast includes safety, best window and SST', () => {
-  const f = buildForecast({ spot, day, stale: null, helper, reports: [], now: NOW, isToday: false });
+  const f = buildForecast({ spot, day, stale: null, helper });
   expect(f.safety.currentLevel).toBeDefined();
   expect(f.best.end - f.best.start).toBe(2);
   expect(f.sst).toBe(28);
@@ -84,7 +66,7 @@ test('forecast includes safety, best window and SST', () => {
 // R2: a zone without satellite data (fallback base) gets the wide range even
 // when confidence would otherwise not be 'low' (fresh weather, no stale flag).
 test('fallback zone + fresh weather → wide range (R2)', () => {
-  const f = buildForecast({ spot, day, stale: null, helper, reports: [], now: NOW, isToday: false });
+  const f = buildForecast({ spot, day, stale: null, helper });
   const north = f.zones.find((z) => z.zoneId === 'north');
   expect(north.confidence).toBe('medium');
   expect(north.low).toBe(Math.round(north.meters * 0.6));

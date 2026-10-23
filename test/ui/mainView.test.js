@@ -7,7 +7,7 @@ import { makeDay } from '../helpers/makeDay.js';
 
 const spot = SPOTS.xiaoliuqiu;
 const NOW = Date.UTC(2024, 0, 18, 4, 0);
-const forecast = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: null, helper: null, reports: [], now: NOW, isToday: true });
+const forecast = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: null, helper: null });
 const base = { spot, forecast, dayIndex: 0, dayLabels: ['今天', '明天', '後天'], located: { status: 'none' }, freshness: { weatherAt: NOW, satelliteDate: '2024-01-10', lastReportAt: null }, now: NOW };
 
 test('shows 4 cards in forecast order with ranges', () => {
@@ -28,7 +28,7 @@ test('far away shows the distance', () => {
 });
 
 test('stale weather shows how old it is', () => {
-  const stale = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: 3, helper: null, reports: [], now: NOW, isToday: true });
+  const stale = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: 3, helper: null });
   expect(renderMain({ ...base, forecast: stale })).toContain('這是 3 小時前的預測');
 });
 
@@ -65,7 +65,7 @@ test('a day with no data at all still shows the stale-weather hint (Task 15)', (
 });
 
 test('stale weather under 1 hour old says so instead of "0 小時前"', () => {
-  const fresh = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: 0.3, helper: null, reports: [], now: NOW, isToday: true });
+  const fresh = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: 0.3, helper: null });
   const html = renderMain({ ...base, forecast: fresh });
   expect(html).toContain('這是不到 1 小時前的預測');
   expect(html).not.toContain('0 小時前');
@@ -143,4 +143,8 @@ test('the buoy line is only on 今天, leaves out missing items, and hides when 
 
 test('a spot without a buoy shows no buoy line', () => {
   expect(renderMain({ ...base, spot: { ...spot, buoy: undefined }, buoy: buoyNow })).not.toContain('🛟');
+});
+
+test('zone card has no report chip', () => {
+  expect(renderMain(base)).not.toContain('人回報');
 });

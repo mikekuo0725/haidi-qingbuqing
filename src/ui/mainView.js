@@ -42,14 +42,11 @@ function buoyRow(spot, buoy, now) {
 
 function card(z, located) {
   const me = located.status === 'near' && located.zoneId === z.zoneId;
-  const reports = z.todayReports.length
-    ? `<span class="chip">今天 ${z.todayReports.length} 人回報：${Math.round(z.todayReports.reduce((a, r) => a + r.meters, 0) / z.todayReports.length)}m</span>`
-    : '';
   const label = esc(`${z.name} ${LIGHT[z.light].emoji} ${z.low}~${z.high} 米`);
   return `<div class="card${me ? ' me' : ''}" data-zone="${z.zoneId}" role="button" tabindex="0" aria-label="${label}">${me ? '<span class="tag">你在這裡</span>' : ''}
     <div class="top"><div class="dot ${LIGHT[z.light].cls}"></div><div class="zn">${esc(z.name)}</div><div class="m">${z.low}~${z.high}m</div></div>
     <div class="sub">${esc(z.reason)}</div>
-    <div class="chips"><span class="chip ${z.compare}">${COMPARE_TEXT[z.compare]}</span><span class="chip">把握度 ${CONF_TEXT[z.confidence]}</span>${reports}</div>
+    <div class="chips"><span class="chip ${z.compare}">${COMPARE_TEXT[z.compare]}</span><span class="chip">把握度 ${CONF_TEXT[z.confidence]}</span></div>
   </div>`;
 }
 

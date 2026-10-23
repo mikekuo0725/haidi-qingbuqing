@@ -1,4 +1,4 @@
-// Every tuning number lives here. Reports will tell us how to change them.
+// Every tuning number lives here.
 export const SHELTER_MUL = { open: 1, semi: 0.6, bay: 0.3 };
 export const BOTTOM_MUL = { rock: 0.8, mixed: 1, sand: 1.3 };
 export const STRONG_CURRENT_MUL = { rock: 1, mixed: 0.93, sand: 0.85 };
@@ -42,22 +42,6 @@ export const K = {
   pullRefreshPx: 70,      // pulling down this far from the top of the page reloads the data
   noonWeight: 0.02,
   slackSeaLevelM: 0.05,
-  recentReportDays: 7,
-
-  // calibration
-  nowcastN1: 0.3,
-  nowcastN2: 0.5,
-  nowcastN3Plus: 0.7,
-  nowcastHalfLifeHours: 3,
-  outlierMinGroup: 3,
-  outlierThreshold: 0.5,
-  outlierWeight: 0.3,
-  biasWindowDays: 90,
-  biasHalfLifeDays: 30,
-  biasMinReports: 5,
-  biasShrinkK: 10,
-  biasClampMin: 0.5,
-  biasClampMax: 1.5,
 
   // satellite
   satMinValues: 10,

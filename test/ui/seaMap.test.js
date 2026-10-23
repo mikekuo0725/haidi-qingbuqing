@@ -10,7 +10,7 @@ import { makeDay } from '../helpers/makeDay.js';
 const spot = SPOTS.xiaoliuqiu;
 const map = MAPS.xiaoliuqiu;
 const NOW = Date.UTC(2024, 0, 18, 4, 0);
-const make = (stale = null) => buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale, helper: null, reports: [], now: NOW, isToday: true });
+const make = (stale = null) => buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale, helper: null });
 const forecast = make();
 
 test('one dot per zone, in spot order, coloured by that zone light', () => {

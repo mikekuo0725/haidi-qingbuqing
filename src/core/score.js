@@ -26,7 +26,7 @@ export function compareToNormal(meters, normal) {
   return 'same';
 }
 
-export function scoreZone({ zone, spot, day, base, bias = 1 }) {
+export function scoreZone({ zone, spot, day, base }) {
   const factors = {
     wave: waveFactor(day.hours, zone),
     pastWave: pastWaveFactor(day.pastWaves, zone),
@@ -38,18 +38,16 @@ export function scoreZone({ zone, spot, day, base, bias = 1 }) {
     currentSpeed: currentSpeedFactor(day.hours, zone),
   };
   const product = Object.values(factors).reduce((a, b) => a * b, 1);
-  const rawMeters = base * product;
-  const meters = rawMeters * bias;
+  const meters = base * product;
   const [worstKey, worstVal] = Object.entries(factors).reduce((w, e) => (e[1] < w[1] ? e : w));
   return {
     zoneId: zone.id,
     base,
-    bias,
     factors,
-    rawMeters,
+    rawMeters: meters,
     meters,
     reasonKey: worstVal < K.reasonThreshold ? worstKey : 'good',
-    compare: compareToNormal(meters, base * bias),
+    compare: compareToNormal(meters, base),
   };
 }
 

@@ -1,11 +1,8 @@
 import { SPOTS } from '../../src/data/spots/index.js';
-import { zoneBias } from '../../src/core/calibration.js';
 import { K } from '../../src/core/constants.js';
-import { DAY_MS } from '../../src/core/math.js';
 import { taipeiDate } from '../../src/core/time.js';
 import { mergeReadings } from '../../src/core/buoy.js';
 import { computeZones } from './base.js';
-import { fetchReports } from './firestore.js';
 import { fetchCoastal, mergeSeries } from './cwa.js';
 import { fetchBuoys } from './buoy.js';
 import { loadShips } from './ships.js';
@@ -22,17 +19,6 @@ export const DAILY_HOUR_UTC = 22;
 
 export async function buildHelperData(spot, env, fetchFn = fetch, now = Date.now(), old = null) {
   const { zones, satelliteDate } = await computeZones(spot, fetchFn, now, old);
-  let bias = {};
-  try {
-    const reports = await fetchReports(env.FIREBASE_PROJECT_ID, spot.id, now - K.biasWindowDays * DAY_MS, fetchFn);
-    bias = zoneBias(reports, now);
-  } catch {
-    // no reports reachable → no correction
-  }
-  for (const id of Object.keys(zones)) {
-    zones[id].bias = bias[id]?.bias ?? 1;
-    zones[id].biasN = bias[id]?.n ?? 0;
-  }
   return { spotId: spot.id, updatedAt: now, satelliteDate, zones };
 }
 

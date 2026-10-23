@@ -33,19 +33,20 @@ test('compare to normal: ±15%', () => {
   expect(compareToNormal(10.4, 10)).toBe('same');
 });
 
-test('scoreZone multiplies base by all factors and bias', () => {
+test('scoreZone multiplies base by all factors', () => {
   const day = makeDay({ date: '2024-01-18' }); // not spring tide
-  const s = scoreZone({ zone: west, spot, day, base: 15, bias: 0.9 });
+  const s = scoreZone({ zone: west, spot, day, base: 15 });
   const product = Object.values(s.factors).reduce((a, b) => a * b, 1);
   expect(s.rawMeters).toBeCloseTo(15 * product);
-  expect(s.meters).toBeCloseTo(15 * product * 0.9);
+  expect(s.meters).toBeCloseTo(15 * product);
+  expect(s).not.toHaveProperty('bias');
   expect(Object.keys(s.factors).sort()).toEqual(['cloud', 'currentDir', 'currentSpeed', 'pastWave', 'river', 'tide', 'wave', 'wind']);
 });
 
 test('waves from the west: west is the worst zone and reason is wave', () => {
   const day = makeDay({ date: '2024-01-18', hour: { waveH: 1.2, waveT: 9, waveDir: 270 } });
-  const w = scoreZone({ zone: west, spot, day, base: 15, bias: 1 });
-  const e = scoreZone({ zone: east, spot, day, base: 15, bias: 1 });
+  const w = scoreZone({ zone: west, spot, day, base: 15 });
+  const e = scoreZone({ zone: east, spot, day, base: 15 });
   expect(w.meters).toBeLessThan(e.meters);
   expect(w.reasonKey).toBe('wave');
   expect(reasonText('wave', { zone: west, spot, day })).toBe('湧浪正對西邊');
@@ -53,13 +54,13 @@ test('waves from the west: west is the worst zone and reason is wave', () => {
 
 test('heavy rain: reason mentions the river and the rain amount', () => {
   const day = makeDay({ date: '2024-01-18', rain3dMm: 180 });
-  const e = scoreZone({ zone: east, spot, day, base: 15, bias: 1 });
+  const e = scoreZone({ zone: east, spot, day, base: 15 });
   expect(e.reasonKey).toBe('river');
   expect(reasonText('river', { zone: east, spot, day })).toBe('高屏溪泥水（上游前 3 天 180mm）');
 });
 
 test('calm day gives the good reason', () => {
   const day = makeDay({ date: '2024-01-18', hour: { cloud: 0 } });
-  const s = scoreZone({ zone: west, spot, day, base: 15, bias: 1 });
+  const s = scoreZone({ zone: west, spot, day, base: 15 });
   expect(s.reasonKey).toBe('good');
 });

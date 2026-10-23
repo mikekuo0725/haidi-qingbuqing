@@ -5,7 +5,7 @@ import { SPOTS } from '../../src/data/spots/index.js';
 import { makeDay } from '../helpers/makeDay.js';
 
 const spot = SPOTS.xiaoliuqiu;
-const f = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: null, helper: null, reports: [], now: Date.UTC(2024, 0, 18, 4), isToday: false });
+const f = buildForecast({ spot, day: makeDay({ date: '2024-01-18' }), stale: null, helper: null });
 
 test('share text lists zones best first, current, SST, best window and url', () => {
   const t = buildShareText({ spot, dayLabel: '明天', forecast: f, url: 'https://x' });

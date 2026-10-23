@@ -7,15 +7,17 @@ import { makeDay } from '../helpers/makeDay.js';
 const spot = SPOTS.xiaoliuqiu;
 const NOW = Date.UTC(2024, 0, 18, 4, 0);
 const f = buildForecast({ spot, day: makeDay({ date: '2024-01-18', hour: { waveH: 1.2, waveT: 9, waveDir: 270 } }), stale: null,
-  helper: { zones: { west: { kdMedian: 0.1, source: 'sat', bias: 0.88, biasN: 23 } } }, reports: [], now: NOW, isToday: false });
+  helper: { zones: { west: { kdMedian: 0.1, source: 'sat' } } } });
 const west = f.zones.find((z) => z.zoneId === 'west');
 
-test('shows base, every factor with its multiplier, and bias line', () => {
+test('shows base and every factor with its multiplier', () => {
   const html = renderDetail({ spot, zone: west, dateLabel: '明天 1/18', reports: [], now: NOW });
   expect(html).toContain('平常底分：<b>15 米</b>');
   for (const label of ['今天的浪', '前幾天的浪', '風', '雲量', '潮汐', '河口', '海流方向', '海流速度']) expect(html).toContain(label);
   expect(html).toContain(`×${west.factors.wave.toFixed(2)}`);
-  expect(html).toContain('依過去 23 筆回報，這區 ×0.88');
+  expect(html).not.toContain('回報修正');
+  expect(html).not.toContain('今天的回報');
+  expect(html.slice(html.indexOf('wf-row end'))).toContain(`<div class="wf-n">${west.meters.toFixed(1)}</div>`);
   expect(html).toContain('面向西 ・ 開放海岸 ・ 礁岩');
 });
 
