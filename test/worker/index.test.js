@@ -1,6 +1,6 @@
 import { test, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
-import worker, { refresh, refreshCoastal, refreshBuoys, COASTAL_CRON, BUOY_CRON, DAILY_HOUR_UTC } from '../../worker/src/index.js';
+import worker, { buildHelperData, refresh, refreshCoastal, refreshBuoys, COASTAL_CRON, BUOY_CRON, DAILY_HOUR_UTC } from '../../worker/src/index.js';
 import { cwaLocation, cwaFile, dayTimes } from '../helpers/cwaFixture.js';
 import { obs, buoyFile } from '../helpers/buoyFixture.js';
 
@@ -224,11 +224,24 @@ test('the deployed cron list has only 2 triggers (the free plan allows 5 per acc
 test('the daily refresh keeps the previous satellite values when NOAA is down', async () => {
   const spot = { id: 'xiaoliuqiu', zones: [{ id: 'w', satBox: [[22.32, 120.31], [22.36, 120.34]] }] };
   const now = Date.UTC(2026, 8, 27);
-  const yesterday = { spotId: 'xiaoliuqiu', satelliteDate: '2026-09-15', zones: { w: { kdMedian: 0.08, source: 'sat', satDate: '2026-09-15', bias: 1, biasN: 0 } } };
+  const yesterday = { spotId: 'xiaoliuqiu', satelliteDate: '2026-09-15', zones: { w: { kdMedian: 0.08, source: 'sat', satDate: '2026-09-15' } } };
   const kv = fakeKV({ 'base:xiaoliuqiu': JSON.stringify(yesterday) });
   await refresh(spot, { CACHE: kv }, async () => new Response('Bad Gateway', { status: 502 }), now);
   const stored = JSON.parse(await kv.get('base:xiaoliuqiu'));
   expect(stored.zones.w).toMatchObject({ kdMedian: 0.08, source: 'sat' });
   expect(stored.satelliteDate).toBe('2026-09-15');
   expect(stored.updatedAt).toBe(now);
+});
+
+test('helper data has no report correction and asks nothing of Firestore', async () => {
+  const spot = { id: 'xiaoliuqiu', zones: [{ id: 'w', satBox: [[22.32, 120.31], [22.36, 120.34]] }] };
+  const urls = [];
+  const fetchFn = async (url) => { urls.push(String(url)); return new Response('Bad Gateway', { status: 502 }); };
+  const old = { satelliteDate: '2026-09-15', zones: { w: { kdMedian: 0.08, source: 'sat', satDate: '2026-09-15' } } };
+  const data = await buildHelperData(spot, {}, fetchFn, Date.UTC(2026, 8, 27), old);
+  expect(urls.some((u) => u.includes('firestore.googleapis.com'))).toBe(false);
+  for (const z of Object.values(data.zones)) {
+    expect(z).not.toHaveProperty('bias');
+    expect(z).not.toHaveProperty('biasN');
+  }
 });
