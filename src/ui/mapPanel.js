@@ -39,7 +39,7 @@ export function renderSiteCard({ site, spot, forecast, dayIndex, dayLabels }) {
     const c = forecast.currents.find((x) => x.hour === forecast.best.start) ?? forecast.currents[0] ?? {};
     body = `<div class="tli big ${LIGHT[zone.light].cls}">${dot(zone.light)}<div>${dayLabels[dayIndex]}能見度預測<small>${esc(spot.name)}・${esc(zone.name)}・${esc(zone.reason)}</small></div><span class="m">${zone.low}～${zone.high} 米</span></div>
     <div class="tstrip"><span>🌊 海流<br><b>${flowText(c.kn, c.toDeg)}</b></span><span>🌬️ 風<br><b>${windText(c.windKmh, c.windDir)}</b></span><span>⏰ 最佳下水<br><b>${forecast.best.start}~${forecast.best.end} 點</b></span></div>
-    <div class="tp-btns"><button type="button" class="btn btn2" data-action="map-spot">← 看這個潛點各區</button><button type="button" class="btn" data-action="open-spot" data-zone="${zone.zoneId}">海流、風動態圖 →</button></div>`;
+    <div class="tp-btns"><button type="button" class="btn btn2" data-action="map-spot">← 看這個潛點各區</button><button type="button" class="btn" data-action="open-spot">海流、風動態圖 →</button></div>`;
   } else {
     body = `<div class="tli">${dot('gray')}<div>這裡還沒有能見度預測<small>以後加了這個潛點就會有</small></div></div>`;
   }

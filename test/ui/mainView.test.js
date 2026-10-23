@@ -154,3 +154,9 @@ test('no report button and no report footer', () => {
   expect(html).not.toContain('data-action="report"');
   expect(html).not.toContain('回報');
 });
+
+test('spot page header has the 台灣地圖 button', () => {
+  const html = renderMain(base);
+  expect(html).toContain('data-action="map"');
+  expect(html).toContain('← 台灣地圖');
+});

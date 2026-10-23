@@ -61,7 +61,7 @@ export function renderMain({ spot, forecast, dayIndex, dayLabels, located, fresh
     freshness.weatherAt ? `天氣 ${hhmm(freshness.weatherAt)}` : '天氣 —',
     freshness.satelliteDate ? `衛星 ${md(freshness.satelliteDate)}` : '衛星資料暫缺，準度較低',
   ].join(' ・ ');
-  return `<header class="pad"><button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是${esc(spot.name)}">📍 ${esc(spot.name)} <span aria-hidden="true">▾</span></button><div class="mut">海底能見度預測</div></header>
+  return `<header class="pad"><button type="button" class="link" data-action="map">← 台灣地圖</button><button type="button" class="spotbtn" data-action="spots" aria-label="換潛點，現在是${esc(spot.name)}">📍 ${esc(spot.name)} <span aria-hidden="true">▾</span></button><div class="mut">海底能見度預測</div></header>
   <nav class="days">${days}</nav>
   ${spot.notice ? `<div class="notice">⚠️ ${esc(spot.notice)}</div>` : ''}
   ${locationRow(spot, located)}

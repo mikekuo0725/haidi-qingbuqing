@@ -1,6 +1,11 @@
 import { SPOTS, SPOT_LIST, DEFAULT_SPOT_ID } from './data/spots/index.js';
 import { HELPER_URL } from './config.js';
 import { loadSpot, buildDayForecasts } from './services/spotData.js';
+import { loadOverview } from './services/overview.js';
+import { summarizeSpot } from './core/overview.js';
+import { spotPins, sitePins } from './core/mapPins.js';
+import { renderMapHome, renderMapSpot, renderSiteCard } from './ui/mapPanel.js';
+import { createTaiwanMap } from './ui/taiwanMap.js';
 import { fetchShips } from './services/ships.js';
 import { K } from './core/constants.js';
 import { locate } from './core/locate.js';
@@ -40,6 +45,7 @@ function saveLines(mode) {
 }
 
 const urlSpotId = new URLSearchParams(location.search).get('spot');
+const urlSpotKnown = SPOT_LIST.some((s) => s.id === urlSpotId);
 const firstSpotId = initialSpotId({ urlId: urlSpotId, savedId: readSavedSpot(), spots: SPOT_LIST, defaultId: DEFAULT_SPOT_ID });
 
 const state = {
@@ -51,7 +57,11 @@ const state = {
   ships: null, // 航港局 AIS positions for this spot: { updatedAt, ships } or null
   lines: readSavedLines(), // which drifting lines the sea map draws: both | cur | wind
   loading: true,
-  dayIndex: openingDayIndex(Date.now()), view: 'main', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, weatherAt: null,
+  // Taiwan map (the start view): every spot's forecasts and summaries, the spot open in the panel,
+  // the dive site whose card is open, and the site picked from a card (outlined in the spot panel).
+  overview: null, overviewAt: null, mapSpotId: urlSpotKnown ? urlSpotId : null, mapSite: null, mapPicked: null,
+  loadedSpotId: null, // the spot whose weather + helper the spot page holds
+  dayIndex: openingDayIndex(Date.now()), view: 'map', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, weatherAt: null,
 };
 const spot = () => SPOTS[state.spotId];
 
@@ -91,6 +101,7 @@ function render() {
 }
 
 function renderView() {
+  if (state.view === 'map') return renderMapView();
   const now = Date.now();
   const s = spot();
   const forecast = state.forecasts[state.dayIndex];
@@ -120,20 +131,104 @@ function renderView() {
   app.innerHTML = html;
 }
 
+// The Taiwan map's Leaflet element is made once and moved back in on every render, so the map keeps its place.
+const mapEl = document.createElement('div');
+mapEl.className = 'tmap';
+let taiwan = null;
+
+function mapPanelHtml() {
+  const day = state.dayIndex;
+  const ov = state.overview;
+  if (state.mapSite) {
+    const s = SPOTS[state.mapSite.spotId] ?? null;
+    return renderSiteCard({ site: state.mapSite, spot: s, forecast: s ? ov?.forecasts[s.id]?.[day] ?? null : null, dayIndex: day, dayLabels: DAY_LABELS });
+  }
+  if (state.mapSpotId) {
+    const s = SPOTS[state.mapSpotId];
+    if (!ov) return `${renderMapSpot({ spot: s, summary: null, forecast: null, dayIndex: day, dayLabels: DAY_LABELS })}`.replace('沒有資料', '載入中…');
+    return renderMapSpot({ spot: s, summary: ov.summaries[s.id]?.[day] ?? null, forecast: ov.forecasts[s.id]?.[day] ?? null, dayIndex: day, dayLabels: DAY_LABELS, picked: state.mapPicked });
+  }
+  const home = renderMapHome({ summaries: ov?.summaries ?? {}, spots: SPOT_LIST, dayIndex: day, dayLabels: DAY_LABELS });
+  return ov ? home : home.replace('點地圖上的圓點看各區', '載入中…');
+}
+
+function renderMapView() {
+  app.dataset.view = 'map';
+  app.innerHTML = `<div class="tpanel">${mapPanelHtml()}</div>`;
+  app.prepend(mapEl);
+  if (!taiwan) {
+    taiwan = createTaiwanMap(mapEl, {
+      onSpot: (id) => openMapSpot(id),
+      onSite: (p) => openMapSite(p),
+      panelHeight: () => app.querySelector('.tpanel')?.offsetHeight ?? 0,
+    });
+    if (state.mapSpotId) taiwan.jumpToSpot(SPOTS[state.mapSpotId]);
+  }
+  taiwan.show();
+  const summaries = state.overview?.summaries ?? {};
+  taiwan.setPins(spotPins(SPOT_LIST, summaries, state.dayIndex), sitePins(SITE_LAYERS, summaries, state.dayIndex));
+  taiwan.setMe(state.pos);
+}
+
+function openMapSpot(id) {
+  Object.assign(state, { mapSpotId: id, mapSite: null, mapPicked: null });
+  render();
+  taiwan.flyToSpot(SPOTS[id]);
+}
+
+// A small dive site: its own card. The map stays where the user tapped it.
+function openMapSite(p) {
+  Object.assign(state, { mapSite: p, mapSpotId: SPOTS[p.spotId] ? p.spotId : null, mapPicked: null });
+  render();
+}
+
+function mapHome() {
+  Object.assign(state, { mapSpotId: null, mapSite: null, mapPicked: null });
+  render();
+  taiwan.flyHome();
+}
+
+// From the map into the spot page (or straight to one zone's detail page).
+function openSpotPage(id, zoneId = null) {
+  selectSpot(id, { manual: true });
+  go('main', null, { fromMap: true });
+  if (zoneId) go('detail', zoneId);
+}
+
+// Map and spot page always show the same numbers: whichever loaded last is copied to the other.
+function shareWithMap(id, forecasts) {
+  if (!state.overview) return;
+  state.overview.forecasts[id] = forecasts;
+  state.overview.summaries[id] = summarizeSpot(forecasts);
+}
+
+let overviewId = 0;
+async function loadMap({ fresh = false } = {}) {
+  const id = ++overviewId;
+  const now = Date.now();
+  const ov = await loadOverview(SPOT_LIST, { now, helperUrl: HELPER_URL, fresh });
+  if (id !== overviewId) return;
+  state.overview = ov;
+  state.overviewAt = now;
+  if (state.loadedSpotId) state.forecasts = ov.forecasts[state.loadedSpotId];
+  render();
+}
+
 // Phone back button: every view change is a history entry, so "back" returns to the list instead of leaving the site.
 let mainScrollY = 0;
-function go(view, zoneId = null) {
+function go(view, zoneId = null, extra = {}) {
   if (state.view === 'main') mainScrollY = window.scrollY;
   state.view = view;
   state.zoneId = zoneId;
-  history.pushState({ view, zoneId }, '', view === 'main' ? '#' : `#${view}${zoneId ? `/${zoneId}` : ''}`);
+  history.pushState({ view, zoneId, ...extra }, '', view === 'main' ? '#spot' : `#${view}${zoneId ? `/${zoneId}` : ''}`);
   render();
   if (view !== 'spots') window.scrollTo(0, 0); // the sheet floats over the list: keep the list where it was
 }
 
 function selectSpot(id, { manual }) {
   if (manual) state.lockedSpot = true;
-  const changed = id !== state.spotId && SPOT_LIST.some((s) => s.id === id);
+  if (!SPOT_LIST.some((s) => s.id === id)) return;
+  const changed = id !== state.spotId;
   if (changed) {
     state.spotId = id;
     saveSpot(id);
@@ -141,23 +236,23 @@ function selectSpot(id, { manual }) {
     if (location.search) history.replaceState(history.state, '', location.pathname + location.hash);
     Object.assign(state, {
       located: locate(state.pos, spot()), forecasts: [], weather: null, helper: null, weatherAt: null, loading: true,
-      mapHour: null, ships: null,
+      mapHour: null, ships: null, loadedSpotId: null,
     });
   }
+  // The map already has this spot's forecasts: show them at once, the spot's own load adds buoy and helper details.
+  if (state.loadedSpotId !== id && state.overview?.forecasts[id]) state.forecasts = state.overview.forecasts[id];
   render();
-  if (changed) {
-    window.scrollTo(0, 0);
-    load();
-  }
+  if (changed) window.scrollTo(0, 0);
+  if (state.loadedSpotId !== id) load();
 }
 
-// A history entry from an older version can name a view that is gone (the report form): show the list.
-const VIEWS = ['main', 'detail', 'spots'];
+// A history entry from an older version can name a view that is gone (the report form): show the map.
+const VIEWS = ['map', 'main', 'detail', 'spots'];
 window.addEventListener('popstate', (e) => {
   const view = e.state?.view;
-  state.view = VIEWS.includes(view) ? view : 'main';
+  state.view = VIEWS.includes(view) ? view : 'map';
   state.zoneId = state.view === view ? e.state?.zoneId ?? null : null;
-  if (state.view !== view) history.replaceState({ view: 'main' }, '', '#');
+  if (state.view !== view) history.replaceState({ view: 'map' }, '', '#');
   if (state.pendingSpot) { // a row in the sheet was picked: switch now that we are back on the main entry
     const id = state.pendingSpot;
     state.pendingSpot = null;
@@ -181,7 +276,9 @@ async function load({ fresh = false } = {}) {
   state.helper = helper;
   state.weatherAt = weather?.savedAt ?? null;
   state.loading = false;
+  state.loadedSpotId = s.id;
   buildForecasts(now);
+  shareWithMap(s.id, state.forecasts);
   if (!state.forecasts[state.dayIndex]) state.dayIndex = state.forecasts.findIndex(Boolean);
   if (state.dayIndex < 0) state.dayIndex = 0;
   render();
@@ -193,6 +290,11 @@ app.addEventListener('click', async (e) => {
     state.lines = normLines(linesBtn.dataset.lines);
     saveLines(state.lines);
     return setLines(app, state.lines); // only the lines change: no page redraw
+  }
+  if (state.view === 'map' && mapClick(e)) return;
+  if (e.target.closest('[data-action="map"]')) {
+    if (state.view === 'spots') return;
+    return history.state?.fromMap ? history.back() : go('map');
   }
   const pick = e.target.closest('[data-spot]');
   if (pick) { state.pendingSpot = pick.dataset.spot; return history.back(); } // popstate does the switch
@@ -221,6 +323,24 @@ app.addEventListener('click', async (e) => {
   if (card) go('detail', card.dataset.zone);
 });
 
+// Clicks in the Taiwan map's panel. Returns true when handled.
+function mapClick(e) {
+  const t = (sel) => e.target.closest(sel);
+  const action = t('[data-action]')?.dataset.action;
+  if (t('[data-mapspot]')) { openMapSpot(t('[data-mapspot]').dataset.mapspot); return true; }
+  if (action === 'map-home') { mapHome(); return true; }
+  if (action === 'map-spot') {
+    const site = state.mapSite;
+    Object.assign(state, { mapSite: null, mapSpotId: site.spotId, mapPicked: { name: site.name, zoneId: site.zoneId } });
+    render();
+    return true;
+  }
+  if (action === 'open-spot') { openSpotPage(state.mapSpotId); return true; }
+  const row = t('.tli[data-zone]');
+  if (row && state.mapSpotId) { openSpotPage(state.mapSpotId, row.dataset.zone); return true; }
+  return false;
+}
+
 // Sea map slider: move the arrow in place (a full render would drop the finger's drag).
 app.addEventListener('input', (e) => {
   if (!e.target.matches('.cmap input[type="range"]')) return;
@@ -233,9 +353,10 @@ app.addEventListener('input', (e) => {
 // R6: zone cards are role="button" divs — Enter/Space opens them like a click.
 app.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
-  const card = e.target.closest?.('[data-zone]');
+  const card = e.target.closest?.('[data-zone], [data-mapspot]');
   if (!card || e.target !== card) return;
   e.preventDefault(); // Space would scroll the page
+  if (state.view === 'map') return card.click();
   go('detail', card.dataset.zone);
 });
 
@@ -281,21 +402,24 @@ function syncShips() {
 }
 
 // Refresh without closing the app. Not under the spot sheet.
-const canRefreshNow = () => state.view === 'main' || state.view === 'detail';
+const canRefreshNow = () => state.view === 'main' || state.view === 'detail' || state.view === 'map';
 
 // Back from the phone's app switcher: reload if the data is old enough.
 document.addEventListener('visibilitychange', () => {
   syncShips();
   syncFlow();
   if (document.visibilityState !== 'visible' || !canRefreshNow()) return;
-  if (shouldAutoRefresh(state.loadedAt, Date.now())) load({ fresh: true });
+  if (state.view === 'map') {
+    if (shouldAutoRefresh(state.overviewAt, Date.now())) loadMap({ fresh: true });
+  } else if (shouldAutoRefresh(state.loadedAt, Date.now())) load({ fresh: true });
 });
 
 // Pull down from the top of the page (iPhone home-screen apps have no built-in pull to refresh).
 let pullStartY = null;
 document.addEventListener('touchstart', (e) => {
   const onSlider = e.target.closest?.('input[type="range"]'); // dragging the sea map slider is not a pull
-  pullStartY = window.scrollY <= 0 && canRefreshNow() && !onSlider ? e.touches[0].clientY : null;
+  const onMap = state.view === 'map'; // dragging the Taiwan map or scrolling its panel is not a pull either
+  pullStartY = window.scrollY <= 0 && canRefreshNow() && !onSlider && !onMap ? e.touches[0].clientY : null;
 }, { passive: true });
 document.addEventListener('touchend', async (e) => {
   if (pullStartY == null) return;
@@ -307,7 +431,7 @@ document.addEventListener('touchend', async (e) => {
   toast('已更新');
 });
 
-history.replaceState({ view: 'main' }, '', '#');
+history.replaceState({ view: 'map' }, '', '#');
 // 潛伴回報 was removed: drop a report still waiting to be sent, and the saved nickname, quietly.
 try {
   localStorage.removeItem('haidi:outbox');
@@ -322,8 +446,8 @@ getPosition().then((pos) => {
   state.located = locate(pos, spot());
   render();
 });
-render(); // header + 載入中… right away
-load();
+render(); // the map + 載入中… right away
+loadMap();
 
 // A new version downloads in the background; show a bar and swap only when the user presses it.
 const updateSW = registerSW({

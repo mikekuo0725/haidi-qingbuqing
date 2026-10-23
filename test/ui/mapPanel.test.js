@@ -53,7 +53,7 @@ test('site card shows the zone forecast range and reason', () => {
   expect(html).toContain('明天能見度預測');
   expect(html).toContain('← 看這個潛點各區');
   expect(html).toContain('海流、風動態圖 →');
-  expect(html).toMatch(/data-action="open-spot" data-zone="north"/);
+  expect(html).toContain('data-action="open-spot">海流、風動態圖 →'); // the spot page, where the lines move
 });
 
 test('site card without level data has no 最深 line', () => {
