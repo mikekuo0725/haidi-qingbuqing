@@ -93,3 +93,13 @@ test('map panel marks the zone you are in', () => {
   expect(row.slice(0, row.indexOf('</span></div>') + 20)).toContain('你在這裡');
   expect(html.match(/你在這裡/g)).toHaveLength(1);
 });
+
+test('site card shows the protection line and link; a site without an entry shows none', () => {
+  const protection = { kind: 'no-take', text: '琉球漁業資源保育區：不能抓', url: 'https://data.gov.tw/dataset/36320' };
+  const html = renderSiteCard({ site: { name: '花瓶岩', zoneId: 'north', protection }, spot, forecast, dayIndex: 0, dayLabels: DAYS });
+  expect(html).toContain('🛡️ 琉球漁業資源保育區：不能抓');
+  expect(html).toContain('<a href="https://data.gov.tw/dataset/36320" target="_blank" rel="noopener">官方公告 ↗</a>');
+  const permit = renderSiteCard({ site: { name: 'x', zoneId: null, protection: { ...protection, kind: 'permit', text: '要先申請' } }, spot: null, forecast: null, dayIndex: 0, dayLabels: DAYS });
+  expect(permit).toContain('⚠️ 要先申請');
+  expect(renderSiteCard({ site: { name: '花瓶岩', zoneId: 'north' }, spot, forecast, dayIndex: 0, dayLabels: DAYS })).not.toContain('官方公告');
+});

@@ -7,6 +7,7 @@ import { spotPins, sitePins } from './core/mapPins.js';
 import { renderMapHome, renderMapSpot, renderSiteCard } from './ui/mapPanel.js';
 import { createTaiwanMap } from './ui/taiwanMap.js';
 import EXTRA_SITES from './data/spots/extraSites.json';
+import PROTECTION from './data/spots/protection.json';
 import { fetchShips } from './services/ships.js';
 import { K } from './core/constants.js';
 import { locate } from './core/locate.js';
@@ -179,7 +180,8 @@ function openMapSpot(id) {
 
 // A small dive site: its own card. The map stays where the user tapped it.
 function openMapSite(p) {
-  Object.assign(state, { mapSite: p, mapSpotId: SPOTS[p.spotId] ? p.spotId : null, mapPicked: null });
+  const protection = PROTECTION[p.spotId ?? 'other']?.[p.name] ?? null;
+  Object.assign(state, { mapSite: { ...p, protection }, mapSpotId: SPOTS[p.spotId] ? p.spotId : null, mapPicked: null });
   render();
 }
 

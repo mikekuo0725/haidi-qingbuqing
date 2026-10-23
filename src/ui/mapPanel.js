@@ -48,7 +48,9 @@ export function renderSiteCard({ site, spot, forecast, dayIndex, dayLabels }) {
   } else {
     body = `<div class="tli">${dot('gray')}<div>這裡還沒有能見度預測<small>以後加了這個潛點就會有</small></div></div>`;
   }
+  const p = site.protection;
+  const prot = p ? `<div class="tp-prot">${p.kind === 'permit' ? '⚠️' : '🛡️'} ${esc(p.text)} <a href="${esc(p.url)}" target="_blank" rel="noopener">官方公告 ↗</a></div>` : '';
   const src = site.url ? `<div class="mut tp-src">潛點資料：BlueTrend 藍色脈動 <a href="${esc(site.url)}" target="_blank" rel="noopener">介紹 ↗</a></div>` : '';
   return `<div class="tp-head">📍 ${esc(site.name)}<button type="button" class="link" data-action="map-home">← 全台</button></div>${dayTabs(dayLabels, dayIndex)}
-  ${facts.length ? `<div class="mut tp-facts">${esc(facts.join(' · '))}</div>` : ''}${body}${src}`;
+  ${facts.length ? `<div class="mut tp-facts">${esc(facts.join(' · '))}</div>` : ''}${body}${prot}${src}`;
 }

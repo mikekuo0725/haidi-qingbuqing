@@ -1,0 +1,165 @@
+{
+ "xiaoliuqiu": {
+  "花瓶岩": {
+   "kind": "no-take",
+   "text": "琉球漁業資源保育區（沿岸 200 公尺內）：不能抓龍蝦、海膽、馬尾藻",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "美人洞": {
+   "kind": "no-take",
+   "text": "琉球漁業資源保育區（沿岸 200 公尺內）：不能抓龍蝦、海膽、馬尾藻",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "杉福漁港": {
+   "kind": "no-take",
+   "text": "琉球漁業資源保育區（沿岸 200 公尺內）：不能抓龍蝦、海膽、馬尾藻",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "厚石裙礁": {
+   "kind": "no-take",
+   "text": "琉球漁業資源保育區（沿岸 200 公尺內）：不能抓龍蝦、海膽、馬尾藻",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "大福漁港": {
+   "kind": "no-take",
+   "text": "琉球漁業資源保育區（沿岸 200 公尺內）：不能抓龍蝦、海膽、馬尾藻",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "龍蝦洞": {
+   "kind": "no-take",
+   "text": "琉球漁業資源保育區（沿岸 200 公尺內）：不能抓龍蝦、海膽、馬尾藻",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "肚仔坪": {
+   "kind": "no-take",
+   "text": "琉球漁業資源保育區（沿岸 200 公尺內）：不能抓龍蝦、海膽、馬尾藻",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "棄嬰洞": {
+   "kind": "no-take",
+   "text": "琉球漁業資源保育區（沿岸 200 公尺內）：不能抓龍蝦、海膽、馬尾藻",
+   "url": "https://data.gov.tw/dataset/36320"
+  }
+ },
+ "ludao": {
+  "柴口": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區（柴口分區）：任何水產動植物都不能抓",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "石朗": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區（石朗分區）：任何水產動植物都不能抓",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "大白沙": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區（龜灣分區）：不能抓燕魚、硨磲貝、小龍蝦、小九孔；帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "公館鼻": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "將軍岩": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "雞仔礁": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "龜灣鼻": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "溫泉港": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "中寮港": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "紫坪": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "滾水鼻": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "馬蹄橋、教堂": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  },
+  "蝴蝶谷": {
+   "kind": "no-take",
+   "text": "綠島漁業資源保育區：帶水肺不能抓任何生物",
+   "url": "https://data.gov.tw/dataset/36320"
+  }
+ },
+ "penghu-south": {
+  "薰衣草森林": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  },
+  "東吉之狼": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  },
+  "東吉之眼": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  },
+  "西吉斷層": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  },
+  "東嶼坪七尺門": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  },
+  "東嶼坪瀨仔尾": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  },
+  "東嶼坪五米礁": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  },
+  "西嶼坪北側": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  },
+  "鐘仔礁": {
+   "kind": "permit",
+   "text": "澎湖南方四島國家公園：下水要先向海管處申請，每年 4/1～9/30 才開放",
+   "url": "https://www.marine.gov.tw/home/zh-tw/southpenghuapply"
+  }
+ },
+ "other": {
+  "卯澳": {
+   "kind": "no-take",
+   "text": "貢寮水產動植物繁殖保育區：不能用潛水器材抓九孔、海膽、龍蝦、石花菜",
+   "url": "https://data.gov.tw/dataset/36320"
+  }
+ }
+}
