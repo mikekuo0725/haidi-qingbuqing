@@ -193,11 +193,11 @@ function mapHome() {
   taiwan.flyHome();
 }
 
-// From the map into the spot page (or straight to one zone's detail page).
+// From the map into the spot page, or straight to one zone's detail page: then "back" returns to the map.
 function openSpotPage(id, zoneId = null) {
   selectSpot(id, { manual: true });
-  go('main', null, { fromMap: true });
-  if (zoneId) go('detail', zoneId);
+  if (zoneId) go('detail', zoneId, { fromMap: true });
+  else go('main', null, { fromMap: true });
 }
 
 // Map and spot page always show the same numbers: whichever loaded last is copied to the other.
