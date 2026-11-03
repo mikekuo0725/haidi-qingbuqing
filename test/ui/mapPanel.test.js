@@ -109,3 +109,38 @@ test('a site in one of our spots on a day with no data does not promise a future
   expect(html).not.toContain('以後加了這個潛點就會有');
   expect(html).toContain('後天沒有資料');
 });
+
+// --- typhoon card + which panel shows ---
+import { renderTyphoonCard, pickPanel } from '../../src/ui/mapPanel.js';
+
+const TY = {
+  id: 'IN-FA', name: '煙花', nameEn: 'IN-FA',
+  now: { lat: 18.2, lon: 121.8, time: Date.parse('2026-11-03T10:00:00+08:00'), windMs: 43, gustMs: 53, pressureHpa: 935, radius7Km: 200, movingKmh: 15, movingDir: '西北' },
+  track: [{ lat: 18.9, lon: 121.2, time: Date.parse('2026-11-03T20:00:00+08:00'), windMs: 42, pressureHpa: 940 }],
+};
+
+test('typhoon card shows the name, every available line, the way back and the source', () => {
+  const html = renderTyphoonCard({ typhoon: TY });
+  expect(html).toContain('煙花');
+  expect(html).toContain('最大風速 43 m/s（陣風 53）');
+  expect(html).toContain('七級風半徑 200 公里');
+  expect(html).toContain('預計：11/3 20:00');
+  expect(html).toContain('data-action="map-home"');
+  expect(html).toContain('中央氣象署');
+});
+
+test('typhoon card has no wind-ring line when radius7Km is null, and escapes the name', () => {
+  const html = renderTyphoonCard({ typhoon: { ...TY, name: '<b>X</b>', now: { ...TY.now, radius7Km: null } } });
+  expect(html).not.toContain('七級風');
+  expect(html).not.toContain('<b>X</b>');
+  expect(html).toContain('&lt;b&gt;X&lt;/b&gt;');
+});
+
+test('pickPanel: a picked typhoon wins over site, spot and home; a typhoon that is gone falls through', () => {
+  const have = [TY];
+  expect(pickPanel({ mapTyphoon: 'IN-FA', mapSite: {}, mapSpotId: 'kenting', typhoons: have })).toBe('typhoon');
+  expect(pickPanel({ mapTyphoon: null, mapSite: {}, mapSpotId: 'kenting', typhoons: have })).toBe('site');
+  expect(pickPanel({ mapTyphoon: null, mapSite: null, mapSpotId: 'kenting', typhoons: have })).toBe('spot');
+  expect(pickPanel({ mapTyphoon: null, mapSite: null, mapSpotId: null, typhoons: have })).toBe('home');
+  expect(pickPanel({ mapTyphoon: 'GONE', mapSite: null, mapSpotId: null, typhoons: have })).toBe('home');
+});

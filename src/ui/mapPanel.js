@@ -2,6 +2,7 @@
 import { LIGHT, COMPARE_TEXT, CONF_TEXT, esc, knots, arrow } from './format.js';
 import { rankSpots } from '../core/overview.js';
 import { bearingText } from '../core/math.js';
+import { typhoonCardLines } from '../core/typhoon.js';
 
 function dayTabs(dayLabels, dayIndex) {
   return `<nav class="days">${dayLabels.map((l, i) => `<button type="button" data-day="${i}" class="${i === dayIndex ? 'on' : ''}">${l}</button>`).join('')}</nav>`;
@@ -55,4 +56,17 @@ export function renderSiteCard({ site, spot, forecast, dayIndex, dayLabels }) {
   const src = site.url ? `<div class="mut tp-src">潛點資料：BlueTrend 藍色脈動 <a href="${esc(site.url)}" target="_blank" rel="noopener">介紹 ↗</a></div>` : '';
   return `<div class="tp-head">📍 ${esc(site.name)}<button type="button" class="link" data-action="map-home">← 全台</button></div>${dayTabs(dayLabels, dayIndex)}
   ${facts.length ? `<div class="mut tp-facts">${esc(facts.join(' · '))}</div>` : ''}${body}${prot}${src}`;
+}
+
+// Which panel the Taiwan map shows: a picked typhoon, a dive site, a spot, or the home list.
+export function pickPanel({ mapTyphoon, mapSite, mapSpotId, typhoons }) {
+  if (mapTyphoon && typhoons.some((t) => t.id === mapTyphoon)) return 'typhoon';
+  if (mapSite) return 'site';
+  if (mapSpotId) return 'spot';
+  return 'home';
+}
+
+export function renderTyphoonCard({ typhoon }) {
+  const lines = typhoonCardLines(typhoon).map((l) => `<div class="mut tp-facts">${esc(l)}</div>`).join('');
+  return `<div class="tp-head">🌀 ${esc(typhoon.name)}${typhoon.nameEn ? ` <small>${esc(typhoon.nameEn)}</small>` : ''}<button type="button" class="link" data-action="map-home">← 全台</button></div>${lines}<div class="mut tp-src">颱風資料：中央氣象署</div>`;
 }

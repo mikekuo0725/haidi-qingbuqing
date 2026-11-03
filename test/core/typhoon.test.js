@@ -100,3 +100,17 @@ test('typhoonCardLines leaves out lines whose data is missing', () => {
   expect(lines[0]).toBe('最大風速 25 m/s');
   expect(typhoonCardLines({ now: { lat: 1, lon: 1 }, track: [] })).toEqual([]);
 });
+
+import { edgePoint } from '../../src/core/typhoon.js';
+
+test('edgePoint puts a point on the inset rectangle in the asked direction', () => {
+  const c = [100, 100];
+  const size = [200, 200];
+  const near = (p, q) => { expect(p[0]).toBeCloseTo(q[0], 5); expect(p[1]).toBeCloseTo(q[1], 5); };
+  near(edgePoint(c, size, 90), [172, 100]);   // east
+  near(edgePoint(c, size, 0), [100, 28]);     // north (screen y goes down)
+  near(edgePoint(c, size, 180), [100, 172]);  // south
+  near(edgePoint(c, size, 270), [28, 100]);   // west
+  near(edgePoint(c, size, 135), [172, 172]);  // south-east hits the corner
+  near(edgePoint([100, 50], [200, 100], 90, 10), [190, 50]); // a wide, short view, own inset
+});

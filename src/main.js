@@ -4,11 +4,13 @@ import { loadSpot, buildDayForecasts } from './services/spotData.js';
 import { loadOverview } from './services/overview.js';
 import { summarizeSpot } from './core/overview.js';
 import { spotPins, sitePins } from './core/mapPins.js';
-import { renderMapHome, renderMapSpot, renderSiteCard } from './ui/mapPanel.js';
+import { renderMapHome, renderMapSpot, renderSiteCard, renderTyphoonCard, pickPanel } from './ui/mapPanel.js';
 import { createTaiwanMap } from './ui/taiwanMap.js';
 import EXTRA_SITES from './data/spots/extraSites.json';
 import PROTECTION from './data/spots/protection.json';
 import { fetchShips } from './services/ships.js';
+import { fetchTyphoons } from './services/typhoon.js';
+import { typhoonFresh } from './core/typhoon.js';
 import { K } from './core/constants.js';
 import { locate } from './core/locate.js';
 import { spotsByDistance, nearbySpotId, initialSpotId } from './core/spotChoice.js';
@@ -62,6 +64,7 @@ const state = {
   // Taiwan map (the start view): every spot's forecasts and summaries, the spot open in the panel,
   // the dive site whose card is open, and the site picked from a card (outlined in the spot panel).
   overview: null, overviewAt: null, mapSpotId: urlSpotKnown ? urlSpotId : null, mapSite: null, mapPicked: null,
+  typhoons: [], mapTyphoon: null, // 氣象署 typhoon warnings drawn on the Taiwan map, and the one whose card is open
   loadedSpotId: null, // the spot whose weather + helper the spot page holds
   dayIndex: openingDayIndex(Date.now()), view: 'map', zoneId: null, located: { status: 'none' }, forecasts: [], weather: null, helper: null, weatherAt: null,
 };
@@ -98,6 +101,7 @@ function dateLabel(i) {
 
 function render() {
   renderView();
+  syncTyphoons();
   syncShips();
   syncFlow();
 }
@@ -141,6 +145,8 @@ let taiwan = null;
 function mapPanelHtml() {
   const day = state.dayIndex;
   const ov = state.overview;
+  const panel = pickPanel(state);
+  if (panel === 'typhoon') return renderTyphoonCard({ typhoon: state.typhoons.find((t) => t.id === state.mapTyphoon) });
   if (state.mapSite) {
     const s = SPOTS[state.mapSite.spotId] ?? null;
     return renderSiteCard({ site: state.mapSite, spot: s, forecast: s ? ov?.forecasts[s.id]?.[day] ?? null : null, dayIndex: day, dayLabels: DAY_LABELS });
@@ -162,6 +168,7 @@ function renderMapView() {
     taiwan = createTaiwanMap(mapEl, {
       onSpot: (id) => openMapSpot(id),
       onSite: (p) => openMapSite(p),
+      onTyphoon: (id) => openTyphoon(id),
       panelHeight: () => app.querySelector('.tpanel')?.offsetHeight ?? 0,
     });
     if (state.mapSpotId) taiwan.jumpToSpot(SPOTS[state.mapSpotId]);
@@ -172,10 +179,11 @@ function renderMapView() {
   const summaries = state.overview?.summaries ?? {};
   taiwan.setPins(spotPins(SPOT_LIST, summaries, state.dayIndex), sitePins(SITE_LAYERS, EXTRA_SITES, summaries, state.dayIndex));
   taiwan.setMe(state.pos);
+  taiwan.setTyphoons(state.typhoons);
 }
 
 function openMapSpot(id) {
-  Object.assign(state, { mapSpotId: id, mapSite: null, mapPicked: null });
+  Object.assign(state, { mapSpotId: id, mapSite: null, mapPicked: null, mapTyphoon: null });
   render();
   taiwan.flyToSpot(SPOTS[id]);
 }
@@ -183,12 +191,18 @@ function openMapSpot(id) {
 // A small dive site: its own card. The map stays where the user tapped it.
 function openMapSite(p) {
   const protection = PROTECTION[p.spotId ?? 'other']?.[p.name] ?? null;
-  Object.assign(state, { mapSite: { ...p, protection }, mapSpotId: SPOTS[p.spotId] ? p.spotId : null, mapPicked: null });
+  Object.assign(state, { mapSite: { ...p, protection }, mapSpotId: SPOTS[p.spotId] ? p.spotId : null, mapPicked: null, mapTyphoon: null });
+  render();
+}
+
+// A typhoon on the map: its own card. The map stays where the user tapped it.
+function openTyphoon(id) {
+  Object.assign(state, { mapTyphoon: id, mapSite: null, mapPicked: null });
   render();
 }
 
 function mapHome() {
-  Object.assign(state, { mapSpotId: null, mapSite: null, mapPicked: null });
+  Object.assign(state, { mapSpotId: null, mapSite: null, mapPicked: null, mapTyphoon: null });
   render();
   taiwan.flyHome();
 }
@@ -420,11 +434,41 @@ function syncShips() {
   }
 }
 
+// 氣象署 typhoon warnings: asked while the Taiwan map is on screen and the page is visible, every few minutes.
+// A failed ask keeps what the map had; a typhoon whose position got too old is dropped.
+let typhoonTimer = null;
+let typhoonLoadId = 0;
+async function loadTyphoons() {
+  const id = ++typhoonLoadId;
+  const list = await fetchTyphoons(HELPER_URL);
+  if (id !== typhoonLoadId) return;
+  if (list) state.typhoons = list;
+  state.typhoons = state.typhoons.filter((t) => typhoonFresh(t, Date.now()));
+  taiwan?.setTyphoons(state.typhoons);
+  if (state.mapTyphoon && !state.typhoons.some((t) => t.id === state.mapTyphoon)) {
+    state.mapTyphoon = null; // the typhoon is gone: its card closes
+    if (state.view === 'map') render();
+  }
+}
+
+function syncTyphoons() {
+  const want = document.visibilityState === 'visible' && state.view === 'map';
+  if (want && typhoonTimer == null) {
+    loadTyphoons();
+    typhoonTimer = setInterval(loadTyphoons, K.typhoonRefreshMinutes * 60000);
+  } else if (!want && typhoonTimer != null) {
+    clearInterval(typhoonTimer);
+    typhoonTimer = null;
+    typhoonLoadId++; // an answer still on its way is dropped
+  }
+}
+
 // Refresh without closing the app. Not under the spot sheet.
 const canRefreshNow = () => state.view === 'main' || state.view === 'detail' || state.view === 'map';
 
 // Back from the phone's app switcher: reload if the data is old enough.
 document.addEventListener('visibilitychange', () => {
+  syncTyphoons();
   syncShips();
   syncFlow();
   if (document.visibilityState !== 'visible' || !canRefreshNow()) return;

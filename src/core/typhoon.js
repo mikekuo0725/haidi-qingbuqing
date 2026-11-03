@@ -124,7 +124,7 @@ export function typhoonHint(t, { center, bounds: [[s, w], [n, e]] }) {
   return { dirDeg, dirText: bearingText(dirDeg), km: Math.round(distanceKm(center, [lat, lon]) / 10) * 10 };
 }
 
-function stamp(ms) {
+export function typhoonStamp(ms) {
   const d = new Date(ms + TAIPEI_OFFSET);
   return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${String(d.getUTCHours()).padStart(2, '0')}:${String(d.getUTCMinutes()).padStart(2, '0')}`;
 }
@@ -138,6 +138,18 @@ export function typhoonCardLines(t) {
   if (pressureHpa != null) lines.push(`中心氣壓 ${pressureHpa} hPa`);
   if (radius7Km != null) lines.push(`七級風半徑 ${radius7Km} 公里`);
   if (movingKmh != null) lines.push(`移動 ${movingDir ? `${movingDir} ` : ''}${movingKmh} 公里/小時`);
-  for (const p of (t.track ?? []).slice(0, 2)) lines.push(`預計：${stamp(p.time)} 到 ${place(p)}`);
+  for (const p of (t.track ?? []).slice(0, 2)) lines.push(`預計：${typhoonStamp(p.time)} 到 ${place(p)}`);
   return lines;
+}
+
+// Where a ray from `center` [x, y] in direction `dirDeg` (0 = up, 90 = right) meets the view's rectangle
+// [w, h] shrunk by `inset` px on every side. Screen coordinates: y grows downward.
+export function edgePoint([cx, cy], [w, h], dirDeg, inset = 28) {
+  const r = (dirDeg * Math.PI) / 180;
+  const dx = Math.sin(r);
+  const dy = -Math.cos(r);
+  const tx = Math.abs(dx) < 1e-9 ? Infinity : ((dx > 0 ? w - inset : inset) - cx) / dx;
+  const ty = Math.abs(dy) < 1e-9 ? Infinity : ((dy > 0 ? h - inset : inset) - cy) / dy;
+  const t = Math.min(tx, ty);
+  return [cx + dx * t, cy + dy * t];
 }
