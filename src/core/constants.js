@@ -71,6 +71,10 @@ export const K = {
   shipGreyMinutes: 10,   // a position older than this is drawn grey
   shipHideMinutes: 30,   // a position older than this is not drawn
 
+  // 氣象署 typhoon warnings on the Taiwan map
+  typhoonStaleHours: 12,     // a typhoon whose newest fix is older than this is not drawn
+  typhoonRefreshMinutes: 10, // the Worker keeps one answer this long; the page asks again this often while the map is visible
+
   // drifting lines on the sea map (map units: the map is 300 wide)
   flowSpeedPerKn: 22,    // map units per second for each knot of current
   flowDensity: 220,      // map units² per line

@@ -1,0 +1,36 @@
+{
+  "success": "true",
+  "records": {
+    "tropicalCyclones": {
+      "tropicalCyclone": [
+        {
+          "typhoonName": "IN-FA",
+          "cwaTyphoonName": "煙花",
+          "analysisData": {
+            "fix": [
+              { "fixTime": "2026-11-03T04:00:00+08:00", "coordinate": "122.6,17.6", "maxWindSpeed": "40", "maxGustSpeed": "50", "pressure": "940", "movingSpeed": "14", "movingDirection": "WNW", "circleOf15Ms": { "radius": "190" } },
+              { "fixTime": "2026-11-03T10:00:00+08:00", "coordinate": "121.8,18.2", "maxWindSpeed": "43", "maxGustSpeed": "53", "pressure": "935", "movingSpeed": "15", "movingDirection": "NW", "circleOf15Ms": { "radius": "200" } }
+            ]
+          },
+          "forecastData": {
+            "fix": [
+              { "initTime": "2026-11-03T08:00:00+08:00", "tau": "0", "coordinate": "121.9,18.0", "maxWindSpeed": "43", "pressure": "935" },
+              { "initTime": "2026-11-03T08:00:00+08:00", "tau": "24", "coordinate": "120.5,19.8", "maxWindSpeed": "40", "pressure": "945" },
+              { "initTime": "2026-11-03T08:00:00+08:00", "tau": "12", "coordinate": "121.2,18.9", "maxWindSpeed": "42", "pressure": "940" },
+              { "initTime": "2026-11-03T08:00:00+08:00", "tau": "36", "coordinate": "abc", "maxWindSpeed": "38", "pressure": "950" },
+              { "initTime": "2026-11-03T08:00:00+08:00", "tau": "48", "coordinate": "119.0,22.0", "maxWindSpeed": "35", "pressure": "960" }
+            ]
+          }
+        },
+        {
+          "typhoonName": "SEPAT",
+          "cwaTyphoonName": "",
+          "analysisData": {
+            "fix": { "fixTime": "2026-11-03 09:00:00", "coordinate": "135.0,15.0", "maxWindSpeed": "25", "pressure": "985" }
+          },
+          "forecastData": { "fix": { "initTime": "2026-11-03T08:00:00+08:00", "tau": "24", "coordinate": "132.0,17.0", "maxWindSpeed": "30", "pressure": "980" } }
+        }
+      ]
+    }
+  }
+}
