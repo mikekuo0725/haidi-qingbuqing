@@ -142,6 +142,18 @@ export function typhoonCardLines(t) {
   return lines;
 }
 
+// Edge arrows of several typhoons can land on top of each other: nudge each one up or down until its label
+// (about chipW × chipH px) no longer sits on an earlier one. Same order in, same order out.
+export function spreadPoints(points, [, h], inset = 28, chipW = 170, chipH = 28) {
+  const placed = [];
+  for (const [x, y0] of points) {
+    const options = [0, chipH, -chipH, 2 * chipH, -2 * chipH].map((d) => y0 + d).filter((y) => y >= inset && y <= h - inset);
+    const y = options.find((c) => !placed.some(([px, py]) => Math.abs(px - x) < chipW && Math.abs(py - c) < chipH)) ?? y0;
+    placed.push([x, y]);
+  }
+  return placed;
+}
+
 // Where a ray from `center` [x, y] in direction `dirDeg` (0 = up, 90 = right) meets the view's rectangle
 // [w, h] shrunk by `inset` px on every side. Screen coordinates: y grows downward.
 export function edgePoint([cx, cy], [w, h], dirDeg, inset = 28) {

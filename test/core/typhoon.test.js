@@ -114,3 +114,17 @@ test('edgePoint puts a point on the inset rectangle in the asked direction', () 
   near(edgePoint(c, size, 135), [172, 172]);  // south-east hits the corner
   near(edgePoint([100, 50], [200, 100], 90, 10), [190, 50]); // a wide, short view, own inset
 });
+
+import { spreadPoints } from '../../src/core/typhoon.js';
+
+test('spreadPoints leaves apart points alone and moves a colliding one out of the first one\'s way', () => {
+  const size = [300, 400];
+  expect(spreadPoints([[100, 28]], size)).toEqual([[100, 28]]);
+  expect(spreadPoints([[100, 28], [100, 300]], size)).toEqual([[100, 28], [100, 300]]);
+  const [a, b] = spreadPoints([[100, 28], [120, 28]], size);
+  expect(a).toEqual([100, 28]);
+  expect(Math.abs(b[1] - a[1])).toBeGreaterThanOrEqual(28);
+  expect(b[0]).toBe(120);
+  expect(b[1]).toBeGreaterThanOrEqual(28);
+  expect(b[1]).toBeLessThanOrEqual(372);
+});

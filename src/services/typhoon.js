@@ -4,7 +4,7 @@ export async function fetchTyphoons(baseUrl, fetchFn = fetch) {
     const res = await fetchFn(`${baseUrl}/v1/typhoon`);
     if (!res.ok) return null;
     const data = await res.json();
-    return Array.isArray(data?.typhoons) ? data.typhoons : null;
+    return Array.isArray(data?.typhoons) && !data.error ? data.typhoons : null;
   } catch {
     return null;
   }

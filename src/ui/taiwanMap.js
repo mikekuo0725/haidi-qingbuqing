@@ -4,7 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import coast from '../data/taiwan-coast.json';
 import { layerFor } from '../core/mapPins.js';
 import { K } from '../core/constants.js';
-import { typhoonHint, edgePoint, typhoonStamp } from '../core/typhoon.js';
+import { typhoonHint, edgePoint, spreadPoints, typhoonStamp } from '../core/typhoon.js';
 import { LIGHT, esc } from './format.js';
 
 const TILES = 'https://wmts.nlsc.gov.tw/wmts/EMAP5/default/GoogleMapsCompatible/{z}/{y}/{x}';
@@ -28,7 +28,11 @@ export function createTaiwanMap(el, { onSpot, onSite, onTyphoon = () => {}, pane
   L.tileLayer(TILES, { maxZoom: 18, attribution: '© 內政部國土測繪中心' }).addTo(map);
   map.attributionControl.addAttribution('潛點資料：BlueTrend 藍色脈動');
 
-  map.createPane('typhoon').style.zIndex = 640; // above the spot dots, below the tooltips
+  // Above the spot dots, below the tooltips. Leaflet gives a custom pane its own full-size <svg> for the ring and track:
+  // without pointer-events:none it would swallow every tap meant for the spot dots (the icon and arrows are markers and still get theirs).
+  const tyPane = map.createPane('typhoon');
+  tyPane.style.zIndex = 640;
+  tyPane.style.pointerEvents = 'none';
   const spots = L.layerGroup().addTo(map);
   const sites = L.layerGroup();
   let me = null;
@@ -61,11 +65,13 @@ export function createTaiwanMap(el, { onSpot, onSite, onTyphoon = () => {}, pane
     const ne = map.containerPointToLatLng([w, 0]);
     view.bounds = [[sw.lat, sw.lng], [ne.lat, ne.lng]];
     view.center = [view.center.lat, view.center.lng];
-    for (const t of typhoons) {
+    const hints = typhoons.map((t) => typhoonHint(t, view));
+    const edge = spreadPoints(hints.map((hi) => (hi ? edgePoint(mid, [w, h], hi.dirDeg) : [0, 0])), [w, h]);
+    typhoons.forEach((t, i) => {
       const at = [t.now.lat, t.now.lon];
-      const hint = typhoonHint(t, view);
+      const hint = hints[i];
       if (hint) {
-        const [x, y] = edgePoint(mid, [w, h], hint.dirDeg);
+        const [x, y] = edge[i];
         const shift = x < w * 0.33 ? 0 : x > w * 0.67 ? -100 : -50;
         const html = `<div class="tty-chip" style="transform:translate(${shift}%,-50%)"><b style="transform:rotate(${Math.round(hint.dirDeg)}deg)">↑</b>${esc(t.name)} 在${hint.dirText}方 ${hint.km} 公里</div>`;
         L.marker(map.containerPointToLatLng([x, y]), { icon: L.divIcon({ className: 'tty-edge', html, iconSize: [0, 0] }), pane: 'typhoon', keyboard: false })
@@ -78,7 +84,7 @@ export function createTaiwanMap(el, { onSpot, onSite, onTyphoon = () => {}, pane
           .bindTooltip(typhoonStamp(p.time), { permanent: true, direction: 'right', offset: [6, 0], className: 'tty-tip' }).addTo(tyLayer);
       }
       L.marker(at, { icon: tyIcon(), pane: 'typhoon', keyboard: false }).on('click', () => onTyphoon(t.id)).addTo(tyLayer);
-    }
+    });
   }
   map.on('moveend resize', drawTyphoons);
 

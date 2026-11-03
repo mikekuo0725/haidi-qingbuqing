@@ -35,6 +35,7 @@ test('loadTyphoons returns parsed typhoons and caches them: a second call within
   expect(calls[0]).toBe(typhoonUrl('KEY'));
   expect(a.typhoons.map((t) => t.name)).toEqual(['煙花', 'SEPAT']);
   expect(a.updatedAt).toBe(NOW);
+  expect(a.error).toBeUndefined();
   expect(b).toEqual(a);
   expect(cache.puts[0][1].headers.get('Cache-Control')).toBe('max-age=600');
 });
@@ -43,7 +44,7 @@ test('a failed fetch (throws / not ok / not JSON) gives an empty list and is cac
   for (const f of [async () => { throw new Error('down'); }, async () => new Response('x', { status: 500 }), async () => new Response('<html>')]) {
     const cache = fakeCache();
     const d = await loadTyphoons(cache, 'KEY', f, NOW, {});
-    expect(d.typhoons).toEqual([]);
+    expect(d).toMatchObject({ typhoons: [], error: 'unavailable' });
     expect(cache.puts[0][1].headers.get('Cache-Control')).toBe('max-age=60');
   }
 });
@@ -62,6 +63,6 @@ test('GET /v1/typhoon answers 200 with CORS and an empty list when upstream fail
   const res = await worker.fetch(new Request('https://x/v1/typhoon'), { CWA_KEY: 'KEY' });
   expect(res.status).toBe(200);
   expect(res.headers.get('Access-Control-Allow-Origin')).toBe('*');
-  expect(res.headers.get('Cache-Control')).toBe('public, max-age=300');
-  expect(await res.json()).toMatchObject({ typhoons: [] });
+  expect(res.headers.get('Cache-Control')).toBe('public, max-age=60'); // a failed answer must not sit in browsers for long
+  expect(await res.json()).toMatchObject({ typhoons: [], error: 'unavailable' });
 });
