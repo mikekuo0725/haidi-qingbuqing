@@ -6,6 +6,7 @@ import { computeZones } from './base.js';
 import { fetchCoastal, mergeSeries } from './cwa.js';
 import { fetchBuoys } from './buoy.js';
 import { loadShips } from './ships.js';
+import { loadTyphoons } from './typhoon.js';
 import { shipsForBox } from '../../src/core/ships.js';
 import { MAPS } from '../../src/data/spots/maps/index.js';
 
@@ -93,11 +94,17 @@ async function handleShips(url) {
   return new Response(JSON.stringify(body), { headers: { ...CORS, 'Cache-Control': 'public, max-age=60' } });
 }
 
+async function handleTyphoon(env) {
+  const data = await loadTyphoons(caches.default, env.CWA_KEY);
+  return new Response(JSON.stringify(data), { headers: { ...CORS, 'Cache-Control': 'public, max-age=300' } });
+}
+
 export default {
   async fetch(request, env, ctx) {
     const url = new URL(request.url);
     if (request.method === 'OPTIONS') return new Response(null, { headers: CORS });
     if (url.pathname === '/v1/ships') return handleShips(url);
+    if (url.pathname === '/v1/typhoon') return handleTyphoon(env);
     if (url.pathname !== '/v1/base') return new Response('{"error":"not found"}', { status: 404, headers: CORS });
     const spot = SPOTS[url.searchParams.get('spot')];
     if (!spot) return new Response('{"error":"unknown spot"}', { status: 404, headers: CORS });
