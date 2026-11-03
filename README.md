@@ -42,3 +42,10 @@
 - 氣象署金鑰:小幫手要有祕密 `CWA_KEY`(氣象署開放資料平臺的授權碼),設定一次就好:`cd worker && npx wrangler secret put CWA_KEY --config wrangler.toml`。沒設定的話台灣潛點也照舊用 Open-Meteo。金鑰不要放進程式或 git。
 - 氣象署浮標:台灣的潛點再加 `buoy`(`{ "id": "46714D", "name": "小琉球浮標" }`,浮標代號在氣象署開放資料 `O-B0075-001`)。小幫手每小時第 35 分抓一次,存 4 天(每天台灣 06:35 那一次改做衛星更新,浮標資料隔一小時會補回來;Cloudflare 免費帳號整個帳號最多 5 個排程,所以小幫手只用 2 個);網頁用它換掉「前 3 天的浪」(那天過完、至少 12 小時有浪才換),今天的頁面多一行「🛟 浮標 實測」。用同一把 `CWA_KEY`,不用另外設定。沒有 `buoy` 的潛點照舊。
 - 調參數:`src/core/constants.js`
+
+## 颱風提醒
+
+- 小幫手有 `GET /v1/typhoon`：被呼叫時才去抓氣象署 W-C0034-005（現行颱風警報與路徑），用 Cloudflare 快取約 10 分鐘。**沒有加排程**（帳號 cron 已滿）。金鑰用同一個 `CWA_KEY`。
+- 沒颱風或氣象署壞掉時，回 `{ typhoons: [] }`，首頁地圖和平常一樣。
+- ⚠️ 氣象署的欄位名稱當初沒有真實資料可核對（寫的時候沒有颱風），是照說明文件猜的，`src/core/typhoon.js` 的 `parseTyphoons` 刻意寫得很寬鬆。**下次有颱風時，先打一次 `/v1/typhoon` 看有沒有解析出東西。**
+- 上線順序：小幫手（`cd worker && npx wrangler deploy --config wrangler.toml`）→ 網頁。

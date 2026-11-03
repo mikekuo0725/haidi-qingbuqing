@@ -150,8 +150,8 @@ body.has-update { padding-bottom:calc(var(--tap) + 24px + env(safe-area-inset-bo
 .tty-edge { background:none; border:0; }
 .tty-chip { position:absolute; left:0; top:0; display:flex; align-items:center; gap:4px; white-space:nowrap; cursor:pointer; padding:3px 9px; border-radius:14px; background:rgba(11,37,64,.88); border:1.5px solid #e63946; color:#fff; font-size:12px; font-weight:700; }
 .tty-chip b { display:inline-block; color:#ff9aa2; font-size:15px; }
-.tty-tip { background:rgba(11,37,64,.8); border:0; color:#ffd166; font-size:11px; font-weight:600; box-shadow:none; padding:1px 5px; }
-.tty-tip::before { display:none; }
+.leaflet-tooltip.tty-tip { background:rgba(11,37,64,.8); border:0; color:#ffd166; font-size:11px; font-weight:600; box-shadow:none; padding:1px 5px; }
+.leaflet-tooltip.tty-tip::before { display:none; }
 .tpin i.pu, .tsite i.pu, .tdot.pu { background:#a45cff; } .tpin i.gr, .tsite i.gr, .tdot.gr { background:#2ecc71; }
 .tpin i.ye, .tsite i.ye, .tdot.ye { background:#f5c518; } .tpin i.re, .tsite i.re, .tdot.re { background:#ff4d4d; }
 .tpin i.gy, .tsite i.gy, .tdot.gy { background:#7a8a99; }
