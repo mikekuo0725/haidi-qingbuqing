@@ -104,6 +104,9 @@ export function parseTyphoons(raw, now) {
   return asArray(data?.records?.tropicalCyclones?.tropicalCyclone).map((c) => parseOne(c, now)).filter(Boolean);
 }
 
+// A typhoon is drawn only while its newest position is recent: one that has gone from the warnings must not hang on the map.
+export const typhoonFresh = (t, now) => now - t.now.time <= K.typhoonStaleHours * HOUR;
+
 // Compass bearing from one [lat, lon] to another: 0 = north, 90 = east.
 export function bearingDeg([lat1, lon1], [lat2, lon2]) {
   const r = Math.PI / 180;
