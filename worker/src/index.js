@@ -96,7 +96,8 @@ async function handleShips(url) {
 
 async function handleTyphoon(env) {
   const data = await loadTyphoons(caches.default, env.CWA_KEY);
-  return new Response(JSON.stringify(data), { headers: { ...CORS, 'Cache-Control': 'public, max-age=300' } });
+  const seconds = data.error ? 60 : 300; // a failed answer must not sit in browsers for long
+  return new Response(JSON.stringify(data), { headers: { ...CORS, 'Cache-Control': `public, max-age=${seconds}` } });
 }
 
 export default {

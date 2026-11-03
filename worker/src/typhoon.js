@@ -14,11 +14,11 @@ export const TY_MEM = {};
 
 // Any problem (no key, CWA down, odd answer) is "no typhoons": the map just has none to draw.
 export async function loadTyphoons(cache, key, fetchFn = fetch, now = Date.now(), mem = TY_MEM) {
-  if (!key) return { updatedAt: now, typhoons: [] };
+  if (!key) return { updatedAt: now, typhoons: [], error: 'unavailable' };
   if (mem.data && now < mem.until) return mem.data;
   const hit = await cache.match(TY_KEY);
   if (hit) return hit.json();
-  let data = { updatedAt: now, typhoons: [] };
+  let data = { updatedAt: now, typhoons: [], error: 'unavailable' }; // `error` tells the page this is "could not ask", not "no typhoon"
   let ok = false;
   try {
     const res = await fetchFn(typhoonUrl(key));
